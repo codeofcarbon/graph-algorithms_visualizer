@@ -21,6 +21,6 @@ public class Vertex extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.WHITE);
-        g.fillOval(0, 0, 49, 49);
+        g.fillOval(1, 1, 48, 48);
     }
 }
