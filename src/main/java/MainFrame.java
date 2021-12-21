@@ -11,7 +11,7 @@ public class MainFrame extends JFrame {
         add(modeLabel);
         var graph = new Graph(modeLabel);
         add(graph);
-        setJMenuBar(new ModeMenu(graph));
+        setJMenuBar(new MenuBar(graph));
         setVisible(true);
     }
 }

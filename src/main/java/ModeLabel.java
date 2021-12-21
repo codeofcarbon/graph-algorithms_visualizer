@@ -8,6 +8,12 @@ public class ModeLabel extends JLabel {
         setName("Mode");
         setBounds(580, 0, 200, 30);
         setForeground(Color.WHITE);
-        setVisible(true);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.setColor(Color.WHITE);
+        g.drawString(getText(), getX(), getY());
     }
 }
