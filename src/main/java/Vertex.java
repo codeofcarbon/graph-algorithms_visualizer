@@ -4,6 +4,8 @@ import java.awt.*;
 public class Vertex extends JPanel {
     protected final String id;
     protected final JLabel vertexID;
+    protected int distance;
+    protected boolean visited;
 
     public Vertex(String id) {
         this.id = id;
@@ -13,7 +15,6 @@ public class Vertex extends JPanel {
         this.vertexID = new JLabel(id);
         vertexID.setName("VertexLabel " + id);
         vertexID.setFont(new Font("Courier", Font.BOLD, 30));
-        vertexID.setForeground(Color.RED);
         add(vertexID);
     }
 
