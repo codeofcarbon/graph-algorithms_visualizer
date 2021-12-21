@@ -4,8 +4,8 @@ import java.awt.*;
 public class Vertex extends JPanel {
     protected final String id;
     protected final JLabel vertexID;
-    protected boolean visited;
     protected int distance;
+    protected boolean visited;
 
     public Vertex(String id) {
         this.id = id;

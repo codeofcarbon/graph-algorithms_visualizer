@@ -3,51 +3,56 @@ import javax.swing.Timer;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.util.*;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class GraphService {
-    protected Map<Vertex, List<Edge>> connects = new HashMap<>();
     private Vertex edgeFrom, edgeTo, rootNode;
-    private final Algorithm algorithm = new Algorithm(connects);
+    private LinkedList<Vertex> nextLevel = new LinkedList<>();
+
+    private final Algorithm algorithm;
     private final Graph graph;
     private Timer timer;
 
     public GraphService(Graph graph) {
         this.graph = graph;
+        this.algorithm = new Algorithm(graph.connects);
     }
 
     protected void startAlgorithm(MouseEvent e) {
         checkIfTheClickPointIsOnTheVertex(e)
                 .ifPresent(start -> {
-                    rootNode = start;
+                    if (graph.algorithmMode == AlgorithmMode.DEPTH_FIRST_SEARCH
+                        || graph.algorithmMode == AlgorithmMode.DIJKSTRA_ALGORITHM) rootNode = start;
+                    if (graph.algorithmMode == AlgorithmMode.BREADTH_FIRST_SEARCH) nextLevel.add(start);
                     graph.displayLabel.setText("Please wait...");
                 });
-        switch (graph.algorithmMode) {
-            case DEPTH_FIRST_SEARCH:
-            case BREADTH_FIRST_SEARCH:
-                timer = new Timer(1000, event -> {
-                    var nextNode = graph.algorithmMode == AlgorithmMode.DEPTH_FIRST_SEARCH ?
-                            algorithm.dfsAlgorithm(rootNode) : algorithm.bfsAlgorithm(rootNode);
-                    if (nextNode == null) {
-                        graph.displayLabel.setText(
-                                (graph.algorithmMode == AlgorithmMode.DEPTH_FIRST_SEARCH ? "DFS : " : "BFS : ")
-                                                   + algorithm.chainResult.toString());
-                        timer.stop();
-                    } else rootNode = nextNode;
-                });
-                timer.start();
-                break;
-            case DIJKSTRA_ALGORITHM:
-            case PRIM_ALGORITHM:
-                if (graph.algorithmMode == AlgorithmMode.DIJKSTRA_ALGORITHM) algorithm.dijkstraAlgorithm(rootNode);
-                else algorithm.primAlgorithm(rootNode);
-                timer = new Timer(3000, event -> {
-                    graph.displayLabel.setText(algorithm.edgesResult);
+        if (graph.algorithmMode == AlgorithmMode.DEPTH_FIRST_SEARCH) {
+            timer = new Timer(1000, event -> {
+                var nextNode = algorithm.dfsAlgorithm(rootNode);
+                if (nextNode == null) {
+                    graph.displayLabel.setText("DFS : " + algorithm.nodesResult.toString());
                     timer.stop();
-                });
-                timer.setRepeats(false);
-                timer.start();
+                } else rootNode = nextNode;
+            });
+            timer.start();
+        }
+        if (graph.algorithmMode == AlgorithmMode.BREADTH_FIRST_SEARCH) {
+            timer = new Timer(1000, event -> {
+                var nextLevelNodes = algorithm.bfsAlgorithm(nextLevel);
+                if (nextLevelNodes == null) {
+                    graph.displayLabel.setText("BFS : " + algorithm.nodesResult.toString());
+                    timer.stop();
+                } else nextLevel = nextLevelNodes;
+            });
+            timer.start();
+        }
+        if (graph.algorithmMode == AlgorithmMode.DIJKSTRA_ALGORITHM) {
+            algorithm.dijkstraAlgorithm(rootNode);
+            timer = new Timer(3000, event -> {
+                graph.displayLabel.setText(algorithm.dijkstraResult);
+                timer.stop();
+            });
+            timer.setRepeats(false);
+            timer.start();
         }
     }
 
@@ -63,7 +68,7 @@ public class GraphService {
                 graph.add(vertex);
                 graph.repaint();
                 vertex.revalidate();
-                connects.put(vertex, new ArrayList<>());
+                graph.connects.put(vertex, new ArrayList<>());
             } else createNewVertex(e);
         }
     }
@@ -78,7 +83,7 @@ public class GraphService {
         }
         if (edgeTo == null) {
             checkIfTheClickPointIsOnTheVertex(e).ifPresent(second -> {
-                if (edgeFrom.equals(edgeTo) || connects.get(edgeFrom).stream()
+                if (edgeFrom.equals(edgeTo) || graph.connects.get(edgeFrom).stream()
                         .anyMatch(edge -> edge.second.equals(edgeTo))) {
                     resetVertices();
                     return;
@@ -99,8 +104,8 @@ public class GraphService {
                         graph.add(edge);
                         graph.add(reverseEdge);
                         graph.add(edge.edgeLabel);
-                        connects.get(edgeFrom).add(edge);
-                        connects.get(edgeTo).add(reverseEdge);
+                        graph.connects.get(edgeFrom).add(edge);
+                        graph.connects.get(edgeTo).add(reverseEdge);
                         edge.repaint();
                         edge.edgeLabel.repaint();
                         resetVertices();
@@ -114,13 +119,12 @@ public class GraphService {
 
     protected void removeVertex(MouseEvent e) {
         checkIfTheClickPointIsOnTheVertex(e).ifPresent(vertex -> {
-            connects.values().stream().flatMap(Collection::stream)
-                    .filter(edge -> edge.first.equals(vertex) || edge.second.equals(vertex))
+            graph.connects.get(vertex).stream()
                     .peek(edge -> {
                         if (edge.edgeLabel != null) graph.remove(edge.edgeLabel);
                     })
                     .forEach(graph::remove);
-            connects.remove(vertex);
+            graph.connects.remove(vertex);
             graph.remove(vertex);
             graph.repaint();
         });
@@ -130,31 +134,17 @@ public class GraphService {
         checkIfTheClickPointIsOnTheEdge(e).ifPresent(edge -> {
             graph.remove(edge);
             graph.remove(edge.edgeLabel);
-            connects.values().stream().flatMap(Collection::stream)
+            graph.connects.values().stream().flatMap(Collection::stream)
                     .filter(revEdge -> revEdge.first.equals(edge.second) && revEdge.second.equals(edge.first))
                     .findAny().ifPresent(revEdge -> {
                         graph.remove(revEdge);
-                        connects.values().stream().peek(list -> {
+                        graph.connects.values().stream().peek(list -> {
                             list.remove(edge);
                             list.remove(revEdge);
                         }).close();
                     });
             graph.repaint();
         });
-//todo cheat >>>> I am not sure if the test is trying to remove those listed below edges by actually clicking on them.
-//todo                             All other edge removal tests pass without problem, but this one seems to be broken.
-//todo                                                                             Please, correct me if I am wrong :)
-//todo ====================================== Nonetheless, locally, clicking on an edge always ends with its deletion.
-        connects.values().stream().flatMap(Collection::stream)
-                .filter(edge -> "4".equals(edge.first.id) && "5".equals(edge.second.id)
-                                || "5".equals(edge.first.id) && "4".equals(edge.second.id)
-                                || "8".equals(edge.first.id) && "1".equals(edge.second.id)
-                                || "1".equals(edge.first.id) && "8".equals(edge.second.id))
-                .collect(Collectors.toList()).forEach(edge -> {
-                    if (edge.edgeLabel != null) graph.remove(edge.edgeLabel);
-                    connects.values().forEach(list -> list.remove(edge));
-                    graph.remove(edge);
-                });
     }
 
     protected void clearGraph() {
@@ -163,7 +153,7 @@ public class GraphService {
         graph.algorithmMode = AlgorithmMode.NONE;
         graph.modeLabel.setText("Current Mode -> " + graph.mode.current);
         graph.displayLabel.setVisible(false);
-        connects.clear();
+        graph.connects.clear();
         graph.repaint();
     }
 
@@ -179,11 +169,12 @@ public class GraphService {
         graph.modeLabel.setText("Current Mode -> " + graph.mode.current);
         graph.displayLabel.setVisible(true);
         graph.displayLabel.setText("Please choose a starting vertex");
-        connects.keySet().stream().peek(v -> v.distance = Integer.MAX_VALUE).forEach(v -> v.visited = false);
-        connects.values().stream().flatMap(Collection::stream).forEach(e -> e.visited = false);
-        algorithm.queue = new LinkedList<>();
-        algorithm.chainResult = new StringJoiner(" -> ");
-        algorithm.edgesResult = "";
+        graph.connects.keySet().stream().peek(v -> v.distance = Integer.MAX_VALUE).forEach(v -> v.visited = false);
+        graph.connects.values().stream().flatMap(Collection::stream).forEach(e -> e.visited = false);
+        algorithm.nodesResult = new StringJoiner(" -> ");
+        algorithm.dijkstraResult = "";
+        algorithm.queue.clear();
+        nextLevel.clear();
         resetVertices();
     }
 
@@ -195,15 +186,15 @@ public class GraphService {
     }
 
     private Optional<Vertex> checkIfTheClickPointIsOnTheVertex(MouseEvent e) {
-        return connects.keySet().stream()
+        return graph.connects.keySet().stream()
                 .filter(v -> e.getPoint().distance(v.getX() + 25, v.getY() + 25) < 25)
                 .findAny();
     }
 
     private Optional<Edge> checkIfTheClickPointIsOnTheEdge(MouseEvent e) {
-        return connects.values().stream().flatMap(Collection::stream)
+        return graph.connects.values().stream().flatMap(Collection::stream)
                 .filter(edge -> new Line2D.Double(edge.first.getX() + 25, edge.first.getY() + 25,
-                        edge.second.getX() + 25, edge.second.getY() + 25).ptLineDist(e.getPoint()) < 1)
+                        edge.second.getX() + 25, edge.second.getY() + 25).ptSegDist(e.getPoint()) < 5)
                 .findAny();
     }
 }

@@ -4,8 +4,8 @@ public class Edge extends JComponent {
     protected final JLabel edgeLabel;
     protected final Vertex first;
     protected final Vertex second;
-    protected boolean visited;
     protected int weight;
+    protected boolean visited;
 
     public Edge(Vertex first, Vertex second, int weight) {
         this.first = first;

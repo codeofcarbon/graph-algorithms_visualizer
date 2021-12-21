@@ -70,10 +70,5 @@ public class MenuBar extends JMenuBar {
         dijkstraAlgorithm.setMnemonic(KeyEvent.VK_D);
         dijkstraAlgorithm.addActionListener(e -> service.switchAlgorithmMode(AlgorithmMode.DIJKSTRA_ALGORITHM));
         algorithmMenu.add(dijkstraAlgorithm);
-        var primAlgorithm = new JMenuItem("Prim's Algorithm");
-        primAlgorithm.setName("Prim's Algorithm");
-        primAlgorithm.setMnemonic(KeyEvent.VK_P);
-        primAlgorithm.addActionListener(e -> service.switchAlgorithmMode(AlgorithmMode.PRIM_ALGORITHM));
-        algorithmMenu.add(primAlgorithm);
     }
 }
