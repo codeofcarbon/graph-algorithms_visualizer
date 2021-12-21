@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 
 public class MainFrame extends JFrame {
 
@@ -8,10 +9,12 @@ public class MainFrame extends JFrame {
         setSize(800, 600);
         setLocationRelativeTo(null);
         var modeLabel = new ModeLabel();
-        add(modeLabel);
-        var graph = new Graph(modeLabel);
+        add(modeLabel, BorderLayout.NORTH);
+        var displayLabel = new DisplayLabel();
+        add(displayLabel, BorderLayout.SOUTH);
+        var graph = new Graph(modeLabel, displayLabel);
         add(graph);
-        setJMenuBar(new MenuBar(graph));
+        setJMenuBar(new MenuBar(graph.service));
         setVisible(true);
     }
 }
