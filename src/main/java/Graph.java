@@ -2,19 +2,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List;
+import java.util.stream.Collectors;
 
 public class Graph extends JPanel {
-    protected Map<Vertex, List<Edge>> connects = new HashMap<>();
-    protected final List<Vertex> vertices = new ArrayList<>();
-    protected List<Edge> edges = new ArrayList<>();
     protected AlgorithmMode algorithmMode = AlgorithmMode.NONE;
     protected Mode mode = Mode.ADD_A_VERTEX;
-    protected final DisplayLabel displayLabel;
-    protected final ModeLabel modeLabel;
     protected final GraphService service;
+    protected final JLabel displayLabel;
+    protected final JLabel modeLabel;
 
-    public Graph(ModeLabel modeLabel, DisplayLabel displayLabel) {
+    public Graph(JLabel modeLabel, JLabel displayLabel) {
         this.modeLabel = modeLabel;
         this.displayLabel = displayLabel;
         this.service = new GraphService(this);
@@ -38,6 +35,7 @@ public class Graph extends JPanel {
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
+        var edges = service.connects.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
         for (var e : edges) {
             g.setColor(Color.GREEN);
             g2d.setStroke(new BasicStroke(4f));
@@ -49,7 +47,7 @@ public class Graph extends JPanel {
                     (e.first.getX() + 25 + e.second.getX() + 25) / 2 + (correct ? -10 : 10),
                     (e.first.getY() + 25 + e.second.getY() + 25) / 2 + (correct ? 25 : 10));
         }
-        for (var v : vertices) {
+        for (var v : service.connects.keySet()) {
             g.setColor(Color.DARK_GRAY.darker());
             g.fillOval(v.getX(), v.getY(), 50, 50);
             g.setColor(Color.CYAN.darker());
@@ -74,5 +72,5 @@ enum Mode {
 }
 
 enum AlgorithmMode {
-    DEPTH_FIRST_SEARCH, BREADTH_FIRST_SEARCH, NONE
+    DEPTH_FIRST_SEARCH, BREADTH_FIRST_SEARCH, DIJKSTRA_ALGORITHM, PRIM_ALGORITHM, NONE
 }

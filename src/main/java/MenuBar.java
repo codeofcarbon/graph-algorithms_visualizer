@@ -57,7 +57,7 @@ public class MenuBar extends JMenuBar {
         add(algorithmMenu);
         var dfsAlgorithm = new JMenuItem("Depth-First Search");
         dfsAlgorithm.setName("Depth-First Search");
-        dfsAlgorithm.setMnemonic(KeyEvent.VK_D);
+        dfsAlgorithm.setMnemonic(KeyEvent.VK_F);
         dfsAlgorithm.addActionListener(e -> service.switchAlgorithmMode(AlgorithmMode.DEPTH_FIRST_SEARCH));
         algorithmMenu.add(dfsAlgorithm);
         var bfsAlgorithm = new JMenuItem("Breadth-First Search");
@@ -65,5 +65,15 @@ public class MenuBar extends JMenuBar {
         bfsAlgorithm.setMnemonic(KeyEvent.VK_B);
         bfsAlgorithm.addActionListener(e -> service.switchAlgorithmMode(AlgorithmMode.BREADTH_FIRST_SEARCH));
         algorithmMenu.add(bfsAlgorithm);
+        var dijkstraAlgorithm = new JMenuItem("Dijkstra's Algorithm");
+        dijkstraAlgorithm.setName("Dijkstra's Algorithm");
+        dijkstraAlgorithm.setMnemonic(KeyEvent.VK_D);
+        dijkstraAlgorithm.addActionListener(e -> service.switchAlgorithmMode(AlgorithmMode.DIJKSTRA_ALGORITHM));
+        algorithmMenu.add(dijkstraAlgorithm);
+        var primAlgorithm = new JMenuItem("Prim's Algorithm");
+        primAlgorithm.setName("Prim's Algorithm");
+        primAlgorithm.setMnemonic(KeyEvent.VK_P);
+        primAlgorithm.addActionListener(e -> service.switchAlgorithmMode(AlgorithmMode.PRIM_ALGORITHM));
+        algorithmMenu.add(primAlgorithm);
     }
 }
