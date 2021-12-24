@@ -28,6 +28,12 @@ JetBrains Academy Project
 - Gradle 7.1
 
 ## How to start
-- Clone the repo:
+You can simply download an archive, unzip it inside the directory you want to, and open it in your IDE.
 
-``https://github.com/codeofcarbon/graph-algorithms_visualizer``
+If you want clone the repo:
+
+- run command line in the directory you want to store the app and type the following command:
+
+``git clone https://github.com/codeofcarbon/graph-algorithms_visualizer``
+
+- or start with Project from Version Control in your IDE by providing the url of this repository.
