@@ -6,10 +6,12 @@ public class MenuBar extends JMenuBar {
     public MenuBar(GraphService service) {
         setName("MenuBar");
 
-        var fileMenu = new JMenu("File");
+        // ===================================================================== window menu =====
+        JMenu fileMenu = new JMenu("File");
         fileMenu.setName("File");
         fileMenu.setMnemonic(KeyEvent.VK_F);
         add(fileMenu);
+
         var clearGraph = new JMenuItem("New");
         clearGraph.setName("New");
         clearGraph.setMnemonic(KeyEvent.VK_N);
@@ -21,10 +23,12 @@ public class MenuBar extends JMenuBar {
         exit.addActionListener(e -> System.exit(0));
         fileMenu.add(exit);
 
-        var modeMenu = new JMenu("Mode");
+        // ================================================================= graph mode menu =====
+        JMenu modeMenu = new JMenu("Mode");
         modeMenu.setName("Mode");
         modeMenu.setMnemonic(KeyEvent.VK_M);
         add(modeMenu);
+
         var addVertex = new JMenuItem("Add a Vertex");
         addVertex.setName("Add a Vertex");
         addVertex.setMnemonic(KeyEvent.VK_V);
@@ -51,10 +55,12 @@ public class MenuBar extends JMenuBar {
         none.addActionListener(e -> service.switchMode(Mode.NONE));
         modeMenu.add(none);
 
-        var algorithmMenu = new JMenu("Algorithms");
+        // ============================================================= algorithm mode menu =====
+        JMenu algorithmMenu = new JMenu("Algorithms");
         algorithmMenu.setName("Algorithms");
         algorithmMenu.setMnemonic(KeyEvent.VK_A);
         add(algorithmMenu);
+
         var dfsAlgorithm = new JMenuItem("Depth-First Search");
         dfsAlgorithm.setName("Depth-First Search");
         dfsAlgorithm.setMnemonic(KeyEvent.VK_F);

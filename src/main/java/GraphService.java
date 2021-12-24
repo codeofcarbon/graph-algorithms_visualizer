@@ -4,7 +4,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GraphService {
     protected Map<Vertex, List<Edge>> connects = new HashMap<>();
@@ -141,20 +140,6 @@ public class GraphService {
                     });
             graph.repaint();
         });
-//todo cheat >>>> I am not sure if the test is trying to remove those listed below edges by actually clicking on them.
-//todo                             All other edge removal tests pass without problem, but this one seems to be broken.
-//todo                                                                             Please, correct me if I am wrong :)
-//todo ====================================== Nonetheless, locally, clicking on an edge always ends with its deletion.
-        connects.values().stream().flatMap(Collection::stream)
-                .filter(edge -> "4".equals(edge.first.id) && "5".equals(edge.second.id)
-                                || "5".equals(edge.first.id) && "4".equals(edge.second.id)
-                                || "8".equals(edge.first.id) && "1".equals(edge.second.id)
-                                || "1".equals(edge.first.id) && "8".equals(edge.second.id))
-                .collect(Collectors.toList()).forEach(edge -> {
-                    if (edge.edgeLabel != null) graph.remove(edge.edgeLabel);
-                    connects.values().forEach(list -> list.remove(edge));
-                    graph.remove(edge);
-                });
     }
 
     protected void clearGraph() {

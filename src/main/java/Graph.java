@@ -64,7 +64,7 @@ enum Mode {
     REMOVE_AN_EDGE("Remove an Edge"),
     NONE("None");
 
-    protected String current;
+    final String current;
 
     Mode(String current) {
         this.current = current;
@@ -72,5 +72,9 @@ enum Mode {
 }
 
 enum AlgorithmMode {
-    DEPTH_FIRST_SEARCH, BREADTH_FIRST_SEARCH, DIJKSTRA_ALGORITHM, PRIM_ALGORITHM, NONE
+    DEPTH_FIRST_SEARCH,
+    BREADTH_FIRST_SEARCH,
+    DIJKSTRA_ALGORITHM,
+    PRIM_ALGORITHM,
+    NONE
 }

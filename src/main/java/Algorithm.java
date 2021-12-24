@@ -23,8 +23,8 @@ public class Algorithm {
                     .filter(edge -> !edge.second.visited)
                     .min(Comparator.comparingInt(edge -> edge.weight))
                     .map(edge -> edge.second);
-            if (next.isPresent()) return next.get();
-            else queue.pollLast();
+            if (next.isEmpty()) queue.pollLast();
+            else return next.get();
         }
     }
 
@@ -40,8 +40,8 @@ public class Algorithm {
                     .filter(edge -> !edge.second.visited)
                     .min(Comparator.comparingInt(edge -> edge.weight))
                     .map(edge -> edge.second);
-            if (next.isPresent()) return next.get();
-            else queue.removeFirst();
+            if (next.isEmpty()) queue.removeFirst();
+            else return next.get();
         }
     }
 
