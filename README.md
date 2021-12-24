@@ -9,7 +9,7 @@ Based on the Swing library, Java GUI application for creating and visualizing gr
 * [How to start](#how-to-start)
 
 ## Overview
-
+JetBrains Academy Project
 
 ## Screenshots
 ###### screenshot1
