@@ -1,3 +1,5 @@
+package visualizer;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -13,10 +15,9 @@ public class Algorithm {
 
     protected Vertex dfsAlgorithm(Vertex root) {
         root.visited = true;
+        root.getParent().repaint();
         chainResult.add(root.id);
         queue.addLast(root);
-        root.revalidate();
-        root.repaint();
         while (true) {
             if (queue.isEmpty()) return null;
             var next = connects.get(queue.peekLast()).stream()
@@ -30,10 +31,9 @@ public class Algorithm {
 
     protected Vertex bfsAlgorithm(Vertex root) {
         root.visited = true;
+        root.getParent().repaint();
         chainResult.add(root.id);
         queue.addLast(root);
-        root.revalidate();
-        root.repaint();
         while (true) {
             if (queue.isEmpty()) return null;
             var next = connects.get(queue.peekFirst()).stream()
@@ -49,15 +49,17 @@ public class Algorithm {
         var settled = new HashSet<Vertex>();
         root.distance = 0;
         settled.add(root);
-        root.revalidate();
-        root.repaint();
+        root.getParent().repaint();
+//        root.revalidate();                                                  // todo find a way to color edges
+//        root.repaint();
         connects.get(root).stream()
                 .sorted(Comparator.comparing(edge -> edge.weight))
                 .peek(edge -> edge.second.distance = edge.weight)
                 .map(edge -> edge.second)
                 .forEach(queue::addLast);
+        System.err.println(queue.size());
         while (true) {
-            connects.get(queue.peekFirst()).stream()
+            connects.get(queue.peekFirst()).stream()                            // todo find a null cause
                     .filter(edge -> !settled.contains(edge.second))
                     .peek(edge -> {
                         if (edge.second.distance > edge.first.distance + edge.weight)
@@ -72,7 +74,7 @@ public class Algorithm {
                 edgesResult = settled.stream()
                         .filter(v -> !v.equals(root))
                         .sorted(Comparator.comparing(v -> v.id))
-                        .map(v -> String.format("%s=%d", v.id, v.distance))
+                        .map(v -> String.format("%s - %d", v.id, v.distance))
                         .collect(Collectors.joining(", "));
                 return;
             }
@@ -80,10 +82,11 @@ public class Algorithm {
     }
 
     protected void primAlgorithm(Vertex root) {
-        var edges = new HashSet<Edge>(); // child-->parent edges
+        var edges = new HashSet<Edge>();                                        // child-->parent edges
         root.visited = true;
-        root.revalidate();
-        root.repaint();
+        root.getParent().repaint();
+//        root.revalidate();                                                  // todo find a way to color edges
+//        root.repaint();
         connects.get(root).stream()
                 .min(Comparator.comparingInt(edge -> edge.weight))
                 .map(edge -> edge.second)
@@ -107,7 +110,7 @@ public class Algorithm {
             if (connects.keySet().stream().allMatch(v -> v.visited)) {
                 edgesResult = edges.stream()
                         .sorted(Comparator.comparing(edge -> edge.first.id))
-                        .map(edge -> String.format("%s=%s", edge.first.id, edge.second.id))
+                        .map(edge -> String.format("%s-%s", edge.first.id, edge.second.id))
                         .collect(Collectors.joining(", "));
                 return;
             }

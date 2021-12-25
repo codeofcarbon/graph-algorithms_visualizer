@@ -1,11 +1,13 @@
+package visualizer;
+
 import javax.swing.*;
 
 public class Edge extends JComponent {
-    protected final JLabel edgeLabel;
-    protected final Vertex first;
-    protected final Vertex second;
-    protected boolean visited;
-    protected int weight;
+    final JLabel edgeLabel;
+    final Vertex first;
+    final Vertex second;
+    boolean connected, visited;
+    int weight;
 
     public Edge(Vertex first, Vertex second, int weight) {
         this.first = first;
