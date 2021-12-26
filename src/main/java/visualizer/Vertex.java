@@ -10,7 +10,7 @@ public class Vertex extends JPanel {
     final JLabel vertexID;
     final Point center;
     private final float radius;
-    boolean marked, connected, visited;//, settled;
+    boolean marked, connected, visited;
     final List<Edge> connectedEdges;
     int distance;
 

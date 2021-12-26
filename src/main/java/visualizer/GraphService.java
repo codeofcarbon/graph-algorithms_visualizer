@@ -17,7 +17,7 @@ public class GraphService {
 
     public GraphService(Graph graph) {
         this.graph = graph;
-        this.algorithm = new Algorithm(graph);
+        this.algorithm = new Algorithm(graph.vertices);
     }
 
     void startAlgorithm(MouseEvent e) {
@@ -25,53 +25,47 @@ public class GraphService {
                 .ifPresent(start -> {
                     rootNode = start;
                     graph.displayLabel.setText("Please wait...");
+                    isGraphEnabled(false);
                 });
         switch (graph.algorithmMode) {
             case DEPTH_FIRST_SEARCH:
-            case BREADTH_FIRST_SEARCH:
+            case BREADTH_FIRST_SEARCH:           // todo visited edges changing color - now it is too much if them
                 timer = new Timer(1000, event -> {
                     var nextNode = graph.algorithmMode == DEPTH_FIRST_SEARCH ?
                             algorithm.dfsAlgorithm(rootNode) : algorithm.bfsAlgorithm(rootNode);
-                    graph.edges.stream()
-                            .filter(edge -> edge.first.visited && edge.second.visited)
-                            .forEach(edge -> edge.visited = true);
-                    graph.repaint();
                     if (nextNode == null) {
                         graph.displayLabel.setText(
                                 (graph.algorithmMode == DEPTH_FIRST_SEARCH ? "DFS : " : "BFS : ")
                                 + algorithm.chainResult.toString());
                         timer.stop();
-                    } else rootNode = nextNode;
+                    } else {
+                        graph.edges.stream()
+                                .filter(edge -> edge.first.visited && edge.second.visited)
+                                .forEach(edge -> edge.visited = true);
+                        graph.repaint();
+                        rootNode = nextNode;
+                    }
                 });
                 timer.start();
                 break;
-            case DIJKSTRA_ALGORITHM:      // todo repainting vertices and edges while searching for paths,
-                algorithm.dijkstraAlgorithm(rootNode);
-//                graph.displayLabel.setText(
-//                        "<html><i>shortest distances from <b><font size=+1 color=blue>"
-//                        + rootNode.id + "</font>:</b></i>   " + algorithm.edgesResult);
-//                timer = new Timer(3000, event -> graph.displayLabel.setText(
-//                        "<html><i>shortest distances from <b><font size=+1 color=blue>"
-//                        + rootNode.id + "</font>:</b></i>   " + algorithm.edgesResult));
-//                timer.setRepeats(false);
-//                timer.start();
+            case DIJKSTRA_ALGORITHM:                                // todo visited edges changing color
+                algorithm.initDijkstraAlgorithm(rootNode);
+                timer = new Timer(1000, event -> {
+                    if (!algorithm.queue.isEmpty()) {
+                        var current = algorithm.queue.pollFirst();
+                        algorithm.dijkstraAlgorithm(current);
+                        graph.repaint();
+                    } else {
+                        graph.displayLabel.setText("<html><font color=blue><i>shortest distances from </i></font>" +
+                                                   "<font size=+2 color=blue>" + rootNode.id +
+                                                   ":   </font>" + algorithm.edgesResult);
+                        graph.repaint();
+                        timer.stop();
+                    }
+                });
+                timer.start();
                 break;
-//                timer = new Timer(1000, event -> {
-//                    var nextNode = algorithm.dijkstraAlgorithm(rootNode);
-//                    graph.edges.stream()
-//                            .filter(edge -> edge.first.settled && edge.second.settled)
-//                            .forEach(edge -> edge.visited = true);
-//                    graph.repaint();
-//                    if (nextNode == null) {
-//                        graph.displayLabel.setText("[node - distance to root node] >>> "
-//                                .concat(algorithm.edgesResult));
-//                        timer.stop();
-//                    } else rootNode = nextNode;
-//                });
-//                timer.start();
             case PRIM_ALGORITHM:
-//                if (graph.algorithmMode == DIJKSTRA_ALGORITHM) algorithm.dijkstraAlgorithm(rootNode);
-//                else
                 algorithm.primAlgorithm(rootNode);
                 timer = new Timer(3000, event -> {
                     graph.displayLabel.setText(algorithm.edgesResult);
@@ -79,15 +73,21 @@ public class GraphService {
                 });
                 timer.setRepeats(false);
                 timer.start();
-//                if (graph.algorithmMode == DIJKSTRA_ALGORITHM) algorithm.dijkstraAlgorithm(rootNode);
-//                else algorithm.primAlgorithm(rootNode);
-//                timer = new Timer(3000, event -> {
-//                    graph.displayLabel.setText(algorithm.edgesResult);
-//                    timer.stop();
-//                });
-//                timer.setRepeats(false);
-//                timer.start();
         }
+        isGraphEnabled(true);
+    }
+
+    private void isGraphEnabled(boolean setting) {
+        Arrays.stream(graph.getComponents()).forEach(c -> c.setEnabled(setting));
+        graph.setEnabled(setting);
+    }
+
+    private void markEdgeAsVisited(Vertex first, Vertex second) {
+        graph.edges.stream()
+                .filter(edge -> edge.first.equals(first) && edge.second.equals(second)
+                                || edge.second.equals(first) && edge.first.equals(second))
+                .forEach(edge -> edge.visited = true);
+        graph.repaint();
     }
 
     void createNewVertex(MouseEvent e) {
