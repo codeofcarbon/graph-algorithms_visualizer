@@ -5,20 +5,19 @@ import javax.swing.Timer;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.util.*;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static visualizer.AlgorithmMode.*;
 
 public class GraphService {
-    protected Map<Vertex, List<Edge>> connects = new HashMap<>();
     private Vertex edgeFrom, edgeTo, rootNode;
-    private final Algorithm algorithm = new Algorithm(connects);
     private final Graph graph;
+    private final Algorithm algorithm;
     private Timer timer;
 
     public GraphService(Graph graph) {
         this.graph = graph;
+        this.algorithm = new Algorithm(graph);
     }
 
     void startAlgorithm(MouseEvent e) {
@@ -33,30 +32,61 @@ public class GraphService {
                 timer = new Timer(1000, event -> {
                     var nextNode = graph.algorithmMode == DEPTH_FIRST_SEARCH ?
                             algorithm.dfsAlgorithm(rootNode) : algorithm.bfsAlgorithm(rootNode);
+                    graph.edges.stream()
+                            .filter(edge -> edge.first.visited && edge.second.visited)
+                            .forEach(edge -> edge.visited = true);
+                    graph.repaint();
                     if (nextNode == null) {
                         graph.displayLabel.setText(
                                 (graph.algorithmMode == DEPTH_FIRST_SEARCH ? "DFS : " : "BFS : ")
                                 + algorithm.chainResult.toString());
                         timer.stop();
-                    } else {
-                        rootNode.visited = true;
-                        graph.revalidate();
-                        graph.repaint();
-                        rootNode = nextNode;
-                    }
+                    } else rootNode = nextNode;
                 });
                 timer.start();
                 break;
             case DIJKSTRA_ALGORITHM:      // todo repainting vertices and edges while searching for paths,
+                algorithm.dijkstraAlgorithm(rootNode);
+//                graph.displayLabel.setText(
+//                        "<html><i>shortest distances from <b><font size=+1 color=blue>"
+//                        + rootNode.id + "</font>:</b></i>   " + algorithm.edgesResult);
+//                timer = new Timer(3000, event -> graph.displayLabel.setText(
+//                        "<html><i>shortest distances from <b><font size=+1 color=blue>"
+//                        + rootNode.id + "</font>:</b></i>   " + algorithm.edgesResult));
+//                timer.setRepeats(false);
+//                timer.start();
+                break;
+//                timer = new Timer(1000, event -> {
+//                    var nextNode = algorithm.dijkstraAlgorithm(rootNode);
+//                    graph.edges.stream()
+//                            .filter(edge -> edge.first.settled && edge.second.settled)
+//                            .forEach(edge -> edge.visited = true);
+//                    graph.repaint();
+//                    if (nextNode == null) {
+//                        graph.displayLabel.setText("[node - distance to root node] >>> "
+//                                .concat(algorithm.edgesResult));
+//                        timer.stop();
+//                    } else rootNode = nextNode;
+//                });
+//                timer.start();
             case PRIM_ALGORITHM:
-                if (graph.algorithmMode == DIJKSTRA_ALGORITHM) algorithm.dijkstraAlgorithm(rootNode);
-                else algorithm.primAlgorithm(rootNode);
+//                if (graph.algorithmMode == DIJKSTRA_ALGORITHM) algorithm.dijkstraAlgorithm(rootNode);
+//                else
+                algorithm.primAlgorithm(rootNode);
                 timer = new Timer(3000, event -> {
                     graph.displayLabel.setText(algorithm.edgesResult);
                     timer.stop();
                 });
                 timer.setRepeats(false);
                 timer.start();
+//                if (graph.algorithmMode == DIJKSTRA_ALGORITHM) algorithm.dijkstraAlgorithm(rootNode);
+//                else algorithm.primAlgorithm(rootNode);
+//                timer = new Timer(3000, event -> {
+//                    graph.displayLabel.setText(algorithm.edgesResult);
+//                    timer.stop();
+//                });
+//                timer.setRepeats(false);
+//                timer.start();
         }
     }
 
@@ -68,7 +98,6 @@ public class GraphService {
             String id = input.toString();
             if (!id.isBlank() && id.length() == 1) {
                 Vertex vertex = new Vertex(id, e.getPoint());
-                connects.put(vertex, new ArrayList<>());
                 graph.vertices.add(vertex);
                 graph.add(vertex);
                 graph.repaint();
@@ -115,12 +144,12 @@ public class GraphService {
                         edgeFrom.connected = true;
                         edgeTo.connected = true;
                         graph.add(edge);
-                        graph.add(reverseEdge);
+                        graph.add(reverseEdge);                      // todo can i simplify it??
                         graph.add(edge.edgeLabel);
                         graph.edges.add(edge);
                         graph.edges.add(reverseEdge);
-                        connects.get(edgeFrom).add(edge);    // todo check if connects are really needed in algorithms
-                        connects.get(edgeTo).add(reverseEdge);
+                        edgeFrom.connectedEdges.add(edge);
+                        edgeTo.connectedEdges.add(reverseEdge);
                         resetVertices();
                         return;
                     } catch (NumberFormatException ex) {
@@ -144,7 +173,6 @@ public class GraphService {
                     .filter(edge -> !edge.first.equals(vertex) && !edge.second.equals(vertex))
                     .collect(Collectors.toList());
             graph.vertices.remove(vertex);
-            connects.remove(vertex);
             graph.remove(vertex);
             graph.repaint();
         });
@@ -159,9 +187,9 @@ public class GraphService {
                         graph.remove(revLine);
                         graph.edges.remove(revLine);
                         graph.remove(edge.edgeLabel != null ? edge.edgeLabel : revLine.edgeLabel);
-                        connects.values().stream().peek(list -> {
+                        graph.vertices.stream().map(v -> v.connectedEdges).peek(list -> {
                             list.remove(edge);
-                            list.remove(revLine);
+                            list.remove(revLine);                       // todo foreach?? or maybe by given vertex??
                         }).close();
                     });
             graph.remove(edge);
@@ -178,7 +206,6 @@ public class GraphService {
         graph.displayLabel.setVisible(false);
         graph.vertices.clear();
         graph.edges.clear();
-        connects.clear();
         graph.repaint();
     }
 
@@ -186,7 +213,9 @@ public class GraphService {
         graph.mode = mode;
         graph.modeLabel.setText("Current Mode -> " + mode.current);
         graph.displayLabel.setVisible(false);
-        graph.vertices.forEach(v -> v.visited = false);
+        graph.vertices.stream()
+                .peek(v -> v.distance = Integer.MAX_VALUE)
+                .forEach(v -> v.visited = false);
         graph.edges.forEach(v -> v.visited = false);
         resetVertices();
     }
@@ -197,10 +226,10 @@ public class GraphService {
         graph.modeLabel.setText("Current Mode -> " + graph.mode.current);
         graph.displayLabel.setVisible(true);
         graph.displayLabel.setText("Please choose a starting vertex");
-        graph.vertices.stream().peek(v -> v.distance = Integer.MAX_VALUE).forEach(v -> v.visited = false);
+        graph.vertices.stream()
+                .peek(v -> v.distance = Integer.MAX_VALUE)
+                .forEach(v -> v.visited = false);
         graph.edges.forEach(v -> v.visited = false);
-//        connects.keySet().stream().peek(v -> v.distance = Integer.MAX_VALUE).forEach(v -> v.visited = false);
-//        connects.values().stream().flatMap(Collection::stream).forEach(e -> e.visited = false);
         algorithm.queue = new LinkedList<>();
         algorithm.chainResult = new StringJoiner(" > ");
         algorithm.edgesResult = "";
@@ -221,7 +250,6 @@ public class GraphService {
     }
 
     private Optional<Vertex> checkIfTheClickPointIsOnTheVertex(MouseEvent e) {
-//        return connects.keySet().stream()
         return graph.vertices.stream()
                 .filter(v -> e.getPoint().distance(v.center) < 25)
                 .findAny();

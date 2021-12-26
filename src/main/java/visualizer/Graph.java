@@ -41,17 +41,29 @@ public class Graph extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setStroke(new BasicStroke(3f));
         for (var e : edges) {
-            g.setColor(Color.DARK_GRAY);
-            g2d.drawLine(e.first.getX(), e.first.getY(), e.second.getX(), e.second.getY());
-            g.setColor(Color.LIGHT_GRAY);
+//            if (e.marked) {
+//                g.setColor(Color.WHITE);
+//                g2d.drawLine(e.first.getX(), e.first.getY(), e.second.getX(), e.second.getY());
+//                g.setColor(Color.LIGHT_GRAY);
+//        } else
+            if (e.visited) {
+                g.setColor(Color.WHITE);
+                g2d.drawLine(e.first.getX(), e.first.getY(), e.second.getX(), e.second.getY());
+                g.setColor(Color.GREEN);
+            } else {
+                g.setColor(Color.DARK_GRAY);
+                g2d.drawLine(e.first.getX(), e.first.getY(), e.second.getX(), e.second.getY());
+                g.setColor(Color.LIGHT_GRAY);
+            }
             g.setFont(new Font("Courier", Font.PLAIN, 20));
             boolean correct = Math.abs(e.first.getX() - e.second.getX()) > Math.abs(e.first.getY() - e.second.getY());
             g.drawString(e.edgeLabel.getText(),
                     (e.first.getX() + e.second.getX()) / 2 + (correct ? -10 : 10),
                     (e.first.getY() + e.second.getY()) / 2 + (correct ? 25 : 10));
         }
+
+        g2d.setStroke(new BasicStroke(1f));
         for (var v : vertices) {
-            g2d.setStroke(new BasicStroke(1f));
             if (v.marked) {
                 g.setColor(Color.RED);
                 v.midPoint(g);
@@ -73,9 +85,9 @@ public class Graph extends JPanel {
             } else {
                 g.setColor(Color.LIGHT_GRAY);
                 v.midPoint(g);
-                g.setColor(Color.LIGHT_GRAY);
-                g.fillOval(v.getX() - 12, v.getY() - 12, 25, 25);
                 g.setColor(Color.DARK_GRAY);
+                g.fillOval(v.getX() - 14, v.getY() - 14, 30, 30);
+                g.setColor(Color.WHITE);
             }
             g.setFont(new Font("Courier", Font.ITALIC, 30));
             g.drawString(v.vertexID.getText(), v.center.x - 9, v.center.y + 12);

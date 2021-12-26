@@ -2,19 +2,23 @@ package visualizer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Vertex extends JPanel {
     final String id;
     final JLabel vertexID;
     final Point center;
     private final float radius;
-    boolean marked, connected, visited;
+    boolean marked, connected, visited;//, settled;
+    final List<Edge> connectedEdges;
     int distance;
 
     public Vertex(String id, Point center) {
         this.id = id;
         this.center = center;
         this.radius = 25f;
+        this.connectedEdges = new ArrayList<>();
         setName("Vertex " + id);
         setLocation(center);
         this.vertexID = new JLabel(id);
