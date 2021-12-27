@@ -5,27 +5,40 @@ import java.util.stream.Collectors;
 
 public class Algorithm {
     LinkedList<Vertex> queue;
-    Set<Vertex> settled;                                        // todo is that still needed??
+    //    Set<Vertex> settled;                                        // todo is that still needed??
+    Set<Edge> edgeSet;                                                // todo is that still needed??
     StringJoiner chainResult;
     String edgesResult;
     Vertex root;
     private final List<Vertex> vertices;
+    private final List<Edge> edges;                                   // todo maybe make a map for storing edges
 
-    public Algorithm(List<Vertex> vertices) {
+    public Algorithm(List<Vertex> vertices, List<Edge> edges) {
         this.vertices = vertices;
+        this.edges = edges;
     }
 
     protected Vertex dfsAlgorithm(Vertex root) {
         root.visited = true;
-        root.getParent().repaint();
         chainResult.add(root.id);
         queue.addLast(root);
         while (true) {
-            if (queue.isEmpty()) return null;
+            if (queue.isEmpty()) {
+                hideEdges();
+                return null;
+            }
             var next = queue.peekLast().connectedEdges.stream()
                     .filter(edge -> !edge.second.visited)
                     .min(Comparator.comparingInt(edge -> edge.weight))
-                    .map(edge -> edge.second);
+                    .map(edge -> {
+                        edge.visited = true;
+                        edgeSet.add(edge);
+                        edge.second.connectedEdges.stream()                                 // todo sth??
+                                .filter(e -> e.second.equals(edge.first))
+                                .peek(edgeSet::add)
+                                .forEach(e -> e.visited = true);
+                        return edge.second;
+                    });
             if (next.isEmpty()) queue.pollLast();
             else return next.get();
         }
@@ -33,42 +46,68 @@ public class Algorithm {
 
     protected Vertex bfsAlgorithm(Vertex root) {
         root.visited = true;
-        root.getParent().repaint();
         chainResult.add(root.id);
         queue.addLast(root);
         while (true) {
-            if (queue.isEmpty()) return null;
+            if (queue.isEmpty()) {
+                hideEdges();
+                return null;
+            }
             var next = queue.peekFirst().connectedEdges.stream()
                     .filter(edge -> !edge.second.visited)
                     .min(Comparator.comparingInt(edge -> edge.weight))
-                    .map(edge -> edge.second);
+                    .map(edge -> {
+                        edge.visited = true;
+                        edgeSet.add(edge);
+                        edge.second.connectedEdges.stream()                                 // todo sth??
+                                .filter(e -> e.second.equals(edge.first))
+                                .peek(edgeSet::add)
+                                .forEach(e -> e.visited = true);
+                        return edge.second;
+                    });
             if (next.isEmpty()) queue.removeFirst();
             else return next.get();
         }
     }
 
-    protected void initDijkstraAlgorithm(Vertex rootNode) {
-        settled = new HashSet<>();
-        queue = new LinkedList<>(vertices);
-        rootNode.distance = 0;
-        root = rootNode;
-        queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
-    }
+    protected void dijkstraAlgorithm() {
+//        settled.add(current);                                               // todo is that still needed?/?
+        if (!queue.isEmpty()) {
+            var current = queue.pollFirst();
+            current.visited = true;
+            current.connectedEdges.stream()
+                    .filter(edge -> !edge.second.visited)                      //todo !settled.contains(edge.second))
+                    .peek(edge -> {
+                        if (edge.second.distance > edge.first.distance + edge.weight)
+                            edge.second.distance = edge.first.distance + edge.weight;
+                    })
+                    .min(Comparator.comparingInt(edge -> edge.second.distance))
+                    .ifPresent(edge -> {
+                        edge.visited = true;
+                        edge.second.connectedEdges.stream()                                 // todo sth??
+                                .filter(e -> e.second.equals(edge.first))
+                                .forEach(e -> e.visited = true);
+                    });
+            queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
+        }
 
-    protected void dijkstraAlgorithm(Vertex current) {
-        settled.add(current);                                               // todo is that still needed?/?
-        current.visited = true;
-
-        current.connectedEdges.stream()
-                .filter(edge -> !settled.contains(edge.second))
-                .forEach(edge -> {
-                    if (edge.second.distance > edge.first.distance + edge.weight)
-                        edge.second.distance = edge.first.distance + edge.weight;
-                });
-        queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
-
-        if (vertices.size() == settled.size()) {
-            edgesResult = settled.stream()
+        if (vertices.stream().allMatch(v -> v.visited)) {
+            vertices.stream()
+                    .sorted(Comparator.comparingInt(vertex -> vertex.distance))
+                    .map(v -> v.connectedEdges)
+                    .forEach(connected -> connected.stream()
+                            .filter(edge -> !edge.second.visited)
+                            .min(Comparator.comparingInt(edge -> edge.second.distance))
+                            .ifPresent(edge -> {
+                                edgeSet.add(edge);
+                                edge.second.visited = true;
+                                edge.second.connectedEdges.stream()                                 // todo sth??
+                                        .filter(e -> e.second.equals(edge.first))
+                                        .peek(e -> e.second.visited = true)
+                                        .forEach(edgeSet::add);
+                            }));
+            hideEdges();
+            edgesResult = vertices.stream()
                     .filter(v -> !v.equals(root))
                     .sorted(Comparator.comparing(v -> v.id))
                     .map(v -> String.format("<html><font size=+1 color=white><i><b> %s - </b></i></font>" +
@@ -78,38 +117,44 @@ public class Algorithm {
         }
     }
 
-    protected void primAlgorithm(Vertex root) {
-        var edges = new HashSet<Edge>();            // todo diff formatting. now is : child-->parent edges
-        root.visited = true;
-        root.getParent().repaint();
-        root.connectedEdges.stream()
+    private void hideEdges() {
+        edges.stream()
+                .filter(edge -> !edgeSet.contains(edge))
+                .peek(edge -> edge.setVisible(false))
+                .forEach(edge -> edge.hidden = true);
+    }
+
+    protected void initAlgorithm(Vertex rootNode) {
+        edgeSet = new HashSet<>();
+        queue = new LinkedList<>(vertices);
+        rootNode.distance = 0;                                           // todo could it be here not in vertex field?
+        rootNode.visited = true;                                         // todo?
+        root = rootNode;                                                 // todo remove??
+//        settled = new HashSet<>();                                     // todo is that still needed?/?
+//        settled.add(rootNode);                                         // todo is that still needed?/?
+        queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
+    }
+
+    protected void primAlgorithm() {
+        edges.stream()
+                .filter(edge -> edge.first.visited && !edge.second.visited)
                 .min(Comparator.comparingInt(edge -> edge.weight))
-                .map(edge -> edge.second)
-                .ifPresent(vertex -> {
-                    vertex.visited = true;
-                    vertex.connectedEdges.stream()
-                            .filter(edge -> edge.second.equals(root))
-                            .forEach(edges::add);
+                .ifPresent(edge -> {
+                    edge.visited = true;
+                    edgeSet.add(edge);
+                    edge.second.visited = true;
+                    edge.second.connectedEdges.stream()                   // todo sth??
+                            .filter(e -> e.second.equals(edge.first))
+                            .forEach(e -> e.visited = true);
                 });
-        while (true) {
-            vertices.stream()
-                    .filter(vertex -> !vertex.visited)
-                    .map(vertex -> vertex.connectedEdges)
-                    .flatMap(Collection::stream)
-                    .filter(edge -> !edge.first.visited && edge.second.visited)
-                    .min(Comparator.comparingInt(edge -> edge.weight))
-                    .ifPresent(edge -> {
-                        edges.add(edge);
-                        edge.first.visited = true;
-                    });
-            if (vertices.stream().allMatch(v -> v.visited)) {
-                edgesResult = "[edges forming the minimum spanning tree] >>> "
-                        .concat(edges.stream()
-                                .sorted(Comparator.comparing(edge -> edge.first.id))
-                                .map(edge -> String.format("%s - %s", edge.first.id, edge.second.id))
-                                .collect(Collectors.joining(", ")));
-                return;
-            }
+
+        if (vertices.stream().allMatch(v -> v.visited)) {
+            hideEdges();
+            edgesResult = edgeSet.stream()
+                    .sorted(Comparator.comparing(edge -> edge.first.id))
+                    .map(e -> String.format("<html><font size=+1 color=white><i><b> %s-%s </b></i></font>",
+                            e.first.id, e.second.id))
+                    .collect(Collectors.joining(","));
         }
     }
 }

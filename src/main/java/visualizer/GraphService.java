@@ -17,77 +17,90 @@ public class GraphService {
 
     public GraphService(Graph graph) {
         this.graph = graph;
-        this.algorithm = new Algorithm(graph.vertices);
+        this.algorithm = new Algorithm(graph.vertices, graph.edges);
     }
 
     void startAlgorithm(MouseEvent e) {
-        checkIfTheClickPointIsOnTheVertex(e)
-                .ifPresent(start -> {
-                    rootNode = start;
-                    graph.displayLabel.setText("Please wait...");
+        if (graph.algorithmMode != NONE) {
+            checkIfTheClickPointIsOnTheVertex(e)
+                    .ifPresent(start -> {
                     isGraphEnabled(false);
-                });
-        switch (graph.algorithmMode) {
-            case DEPTH_FIRST_SEARCH:
-            case BREADTH_FIRST_SEARCH:           // todo visited edges changing color - now it is too much if them
-                timer = new Timer(1000, event -> {
-                    var nextNode = graph.algorithmMode == DEPTH_FIRST_SEARCH ?
-                            algorithm.dfsAlgorithm(rootNode) : algorithm.bfsAlgorithm(rootNode);
-                    if (nextNode == null) {
-                        graph.displayLabel.setText(
-                                (graph.algorithmMode == DEPTH_FIRST_SEARCH ? "DFS : " : "BFS : ")
-                                + algorithm.chainResult.toString());
-                        timer.stop();
-                    } else {
-                        graph.edges.stream()
-                                .filter(edge -> edge.first.visited && edge.second.visited)
-                                .forEach(edge -> edge.visited = true);
-                        graph.repaint();
-                        rootNode = nextNode;
-                    }
-                });
-                timer.start();
-                break;
-            case DIJKSTRA_ALGORITHM:                                // todo visited edges changing color
-                algorithm.initDijkstraAlgorithm(rootNode);
-                timer = new Timer(1000, event -> {
-                    if (!algorithm.queue.isEmpty()) {
-                        var current = algorithm.queue.pollFirst();
-                        algorithm.dijkstraAlgorithm(current);
-                        graph.repaint();
-                    } else {
-                        graph.displayLabel.setText("<html><font color=blue><i>shortest distances from </i></font>" +
-                                                   "<font size=+2 color=blue>" + rootNode.id +
-                                                   ":   </font>" + algorithm.edgesResult);
-                        graph.repaint();
-                        timer.stop();
-                    }
-                });
-                timer.start();
-                break;
-            case PRIM_ALGORITHM:
-                algorithm.primAlgorithm(rootNode);
-                timer = new Timer(3000, event -> {
-                    graph.displayLabel.setText(algorithm.edgesResult);
-                    timer.stop();
-                });
-                timer.setRepeats(false);
-                timer.start();
+                        rootNode = start;
+                        graph.displayLabel.setText("Please wait...");
+                        switch (graph.algorithmMode) {
+                            case DEPTH_FIRST_SEARCH: // todo - when started end clicked again somewhere then loop begins
+                                timer = new Timer(1000, event -> {
+                                    var nextNode = algorithm.dfsAlgorithm(rootNode);
+                                    if (nextNode != null) rootNode = nextNode;
+                                    else {
+                                        graph.displayLabel.setText(
+                                                "<html><font color=gray><i>DFS for </i></font>" +
+                                                "<font size=+2 color=blue>" + algorithm.root.id +
+                                                ":   </font>" + algorithm.chainResult.toString());
+                                        timer.stop();
+                                    }
+                                    graph.repaint();
+                                });
+                                timer.start();
+                                break;
+                            case BREADTH_FIRST_SEARCH: // todo - when started end clicked again somewhere then loop begins
+                                timer = new Timer(1000, event -> {
+                                    var nextNode = algorithm.bfsAlgorithm(rootNode);
+                                    if (nextNode != null) rootNode = nextNode;
+                                    else {
+                                        graph.displayLabel.setText(
+                                                "<html><font color=gray><i>BFS for </i></font>" +
+                                                "<font size=+2 color=blue>" + algorithm.root.id +
+                                                ":   </font>" + algorithm.chainResult.toString());
+                                        timer.stop();
+                                    }
+                                    graph.repaint();
+                                });
+                                timer.start();
+                                break;
+                            case DIJKSTRA_ALGORITHM: // todo - edges hiding is not working properly
+                                algorithm.initAlgorithm(rootNode);
+                                timer = new Timer(1000, event -> {
+                                    if (graph.vertices.stream().anyMatch(v -> !v.visited)) {
+                                        algorithm.dijkstraAlgorithm();
+                                    } else {
+                                        graph.displayLabel.setText(
+                                                "<html><font color=gray><i>shortest distances from </i></font>" +
+                                                "<font size=+2 color=blue>" + algorithm.root.id +
+                                                ":   </font>" + algorithm.edgesResult);
+                                        timer.stop();
+                                    }
+                                    graph.repaint();
+                                });
+                                timer.start();
+                                break;
+                            case PRIM_ALGORITHM:
+                                algorithm.initAlgorithm(rootNode);
+                                timer = new Timer(1000, event -> {
+                                    if (graph.vertices.stream().anyMatch(v -> !v.visited)) {
+                                        algorithm.primAlgorithm();
+                                    } else {
+                                        graph.displayLabel.setText(
+                                                "<html><font color=gray><i>MST for </i></font>" +
+                                                "<font size=+2 color=blue>" + algorithm.root.id +
+                                                ":   </font>" + algorithm.edgesResult);
+                                        timer.stop();
+                                    }
+                                    graph.repaint();
+                                });
+                                timer.start();
+                                break;
+                            default:
+                                graph.algorithmMode = NONE;
+                                isGraphEnabled(true);
+                        }
+                    });
         }
-        isGraphEnabled(true);
     }
 
     private void isGraphEnabled(boolean setting) {
         Arrays.stream(graph.getComponents()).forEach(c -> c.setEnabled(setting));
         graph.setEnabled(setting);
-    }
-
-    private void markEdgeAsVisited(Vertex first, Vertex second) {
-        graph.edges.stream()
-                .filter(edge -> edge.first.equals(first) && edge.second.equals(second)
-                                || edge.second.equals(first) && edge.first.equals(second))
-                .forEach(edge -> edge.visited = true);
-        graph.repaint();
     }
 
     void createNewVertex(MouseEvent e) {
@@ -126,7 +139,7 @@ public class GraphService {
                 if (edgeFrom.equals(edgeTo) || graph.edges.stream().anyMatch(edge ->
                         edge.first.equals(edgeFrom) && edge.second.equals(edgeTo)
                         || edge.first.equals(edgeTo) && edge.second.equals(edgeFrom))) {
-                    resetVertices();
+                    resetMarkedNodes();
                     return;
                 }
 
@@ -134,7 +147,7 @@ public class GraphService {
                     var input = JOptionPane.showInputDialog(graph, "Enter Weight", "Input",
                             JOptionPane.INFORMATION_MESSAGE, null, null, null);
                     if (input == null) {
-                        resetVertices();
+                        resetMarkedNodes();
                         return;
                     }
                     try {
@@ -150,7 +163,7 @@ public class GraphService {
                         graph.edges.add(reverseEdge);
                         edgeFrom.connectedEdges.add(edge);
                         edgeTo.connectedEdges.add(reverseEdge);
-                        resetVertices();
+                        resetMarkedNodes();
                         return;
                     } catch (NumberFormatException ex) {
                         JOptionPane.showMessageDialog(graph,
@@ -200,9 +213,7 @@ public class GraphService {
 
     void clearGraph() {
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
-        graph.mode = Mode.ADD_A_VERTEX;
-        graph.algorithmMode = NONE;
-        graph.modeLabel.setText("Current Mode -> " + graph.mode.current);
+        setCurrentModes(NONE, Mode.ADD_A_VERTEX);
         graph.displayLabel.setVisible(false);
         graph.vertices.clear();
         graph.edges.clear();
@@ -210,33 +221,42 @@ public class GraphService {
     }
 
     void switchMode(Mode mode) {
-        graph.mode = mode;
-        graph.modeLabel.setText("Current Mode -> " + mode.current);
+        setCurrentModes(NONE, mode);
         graph.displayLabel.setVisible(false);
-        graph.vertices.stream()
-                .peek(v -> v.distance = Integer.MAX_VALUE)
-                .forEach(v -> v.visited = false);
-        graph.edges.forEach(v -> v.visited = false);
-        resetVertices();
+        resetComponentLists();
+        resetMarkedNodes();
     }
 
     void switchAlgorithmMode(AlgorithmMode algorithmMode) {
-        graph.mode = Mode.NONE;
-        graph.algorithmMode = algorithmMode;
-        graph.modeLabel.setText("Current Mode -> " + graph.mode.current);
+        setCurrentModes(algorithmMode, Mode.NONE);
         graph.displayLabel.setVisible(true);
         graph.displayLabel.setText("Please choose a starting vertex");
+        algorithm.queue = new LinkedList<>();
+        algorithm.edgeSet = new HashSet<>();
+        algorithm.chainResult = new StringJoiner(" > ");
+        algorithm.edgesResult = "";
+        resetComponentLists();
+        resetMarkedNodes();
+    }
+
+    private void setCurrentModes(AlgorithmMode algorithmMode, Mode mode) {
+        graph.mode = mode;
+        graph.algorithmMode = algorithmMode;
+        graph.modeLabel.setText("Current Mode -> " + graph.mode.current);
+        graph.algorithmModeLabel.setText("Algorithm Mode -> " + graph.algorithmMode.current);
+    }
+
+    private void resetComponentLists() {
         graph.vertices.stream()
                 .peek(v -> v.distance = Integer.MAX_VALUE)
                 .forEach(v -> v.visited = false);
-        graph.edges.forEach(v -> v.visited = false);
-        algorithm.queue = new LinkedList<>();
-        algorithm.chainResult = new StringJoiner(" > ");
-        algorithm.edgesResult = "";
-        resetVertices();
+        graph.edges.stream()
+                .peek(e -> e.setVisible(true))
+                .peek(e -> e.hidden = false)
+                .forEach(e -> e.visited = false);
     }
 
-    private void resetVertices() {
+    private void resetMarkedNodes() {
         if (edgeFrom != null) {
             edgeFrom.marked = false;
             edgeFrom = null;
@@ -245,7 +265,6 @@ public class GraphService {
             edgeTo.marked = false;
             edgeTo = null;
         }
-        rootNode = null;
         graph.repaint();
     }
 

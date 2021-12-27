@@ -13,10 +13,12 @@ public class Graph extends JPanel {
     Mode mode = Mode.ADD_A_VERTEX;
     final GraphService service;
     final JLabel displayLabel;
+    final JLabel algorithmModeLabel;
     final JLabel modeLabel;
 
-    public Graph(JLabel modeLabel, JLabel displayLabel) {
+    public Graph(JLabel modeLabel, JLabel algorithmModeLabel, JLabel displayLabel) {
         this.modeLabel = modeLabel;
+        this.algorithmModeLabel = algorithmModeLabel;
         this.displayLabel = displayLabel;
         this.service = new GraphService(this);
         setName("Graph");
@@ -41,15 +43,14 @@ public class Graph extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setStroke(new BasicStroke(3f));
         for (var e : edges) {
-//            if (e.marked) {
-//                g.setColor(Color.WHITE);
-//                g2d.drawLine(e.first.getX(), e.first.getY(), e.second.getX(), e.second.getY());
-//                g.setColor(Color.LIGHT_GRAY);
-//        } else
             if (e.visited) {
                 g.setColor(Color.WHITE);
                 g2d.drawLine(e.first.getX(), e.first.getY(), e.second.getX(), e.second.getY());
                 g.setColor(Color.GREEN);
+            } else if (e.hidden) {
+                g.setColor(Color.BLACK);
+                g2d.drawLine(e.first.getX(), e.first.getY(), e.second.getX(), e.second.getY());
+                g.setColor(Color.BLACK);
             } else {
                 g.setColor(Color.DARK_GRAY);
                 g2d.drawLine(e.first.getX(), e.first.getY(), e.second.getX(), e.second.getY());
@@ -109,17 +110,34 @@ enum Mode {
     }
 }
 
-enum AlgorithmMode {
-    DEPTH_FIRST_SEARCH,
-    BREADTH_FIRST_SEARCH,
-    DIJKSTRA_ALGORITHM,
-    PRIM_ALGORITHM,
-    NONE
+enum AlgorithmMode {                                     // todo maybe implement command pattern ?
+    DEPTH_FIRST_SEARCH("Depth First Search"),
+//                      (){
+//        @Override
+//        public Algorithm algorithm() {
+//            return new Algorithm();
+//        }
+//    },
+    BREADTH_FIRST_SEARCH("Breadth First Search"),
+    DIJKSTRA_ALGORITHM("Dijkstra's Algorithm"),
+    PRIM_ALGORITHM("Prim's Algorithm"),
+    NONE("None");
+
+    final String current;
+    //    Runnable algorithm;
+
+    AlgorithmMode(String current/*, Runnable algorithm*/) {
+        this.current = current;
+        //        this.algorithm = algorithm;
+    }
+
+    //    public abstract Algorithm algorithm();
 }
 
 enum State {                                // todo states of node (and edges ?)
     UNUSED,
     CONNECTED,
     MARKED,
-    VISITED
+    VISITED,
+    HIDDEN
 }

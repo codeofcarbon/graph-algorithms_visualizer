@@ -15,15 +15,21 @@ public class MainFrame extends JFrame {
     }
 
     private void initComponents() {
+        JPanel modePanel = new JPanel(new GridLayout(1, 2));
+        modePanel.setBounds(0, 0, this.getWidth(), 30);
+        add(modePanel, BorderLayout.NORTH);
+
+        JLabel algorithmModeLabel = addLabel("Algorithm Mode -> None  ", SwingConstants.LEFT, "AlgorithmMode");
+        modePanel.add(algorithmModeLabel);
+
         JLabel modeLabel = addLabel("Current Mode -> Add a Vertex  ", SwingConstants.RIGHT, "Mode");
-        modeLabel.setBounds(580, 0, 200, 30);
-        add(modeLabel, BorderLayout.NORTH);
+        modePanel.add(modeLabel);
 
         JLabel displayLabel = addLabel("", SwingConstants.CENTER, "Display");
         displayLabel.setPreferredSize(new Dimension(100, 30));
         add(displayLabel, BorderLayout.SOUTH, SwingConstants.CENTER);
 
-        Graph graph = new Graph(modeLabel, displayLabel);
+        Graph graph = new Graph(modeLabel, algorithmModeLabel, displayLabel);
         add(graph);
 
         setJMenuBar(new MenuBar(graph.service));
