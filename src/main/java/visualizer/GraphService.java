@@ -5,14 +5,13 @@ import javax.swing.Timer;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static visualizer.AlgorithmMode.*;
 
 public class GraphService {
-    private Vertex edgeFrom, edgeTo, rootNode;
-    private final Graph graph;
+    private Vertex edgeSource, edgeTarget, rootNode;                                  // todo undo option
     private final Algorithm algorithm;
+    private final Graph graph;
     private Timer timer;
 
     public GraphService(Graph graph) {
@@ -24,7 +23,7 @@ public class GraphService {
         if (graph.algorithmMode != NONE) {
             checkIfTheClickPointIsOnTheVertex(e)
                     .ifPresent(start -> {
-                    isGraphEnabled(false);
+                        isGraphEnabled(false);
                         rootNode = start;
                         graph.displayLabel.setText("Please wait...");
                         switch (graph.algorithmMode) {
@@ -58,7 +57,7 @@ public class GraphService {
                                 });
                                 timer.start();
                                 break;
-                            case DIJKSTRA_ALGORITHM: // todo - edges hiding is not working properly
+                            case DIJKSTRA_ALGORITHM:                        // todo - edges hiding is not working properly
                                 algorithm.initAlgorithm(rootNode);
                                 timer = new Timer(1000, event -> {
                                     if (graph.vertices.stream().anyMatch(v -> !v.visited)) {
@@ -98,47 +97,47 @@ public class GraphService {
         }
     }
 
-    private void isGraphEnabled(boolean setting) {
+    private void isGraphEnabled(boolean setting) {                                          // todo is it needed?
         Arrays.stream(graph.getComponents()).forEach(c -> c.setEnabled(setting));
         graph.setEnabled(setting);
     }
 
-    void createNewVertex(MouseEvent e) {
-        if (checkIfTheClickPointIsOnTheVertex(e).isEmpty()) {
+    void createNewVertex(MouseEvent point) {
+        if (checkIfTheClickPointIsOnTheVertex(point).isEmpty()) {
             var input = JOptionPane.showInputDialog(graph, "Enter the Vertex ID (should be 1 char):", "Vertex",
                     JOptionPane.INFORMATION_MESSAGE, null, null, null);
             if (input == null) return;
             String id = input.toString();
             if (!id.isBlank() && id.length() == 1) {
-                Vertex vertex = new Vertex(id, e.getPoint());
+                Vertex vertex = new Vertex(id, point.getPoint());
                 graph.vertices.add(vertex);
                 graph.add(vertex);
                 graph.repaint();
             } else {
                 JOptionPane.showMessageDialog(graph,
                         "Input must be one character long", "Error. Try again", JOptionPane.ERROR_MESSAGE);
-                createNewVertex(e);
+                createNewVertex(point);
             }
         }
     }
 
-    void createNewEdge(MouseEvent e) {
-        if (edgeFrom == null) {
-            checkIfTheClickPointIsOnTheVertex(e).ifPresent(first -> {
-                edgeFrom = first;
-                edgeFrom.marked = true;
+    void createNewEdge(MouseEvent point) {
+        if (edgeSource == null) {
+            checkIfTheClickPointIsOnTheVertex(point).ifPresent(source -> {
+                edgeSource = source;
+                edgeSource.marked = true;
                 graph.repaint();
             });
             return;
         }
-        if (edgeTo == null) {
-            checkIfTheClickPointIsOnTheVertex(e).ifPresent(second -> {
-                edgeTo = second;
-                edgeTo.marked = true;
+        if (edgeTarget == null) {
+            checkIfTheClickPointIsOnTheVertex(point).ifPresent(target -> {
+                edgeTarget = target;
+                edgeTarget.marked = true;
                 graph.repaint();
-                if (edgeFrom.equals(edgeTo) || graph.edges.stream().anyMatch(edge ->
-                        edge.first.equals(edgeFrom) && edge.second.equals(edgeTo)
-                        || edge.first.equals(edgeTo) && edge.second.equals(edgeFrom))) {
+                if (edgeSource.equals(edgeTarget) || graph.edges.stream().anyMatch(edge ->
+                        edge.source.equals(edgeTarget) && edge.target.equals(edgeSource)
+                        || edge.source.equals(edgeSource) && edge.target.equals(edgeTarget))) {
                     resetMarkedNodes();
                     return;
                 }
@@ -152,17 +151,19 @@ public class GraphService {
                     }
                     try {
                         int weight = Integer.parseInt(input.toString());
-                        var edge = new Edge(edgeFrom, edgeTo, weight);
-                        var reverseEdge = new Edge(edgeTo, edgeFrom, weight);
-                        edgeFrom.connected = true;
-                        edgeTo.connected = true;
-                        graph.add(edge);
-                        graph.add(reverseEdge);                      // todo can i simplify it??
-                        graph.add(edge.edgeLabel);
-                        graph.edges.add(edge);
-                        graph.edges.add(reverseEdge);
-                        edgeFrom.connectedEdges.add(edge);
-                        edgeTo.connectedEdges.add(reverseEdge);
+                        Edge edge = new Edge(edgeSource, edgeTarget, weight);
+                        Edge reversedEdge = new Edge(edgeTarget, edgeSource, weight);
+                        List.of(edge, reversedEdge).forEach(e -> {
+                            graph.add(e);
+                            graph.edges.add(e);
+                            graph.add(edge.edgeLabel);
+                        });
+                        edgeSource.connected = true;
+                        edgeTarget.connected = true;
+                        edgeSource.connectedEdges.add(edge);
+                        edgeTarget.connectedEdges.add(reversedEdge);
+                        edge.mirrorEdge = reversedEdge;
+                        reversedEdge.mirrorEdge = edge;
                         resetMarkedNodes();
                         return;
                     } catch (NumberFormatException ex) {
@@ -174,39 +175,29 @@ public class GraphService {
         }
     }
 
-    void removeVertex(MouseEvent e) {
-        checkIfTheClickPointIsOnTheVertex(e).ifPresent(vertex -> {
-            graph.edges.stream()
-                    .filter(edge -> edge.first.equals(vertex) || edge.second.equals(vertex))
-                    .peek(edge -> {
-                        if (edge.edgeLabel != null) graph.remove(edge.edgeLabel);
-                    })
-                    .forEach(graph::remove);
-            graph.edges = graph.edges.stream()
-                    .filter(edge -> !edge.first.equals(vertex) && !edge.second.equals(vertex))
-                    .collect(Collectors.toList());
+    void removeVertex(MouseEvent point) {
+        checkIfTheClickPointIsOnTheVertex(point).ifPresent(vertex -> {
+            vertex.connectedEdges.forEach(edge -> List.of(edge, edge.mirrorEdge).forEach(e -> {
+                graph.remove(e);
+                graph.edges.remove(e);
+                if (e.edgeLabel != null) graph.remove(e.edgeLabel);
+                edge.target.connectedEdges.remove(edge.mirrorEdge);
+            }));
             graph.vertices.remove(vertex);
             graph.remove(vertex);
             graph.repaint();
         });
     }
 
-    void removeEdge(MouseEvent e) {
-        checkIfTheClickPointIsOnTheEdge(e).ifPresent(edge -> {
-            graph.edges.stream()
-                    .filter(reversedEdge ->
-                            reversedEdge.first.equals(edge.second) && reversedEdge.second.equals(edge.first))
-                    .findAny().ifPresent(revLine -> {
-                        graph.remove(revLine);
-                        graph.edges.remove(revLine);
-                        graph.remove(edge.edgeLabel != null ? edge.edgeLabel : revLine.edgeLabel);
-                        graph.vertices.stream().map(v -> v.connectedEdges).peek(list -> {
-                            list.remove(edge);
-                            list.remove(revLine);                       // todo foreach?? or maybe by given vertex??
-                        }).close();
-                    });
-            graph.remove(edge);
-            graph.edges.remove(edge);
+    void removeEdge(MouseEvent point) {
+        checkIfTheClickPointIsOnTheEdge(point).ifPresent(edge -> {
+            List.of(edge, edge.mirrorEdge).forEach(e -> {
+                graph.remove(e);
+                graph.edges.remove(e);
+                if (e.edgeLabel != null) graph.remove(e.edgeLabel);
+                edge.source.connectedEdges.remove(edge);
+                edge.target.connectedEdges.remove(edge.mirrorEdge);
+            });
             graph.repaint();
         });
     }
@@ -232,6 +223,7 @@ public class GraphService {
         graph.displayLabel.setVisible(true);
         graph.displayLabel.setText("Please choose a starting vertex");
         algorithm.queue = new LinkedList<>();
+//        algorithm.settled = new LinkedList<>();
         algorithm.edgeSet = new HashSet<>();
         algorithm.chainResult = new StringJoiner(" > ");
         algorithm.edgesResult = "";
@@ -257,13 +249,13 @@ public class GraphService {
     }
 
     private void resetMarkedNodes() {
-        if (edgeFrom != null) {
-            edgeFrom.marked = false;
-            edgeFrom = null;
+        if (edgeSource != null) {
+            edgeSource.marked = false;
+            edgeSource = null;
         }
-        if (edgeTo != null) {
-            edgeTo.marked = false;
-            edgeTo = null;
+        if (edgeTarget != null) {
+            edgeTarget.marked = false;
+            edgeTarget = null;
         }
         graph.repaint();
     }
@@ -276,8 +268,8 @@ public class GraphService {
 
     private Optional<Edge> checkIfTheClickPointIsOnTheEdge(MouseEvent e) {
         return graph.edges.stream()
-                .filter(edge -> new Line2D.Double(edge.first.center.x, edge.first.center.y,
-                        edge.second.center.x, edge.second.center.y).ptLineDist(e.getPoint()) < 5)
+                .filter(edge -> new Line2D.Double(edge.source.center.x, edge.source.center.y,
+                        edge.target.center.x, edge.target.center.y).ptLineDist(e.getPoint()) < 5)
                 .findAny();
     }
 }

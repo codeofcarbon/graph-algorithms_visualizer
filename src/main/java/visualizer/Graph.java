@@ -6,9 +6,10 @@ import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
+
 public class Graph extends JPanel {
     final List<Vertex> vertices = new ArrayList<>();
-    List<Edge> edges = new ArrayList<>();               // todo can it be final after removing a connects map ?
+    final List<Edge> edges = new ArrayList<>();
     AlgorithmMode algorithmMode = AlgorithmMode.NONE;
     Mode mode = Mode.ADD_A_VERTEX;
     final GraphService service;
@@ -43,53 +44,17 @@ public class Graph extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setStroke(new BasicStroke(3f));
         for (var e : edges) {
-            if (e.visited) {
-                g.setColor(Color.WHITE);
-                g2d.drawLine(e.first.getX(), e.first.getY(), e.second.getX(), e.second.getY());
-                g.setColor(Color.GREEN);
-            } else if (e.hidden) {
-                g.setColor(Color.BLACK);
-                g2d.drawLine(e.first.getX(), e.first.getY(), e.second.getX(), e.second.getY());
-                g.setColor(Color.BLACK);
-            } else {
-                g.setColor(Color.DARK_GRAY);
-                g2d.drawLine(e.first.getX(), e.first.getY(), e.second.getX(), e.second.getY());
-                g.setColor(Color.LIGHT_GRAY);
-            }
+            e.getState().coloring(g, g2d, e);
             g.setFont(new Font("Courier", Font.PLAIN, 20));
-            boolean correct = Math.abs(e.first.getX() - e.second.getX()) > Math.abs(e.first.getY() - e.second.getY());
+            boolean correct = Math.abs(e.source.getX() - e.target.getX()) > Math.abs(e.source.getY() - e.target.getY());
             g.drawString(e.edgeLabel.getText(),
-                    (e.first.getX() + e.second.getX()) / 2 + (correct ? -10 : 10),
-                    (e.first.getY() + e.second.getY()) / 2 + (correct ? 25 : 10));
+                    (e.source.getX() + e.target.getX()) / 2 + (correct ? -10 : 10),
+                    (e.source.getY() + e.target.getY()) / 2 + (correct ? 25 : 10));
         }
 
         g2d.setStroke(new BasicStroke(1f));
         for (var v : vertices) {
-            if (v.marked) {
-                g.setColor(Color.RED);
-                v.midPoint(g);
-                g.setColor(Color.DARK_GRAY);
-                g.fillOval(v.getX() - 14, v.getY() - 14, 30, 30);
-                g.setColor(Color.WHITE);
-            } else if (v.visited) {
-                g.setColor(Color.WHITE);
-                v.midPoint(g);
-                g.setColor(Color.GREEN);
-                g.fillOval(v.getX() - 22, v.getY() - 22, 45, 45);
-                g.setColor(Color.WHITE);
-            } else if (v.connected) {
-                g.setColor(Color.GREEN);
-                v.midPoint(g);
-                g.setColor(Color.WHITE);
-                g.fillOval(v.getX() - 19, v.getY() - 19, 40, 40);
-                g.setColor(Color.BLACK);
-            } else {
-                g.setColor(Color.LIGHT_GRAY);
-                v.midPoint(g);
-                g.setColor(Color.DARK_GRAY);
-                g.fillOval(v.getX() - 14, v.getY() - 14, 30, 30);
-                g.setColor(Color.WHITE);
-            }
+            v.getState().coloring(g, v);
             g.setFont(new Font("Courier", Font.ITALIC, 30));
             g.drawString(v.vertexID.getText(), v.center.x - 9, v.center.y + 12);
         }
@@ -110,34 +75,23 @@ enum Mode {
     }
 }
 
-enum AlgorithmMode {                                     // todo maybe implement command pattern ?
+enum AlgorithmMode {
     DEPTH_FIRST_SEARCH("Depth First Search"),
-//                      (){
-//        @Override
-//        public Algorithm algorithm() {
-//            return new Algorithm();
-//        }
-//    },
     BREADTH_FIRST_SEARCH("Breadth First Search"),
     DIJKSTRA_ALGORITHM("Dijkstra's Algorithm"),
     PRIM_ALGORITHM("Prim's Algorithm"),
     NONE("None");
 
     final String current;
-    //    Runnable algorithm;
 
-    AlgorithmMode(String current/*, Runnable algorithm*/) {
+    AlgorithmMode(String current) {
         this.current = current;
-        //        this.algorithm = algorithm;
     }
-
-    //    public abstract Algorithm algorithm();
-}
-
-enum State {                                // todo states of node (and edges ?)
-    UNUSED,
-    CONNECTED,
-    MARKED,
-    VISITED,
-    HIDDEN
+// todo maybe implement command pattern ?
+//                      (){
+//        @Override
+//        public Algorithm algorithm() {
+//            return new Algorithm();
+//        }
+// }
 }
