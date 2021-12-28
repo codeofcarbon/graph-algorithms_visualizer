@@ -29,6 +29,7 @@ public class GraphService {
                         switch (graph.algorithmMode) {
                             case DEPTH_FIRST_SEARCH: // todo - when started end clicked again somewhere then loop begins
                                 timer = new Timer(1000, event -> {
+                                    graph.repaint();
                                     var nextNode = algorithm.dfsAlgorithm(rootNode);
                                     if (nextNode != null) rootNode = nextNode;
                                     else {
@@ -38,12 +39,12 @@ public class GraphService {
                                                 ":   </font>" + algorithm.chainResult.toString());
                                         timer.stop();
                                     }
-                                    graph.repaint();
                                 });
                                 timer.start();
                                 break;
                             case BREADTH_FIRST_SEARCH: // todo - when started end clicked again somewhere then loop begins
                                 timer = new Timer(1000, event -> {
+                                    graph.repaint();
                                     var nextNode = algorithm.bfsAlgorithm(rootNode);
                                     if (nextNode != null) rootNode = nextNode;
                                     else {
@@ -53,13 +54,13 @@ public class GraphService {
                                                 ":   </font>" + algorithm.chainResult.toString());
                                         timer.stop();
                                     }
-                                    graph.repaint();
                                 });
                                 timer.start();
                                 break;
                             case DIJKSTRA_ALGORITHM:                        // todo - edges hiding is not working properly
                                 algorithm.initAlgorithm(rootNode);
                                 timer = new Timer(1000, event -> {
+                                    graph.repaint();
                                     if (graph.vertices.stream().anyMatch(v -> !v.visited)) {
                                         algorithm.dijkstraAlgorithm();
                                     } else {
@@ -69,13 +70,13 @@ public class GraphService {
                                                 ":   </font>" + algorithm.edgesResult);
                                         timer.stop();
                                     }
-                                    graph.repaint();
                                 });
                                 timer.start();
                                 break;
                             case PRIM_ALGORITHM:
                                 algorithm.initAlgorithm(rootNode);
                                 timer = new Timer(1000, event -> {
+                                    graph.repaint();
                                     if (graph.vertices.stream().anyMatch(v -> !v.visited)) {
                                         algorithm.primAlgorithm();
                                     } else {
@@ -85,13 +86,13 @@ public class GraphService {
                                                 ":   </font>" + algorithm.edgesResult);
                                         timer.stop();
                                     }
-                                    graph.repaint();
                                 });
                                 timer.start();
                                 break;
                             default:
                                 graph.algorithmMode = NONE;
                                 isGraphEnabled(true);
+                                graph.repaint();
                         }
                     });
         }
@@ -234,8 +235,8 @@ public class GraphService {
     private void setCurrentModes(AlgorithmMode algorithmMode, Mode mode) {
         graph.mode = mode;
         graph.algorithmMode = algorithmMode;
-        graph.modeLabel.setText("Current Mode -> " + graph.mode.current);
-        graph.algorithmModeLabel.setText("Algorithm Mode -> " + graph.algorithmMode.current);
+        graph.modeLabel.setText("Current Mode > " + graph.mode.current);
+        graph.algorithmModeLabel.setText("Algorithm Mode > " + graph.algorithmMode.current);
     }
 
     private void resetComponentLists() {

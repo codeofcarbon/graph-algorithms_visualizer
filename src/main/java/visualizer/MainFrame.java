@@ -19,10 +19,10 @@ public class MainFrame extends JFrame {
         modePanel.setBounds(0, 0, this.getWidth(), 30);
         add(modePanel, BorderLayout.NORTH);
 
-        JLabel algorithmModeLabel = addLabel("Algorithm Mode -> None  ", SwingConstants.LEFT, "AlgorithmMode");
+        JLabel algorithmModeLabel = addLabel("Algorithm Mode > None  ", SwingConstants.LEFT, "AlgorithmMode");
         modePanel.add(algorithmModeLabel);
 
-        JLabel modeLabel = addLabel("Current Mode -> Add a Vertex  ", SwingConstants.RIGHT, "Mode");
+        JLabel modeLabel = addLabel("Current Mode > Add a Vertex  ", SwingConstants.RIGHT, "Mode");
         modePanel.add(modeLabel);
 
         JLabel displayLabel = addLabel("", SwingConstants.CENTER, "Display");
