@@ -5,6 +5,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static javax.swing.SwingUtilities.updateComponentTreeUI;
+
 public class Vertex extends JPanel {
     final String id;
     final JLabel vertexID;
@@ -24,14 +26,15 @@ public class Vertex extends JPanel {
         this.vertexID = new JLabel(id);
         vertexID.setName("VertexLabel " + id);
         add(vertexID);
+        updateComponentTreeUI(this);
     }
 
-    VertexState getState() {
-        if (this == Algorithm.root) return VertexState.ROOT;
-        else if (this.marked) return VertexState.MARKED;
-        else if (this.visited) return VertexState.VISITED;
-        else if (this.connected) return VertexState.CONNECTED;
-        else return VertexState.RAW;
+    protected VertexState getState() {
+        return Algorithm.root == this ? VertexState.ROOT
+                : this.marked ? VertexState.MARKED
+                : this.visited ? VertexState.VISITED
+                : this.connected ? VertexState.CONNECTED
+                : VertexState.RAW;
     }
 }
 

@@ -12,13 +12,11 @@ public class Graph extends JPanel {
     AlgorithmMode algorithmMode = AlgorithmMode.NONE;
     Mode mode = Mode.ADD_A_VERTEX;
     final GraphService service;
+    final Toolbar toolbar;
     final JLabel displayLabel;
-    final JLabel algorithmModeLabel;
-    final JLabel modeLabel;
 
-    public Graph(JLabel modeLabel, JLabel algorithmModeLabel, JLabel displayLabel) {
-        this.modeLabel = modeLabel;
-        this.algorithmModeLabel = algorithmModeLabel;
+    public Graph(Toolbar toolbar, JLabel displayLabel) {
+        this.toolbar = toolbar;
         this.displayLabel = displayLabel;
         this.service = new GraphService(this);
         setName("Graph");
@@ -63,11 +61,11 @@ public class Graph extends JPanel {
 }
 
 enum Mode {
-    ADD_A_VERTEX("Add a Vertex  "),
-    ADD_AN_EDGE("Add an Edge  "),
-    REMOVE_A_VERTEX("Remove a Vertex  "),
-    REMOVE_AN_EDGE("Remove an Edge  "),
-    NONE("None  ");
+    ADD_A_VERTEX("Add a Vertex"),
+    ADD_AN_EDGE("Add an Edge"),
+    REMOVE_A_VERTEX("Remove a Vertex"),
+    REMOVE_AN_EDGE("Remove an Edge"),
+    NONE("None");
 
     final String current;
 

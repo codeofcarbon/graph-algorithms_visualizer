@@ -1,7 +1,6 @@
 package visualizer;
 
 import java.util.*;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class Algorithm {
@@ -13,7 +12,6 @@ public class Algorithm {
     static Vertex root;
     StringJoiner chainResult;
     String edgesResult;
-
 
     public Algorithm(Graph graph) {
         shortestPath = new LinkedList<>();
@@ -35,8 +33,7 @@ public class Algorithm {
                         chainResult.add(String.format("<html><font size=+1><b>%s</b></font>", edge.target.id));
                     }, () -> queue.pollLast());
         }
-        if (graph.vertices.stream().allMatch(v -> v.visited))
-            hideUnnecessaryEdges();
+        getResultIfReady();
     }
 
     protected void bfsAlgorithm() {
@@ -54,8 +51,7 @@ public class Algorithm {
                         chainResult.add(String.format("<html><font size=+1><b>%s</b></font>", edge.target.id));
                     }, () -> queue.pollFirst());
         }
-        if (graph.vertices.stream().allMatch(v -> v.visited))
-            hideUnnecessaryEdges();
+        getResultIfReady();
     }
 
     protected void dijkstraAlgorithm() {
@@ -74,19 +70,7 @@ public class Algorithm {
             current.visited = true;
             queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
         }
-        if (graph.vertices.stream().allMatch(v -> v.visited)) {
-            paths.values().stream()
-                    .flatMap(Collection::stream)
-                    .forEach(edge -> edgeSet.addAll(List.of(edge, edge.mirrorEdge)));
-            hideUnnecessaryEdges();
-            edgesResult = graph.vertices.stream()
-                    .filter(v -> !v.equals(root))
-                    .sorted(Comparator.comparing(v -> v.id))
-                    .map(v -> String.format("<html><font size=+1 color=white><i><b> %s - </b></i></font>" +
-                                            "<font size=+1 color=green><i><b>%d</b></i></font>",
-                            v.id, v.distance))
-                    .collect(Collectors.joining(","));
-        }
+        getResultIfReady();
     }
 
     protected void primAlgorithm() {
@@ -99,14 +83,7 @@ public class Algorithm {
                     edge.target.visited = true;
                     edgeSet.add(edge);
                 });
-        if (graph.vertices.stream().allMatch(v -> v.visited)) {
-            hideUnnecessaryEdges();
-            edgesResult = edgeSet.stream()
-                    .sorted(Comparator.comparing(edge -> edge.source.id))
-                    .map(e -> String.format("<html><font size=+1 color=white><i><b> %s - %s </b></i></font>",
-                            e.source.id, e.target.id))
-                    .collect(Collectors.joining(","));
-        }
+        getResultIfReady();
     }
 
     protected void initAlgorithm(Vertex rootNode) {
@@ -133,6 +110,36 @@ public class Algorithm {
                     paths.get(edge.target).add(edge);
                 });
                 queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
+        }
+    }
+
+    private void getResultIfReady() {
+        if (graph.vertices.stream().allMatch(v -> v.visited)) {
+            if (graph.algorithmMode == AlgorithmMode.DIJKSTRA_ALGORITHM) {
+                paths.values().stream()
+                        .flatMap(Collection::stream)
+                        .forEach(edge -> edgeSet.addAll(List.of(edge, edge.mirrorEdge)));
+            }
+            hideUnnecessaryEdges();
+            switch (graph.algorithmMode) {
+                case DIJKSTRA_ALGORITHM:
+                    edgesResult = graph.vertices.stream()
+                            .filter(v -> !v.equals(root))
+                            .sorted(Comparator.comparing(v -> v.id))
+                            .map(v -> String.format(
+                                    "<html><font size=+1 color=white><i><b> %s - </b></i></font>" +
+                                    "<font size=+1 color=green><i><b>%d</b></i></font>",
+                                    v.id, v.distance))
+                            .collect(Collectors.joining(","));
+                    break;
+                case PRIM_ALGORITHM:
+                    edgesResult = edgeSet.stream()
+                            .sorted(Comparator.comparing(edge -> edge.source.id))
+                            .map(e -> String.format(
+                                    "<html><font size=+1 color=white><i><b> %s - %s</b></i></font>",
+                                    e.source.id, e.target.id))
+                            .collect(Collectors.joining(","));
+            }
         }
     }
 

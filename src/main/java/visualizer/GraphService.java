@@ -27,67 +27,53 @@ public class GraphService {
                     algorithm.initAlgorithm(rootNode);
                     graph.displayLabel.setText("Please wait...");
 
-                    switch (graph.algorithmMode){
-                        case DEPTH_FIRST_SEARCH:
-                            timer = new Timer(500, event -> {
+                    timer = new Timer(500, event -> {
+                        switch (graph.algorithmMode) {
+                            case DEPTH_FIRST_SEARCH:
                                 algorithm.dfsAlgorithm();
-                                graph.repaint();
-                                if (graph.vertices.stream().allMatch(v -> v.visited)) {
-                                    graph.displayLabel.setText(
-                                            "<html><font color=gray><i>DFS for </i></font>" +
-                                            "<font size=+2 color=blue>" + Algorithm.root.id +
-                                            ":   </font>" + algorithm.chainResult.toString());
-                                    timer.stop();
-                                }
-                            });
-                            timer.start();
-                            break;
-                        case BREADTH_FIRST_SEARCH:
-                            timer = new Timer(500, event -> {
+                                break;
+                            case BREADTH_FIRST_SEARCH:
                                 algorithm.bfsAlgorithm();
-                                graph.repaint();
-                                if (graph.vertices.stream().allMatch(v -> v.visited)) {
-                                    graph.displayLabel.setText(
-                                            "<html><font color=gray><i>BFS for </i></font>" +
-                                            "<font size=+2 color=blue>" + Algorithm.root.id +
-                                            ":   </font>" + algorithm.chainResult.toString());
-                                    timer.stop();
-                                }
-                            });
-                            timer.start();
-                            break;
-                        case DIJKSTRA_ALGORITHM:
-                            timer = new Timer(500, event -> {
+                                break;
+                            case DIJKSTRA_ALGORITHM:
                                 algorithm.dijkstraAlgorithm();
-                                graph.repaint();
-                                if (graph.vertices.stream().allMatch(v -> v.visited)) {
-                                    graph.displayLabel.setText(
-                                            "<html><font color=gray><i>shortest distances from </i></font>" +
-                                            "<font size=+2 color=blue>" + Algorithm.root.id +
-                                            ":   </font>" + algorithm.edgesResult);
-                                    timer.stop();
-                                }
-                            });
-                            timer.start();
-                            break;
-                        case PRIM_ALGORITHM:
-                            timer = new Timer(500, event -> {
+                                break;
+                            case PRIM_ALGORITHM:
                                 algorithm.primAlgorithm();
-                                graph.repaint();
-                                if (graph.vertices.stream().allMatch(v -> v.visited)) {
+                                break;
+                        }
+                        graph.repaint();
+                        if (graph.vertices.stream().allMatch(v -> v.visited)) {
+                            switch (graph.algorithmMode) {
+                                case DEPTH_FIRST_SEARCH:
                                     graph.displayLabel.setText(
-                                            "<html><font color=gray><i>MST for </i></font>" +
-                                            "<font size=+2 color=blue>" + Algorithm.root.id +
-                                            ":   </font>" + algorithm.edgesResult);
-                                    timer.stop();
-                                }
-                            });
-                            timer.start();
-//                            break;
-//                        default:
-//                            graph.algorithmMode = NONE;
-//                            graph.repaint();
-                    }
+                                            "<html><font size=+1 color=gray><i>DFS for </i></font>" +
+                                            "<font size=+2 color=blue><b>" + Algorithm.root.id +
+                                            ":   </b></font>" + algorithm.chainResult.toString());
+                                    break;
+                                case BREADTH_FIRST_SEARCH:
+                                    graph.displayLabel.setText(
+                                            "<html><font size=+1 color=gray><i>BFS for </i></font>" +
+                                            "<font size=+2 color=blue><b>" + Algorithm.root.id +
+                                            ":   </b></font>" + algorithm.chainResult.toString());
+                                    break;
+                                case DIJKSTRA_ALGORITHM:
+                                    graph.displayLabel.setText(
+                                            "<html><font size=+1 color=gray><i>shortest paths from </i></font>" +
+                                            "<font size=+2 color=blue><b>" + Algorithm.root.id +
+                                            ":   </b></font>" + algorithm.edgesResult);
+                                    break;
+                                case PRIM_ALGORITHM:
+                                    graph.displayLabel.setText(
+                                            "<html><font size=+1 color=gray><i>minimum spanning tree for </i></font>" +
+                                            "<font size=+2 color=blue><b>" + Algorithm.root.id +
+                                            ":   </b></font>" + algorithm.edgesResult);
+                                    break;
+                            }
+                            timer.stop();
+                        }
+                    });
+                    timer.start();
                 });
     }
 
@@ -219,8 +205,12 @@ public class GraphService {
     private void setCurrentModes(AlgorithmMode algorithmMode, Mode mode) {
         graph.mode = mode;
         graph.algorithmMode = algorithmMode;
-        graph.modeLabel.setText("Current Mode > " + graph.mode.current);
-        graph.algorithmModeLabel.setText("Algorithm Mode > " + graph.algorithmMode.current);
+        graph.toolbar.modeLabel.setText(String.format(
+                "<html><font color=gray>GRAPH MODE - " +
+                "<font size=+1 color=white><i>%s</i>", graph.mode.current.toUpperCase()));
+        graph.toolbar.algorithmModeLabel.setText(String.format(
+                "<html><font color=gray>ALGORITHM MODE - " +
+                "<font size=+1 color=white><i>%s</i>", graph.algorithmMode.current.toUpperCase()));
     }
 
     private void resetComponentLists() {

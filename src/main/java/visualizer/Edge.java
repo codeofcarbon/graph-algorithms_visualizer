@@ -20,10 +20,11 @@ public class Edge extends JComponent {
         edgeLabel.setName(String.format("EdgeLabel <%s -> %s>", source.id, target.id));
     }
 
-    EdgeState getState() {
-        if (this.visited) return EdgeState.VISITED;
-        else if (this.hidden) return EdgeState.HIDDEN;
-        else return EdgeState.RAW;
+    protected EdgeState getState() {
+        return Algorithm.shortestPath.contains(this) ? EdgeState.PATH
+                : this.visited ? EdgeState.VISITED
+                : this.hidden ? EdgeState.HIDDEN
+                : EdgeState.RAW;
     }
 }
 

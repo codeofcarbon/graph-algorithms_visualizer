@@ -2,45 +2,45 @@ package visualizer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 public class MainFrame extends JFrame {
 
     public MainFrame() {
         super("Graph-Algorithms Visualizer");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1000, 700);
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | UnsupportedLookAndFeelException
+                | InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
         setLocationRelativeTo(null);
         initComponents();
         setVisible(true);
     }
 
     private void initComponents() {
-        JPanel modePanel = new JPanel(new GridLayout(1, 2));
-        modePanel.setBounds(0, 0, this.getWidth(), 30);
-        add(modePanel, BorderLayout.NORTH);
+        final File graphDataDirectory = new File("src/main/java/visualizer/data/");
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(graphDataDirectory);
+        add(fileChooser);
 
-        JLabel algorithmModeLabel = addLabel("Algorithm Mode > None  ", SwingConstants.LEFT, "AlgorithmMode");
-        modePanel.add(algorithmModeLabel);
+        Toolbar toolbar = new Toolbar(fileChooser);
+        add(toolbar, BorderLayout.NORTH);
 
-        JLabel modeLabel = addLabel("Current Mode > Add a Vertex  ", SwingConstants.RIGHT, "Mode");
-        modePanel.add(modeLabel);
-
-        JLabel displayLabel = addLabel("", SwingConstants.CENTER, "Display");
-        displayLabel.setPreferredSize(new Dimension(100, 30));
+        JLabel displayLabel = new JLabel("", SwingConstants.CENTER);
+        displayLabel.setPreferredSize(new Dimension(this.getWidth(), 50));
+        displayLabel.setBackground(Color.BLACK);
+        displayLabel.setForeground(Color.WHITE);
+        displayLabel.setOpaque(true);
         add(displayLabel, BorderLayout.SOUTH, SwingConstants.CENTER);
 
-        Graph graph = new Graph(modeLabel, algorithmModeLabel, displayLabel);
+        Graph graph = new Graph(toolbar, displayLabel);
         add(graph);
 
-        setJMenuBar(new MenuBar(graph.service));
-    }
-
-    private JLabel addLabel(String text, int align, String name) {
-        var label = new JLabel(text, align);
-        label.setName(name);
-        label.setBackground(Color.BLACK);
-        label.setForeground(Color.WHITE);
-        label.setOpaque(true);
-        return label;
+        MenuBar menuBar = new MenuBar(graph.service);
+        setJMenuBar(menuBar);
     }
 }
