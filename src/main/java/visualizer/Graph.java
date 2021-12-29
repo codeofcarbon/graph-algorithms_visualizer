@@ -39,24 +39,26 @@ public class Graph extends JPanel {
         });
     }
 
+    @Override
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
+
         g2d.setStroke(new BasicStroke(3f));
         for (var e : edges) {
             e.getState().coloring(g, g2d, e);
             g.setFont(new Font("Courier", Font.PLAIN, 20));
-            boolean correct = Math.abs(e.source.getX() - e.target.getX()) > Math.abs(e.source.getY() - e.target.getY());
+            boolean align = Math.abs(e.source.getX() - e.target.getX()) > Math.abs(e.source.getY() - e.target.getY());
             g.drawString(e.edgeLabel.getText(),
-                    (e.source.getX() + e.target.getX()) / 2 + (correct ? -10 : 10),
-                    (e.source.getY() + e.target.getY()) / 2 + (correct ? 25 : 10));
+                    (e.source.getX() + e.target.getX()) / 2 + (align ? -10 : 10),
+                    (e.source.getY() + e.target.getY()) / 2 + (align ? 25 : 10));
         }
 
         g2d.setStroke(new BasicStroke(1f));
         for (var v : vertices) {
             v.getState().coloring(g, v);
             g.setFont(new Font("Courier", Font.ITALIC, 30));
-            g.drawString(v.vertexID.getText(), v.center.x - 9, v.center.y + 12);
+            g.drawString(v.id, v.center.x - 8, v.center.y + 12);
         }
     }
 }
@@ -87,11 +89,4 @@ enum AlgorithmMode {
     AlgorithmMode(String current) {
         this.current = current;
     }
-// todo maybe implement command pattern ?
-//                      (){
-//        @Override
-//        public Algorithm algorithm() {
-//            return new Algorithm();
-//        }
-// }
 }

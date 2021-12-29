@@ -1,6 +1,7 @@
 # Graph-Algorithms Visualizer
 
-Based on the Swing library, Java GUI application for creating and visualizing graph algorithms such as traversals, spanning trees, and shortest pathfindings.
+Based on the Swing library, Java GUI application for creating and visualizing graph algorithms such 
+as traversals, spanning trees, and finding the shortest path.
 
 ## Table of contents
 * [Overview](#overview)
@@ -13,7 +14,7 @@ JetBrains Academy Project
 
 ## Screenshots
 ###### screenshot1
-![screenshot1](/screenshots/screenshot1.png) 
+![screenshot1](screenshots/screenshot1.png) 
 
 ###### screenshot2
 ![screenshot2](screenshots/screenshot2.png)

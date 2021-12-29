@@ -8,7 +8,6 @@ public class Edge extends JComponent {
     final Vertex source;
     final Vertex target;
     Edge mirrorEdge;
-    EdgeState state;
     boolean visited, hidden;
     int weight;
 
@@ -22,9 +21,9 @@ public class Edge extends JComponent {
     }
 
     EdgeState getState() {
-        if (this.visited) return this.state = EdgeState.VISITED;
-        else if (this.hidden) return this.state = EdgeState.HIDDEN;
-        else return this.state = EdgeState.RAW;
+        if (this.visited) return EdgeState.VISITED;
+        else if (this.hidden) return EdgeState.HIDDEN;
+        else return EdgeState.RAW;
     }
 }
 
