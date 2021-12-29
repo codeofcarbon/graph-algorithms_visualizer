@@ -27,7 +27,8 @@ public class Vertex extends JPanel {
     }
 
     VertexState getState() {
-        if (this.marked) return VertexState.MARKED;
+        if (this == Algorithm.root) return VertexState.ROOT;
+        else if (this.marked) return VertexState.MARKED;
         else if (this.visited) return VertexState.VISITED;
         else if (this.connected) return VertexState.CONNECTED;
         else return VertexState.RAW;
@@ -44,15 +45,6 @@ enum VertexState {
             g.setColor(Color.WHITE);
         }
     },
-    CONNECTED() {
-        public void coloring(Graphics g, Vertex v) {
-            g.setColor(Color.GREEN);
-            g.drawOval(v.getX() - 24, v.getY() - 24, 50, 50);
-            g.setColor(Color.WHITE);
-            g.fillOval(v.getX() - 19, v.getY() - 19, 40, 40);
-            g.setColor(Color.BLACK);
-        }
-    },
     MARKED() {
         public void coloring(Graphics g, Vertex v) {
             g.setColor(Color.RED);
@@ -62,12 +54,30 @@ enum VertexState {
             g.setColor(Color.WHITE);
         }
     },
+    CONNECTED() {
+        public void coloring(Graphics g, Vertex v) {
+            g.setColor(Color.GREEN);
+            g.drawOval(v.getX() - 24, v.getY() - 24, 50, 50);
+            g.setColor(Color.WHITE);
+            g.fillOval(v.getX() - 17, v.getY() - 17, 36, 36);
+            g.setColor(Color.BLACK);
+        }
+    },
     VISITED() {
         public void coloring(Graphics g, Vertex v) {
-            g.setColor(Color.WHITE);
+            g.setColor(Color.BLUE);
             g.drawOval(v.getX() - 24, v.getY() - 24, 50, 50);
-            g.setColor(Color.GREEN);
-            g.fillOval(v.getX() - 22, v.getY() - 22, 45, 45);
+            g.setColor(Color.WHITE);
+            g.fillOval(v.getX() - 17, v.getY() - 17, 36, 36);
+            g.setColor(Color.BLUE);
+        }
+    },
+    ROOT() {
+        public void coloring(Graphics g, Vertex v) {
+            g.setColor(Color.WHITE);
+            g.drawOval(v.getX() - 34, v.getY() - 34, 70, 70);
+            g.setColor(Color.BLUE);
+            g.fillOval(v.getX() - 27, v.getY() - 27, 55, 55);
             g.setColor(Color.WHITE);
         }
     };

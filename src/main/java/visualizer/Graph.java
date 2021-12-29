@@ -6,7 +6,6 @@ import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
-
 public class Graph extends JPanel {
     final List<Vertex> vertices = new ArrayList<>();
     final List<Edge> edges = new ArrayList<>();
@@ -78,8 +77,8 @@ enum Mode {
 }
 
 enum AlgorithmMode {
-    DEPTH_FIRST_SEARCH("Depth First Search"),
-    BREADTH_FIRST_SEARCH("Breadth First Search"),
+    DEPTH_FIRST_SEARCH("Depth-First Search"),
+    BREADTH_FIRST_SEARCH("Breadth-First Search"),
     DIJKSTRA_ALGORITHM("Dijkstra's Algorithm"),
     PRIM_ALGORITHM("Prim's Algorithm"),
     NONE("None");

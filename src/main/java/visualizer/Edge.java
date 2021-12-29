@@ -37,9 +37,9 @@ enum EdgeState {
     },
     VISITED() {
         public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
-            g.setColor(Color.WHITE);
+            g.setColor(Color.BLUE);
             g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
-            g.setColor(Color.GREEN);
+            g.setColor(Color.WHITE);
         }
     },
     HIDDEN() {
@@ -47,6 +47,13 @@ enum EdgeState {
             g.setColor(Color.BLACK);
             g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
             g.setColor(Color.BLACK);
+        }
+    },
+    PATH() {
+        public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
+            g.setColor(Color.GREEN);
+            g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
+            g.setColor(Color.WHITE);
         }
     };
 

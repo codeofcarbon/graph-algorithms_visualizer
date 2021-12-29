@@ -6,121 +6,57 @@ import java.util.stream.Collectors;
 
 public class Algorithm {
     private Map<Vertex, List<Edge>> paths;
-    LinkedList<Vertex> queue;
-    Set<Edge> edgeSet;
-    private final AlgorithmMode algorithmMode;
-    private final List<Vertex> vertices;
-    private final List<Edge> edges;
+    private LinkedList<Vertex> queue;
+    private Set<Edge> edgeSet;
+    private final Graph graph;
+    static List<Edge> shortestPath;
+    static Vertex root;
     StringJoiner chainResult;
     String edgesResult;
-    Vertex root;
 
-    public Algorithm(List<Vertex> vertices, List<Edge> edges, AlgorithmMode algorithmMode) {
-        this.algorithmMode = algorithmMode;
-        this.vertices = vertices;
-        this.edges = edges;
+
+    public Algorithm(Graph graph) {
+        shortestPath = new LinkedList<>();
+        this.graph = graph;
     }
 
-    protected Vertex dfsAlgorithm(Vertex rootNode) {
-        root = rootNode;
-        rootNode.visited = true;
-        chainResult.add(String.format("<html><font size=+1><b>%s</b></font>", rootNode.id));
-        queue.addLast(rootNode);
-        while (true) {
-            if (queue.isEmpty()) {
-                hideUnnecessaryEdges();
-                return null;
-            }
-            var next = queue.peekLast().connectedEdges.stream()
+    protected void dfsAlgorithm() {
+        if (!queue.isEmpty()) {
+            queue.peekLast().connectedEdges.stream()
                     .filter(edge -> !edge.target.visited)
                     .min(Comparator.comparingInt(edge -> edge.weight))
-                    .map(edge -> {
-                        edge.visited = true;
-                        edgeSet.add(edge);
-                        edge.mirrorEdge.visited = true;
-                        edgeSet.add(edge.mirrorEdge);
-                        return edge.target;
-                    });
-            if (next.isEmpty()) queue.pollLast();
-            else return next.get();
+                    .ifPresentOrElse(edge -> {
+                        List.of(edge, edge.mirrorEdge).forEach(e -> {
+                            e.visited = true;
+                            edgeSet.add(e);
+                        });
+                        edge.target.visited = true;
+                        queue.addLast(edge.target);
+                        chainResult.add(String.format("<html><font size=+1><b>%s</b></font>", edge.target.id));
+                    }, () -> queue.pollLast());
         }
+        if (graph.vertices.stream().allMatch(v -> v.visited))
+            hideUnnecessaryEdges();
     }
 
-    protected Vertex bfsAlgorithm(Vertex rootNode) {
-        root = rootNode;
-        rootNode.visited = true;
-        chainResult.add(String.format("<html><font size=+1><b>%s</b></font>", rootNode.id));
-        queue.addLast(rootNode);
-        while (true) {
-            if (queue.isEmpty()) {
-                hideUnnecessaryEdges();
-                return null;
-            }
-            var next = queue.peekFirst().connectedEdges.stream()
+    protected void bfsAlgorithm() {
+        if (!queue.isEmpty()) {
+            queue.peekFirst().connectedEdges.stream()
                     .filter(edge -> !edge.target.visited)
                     .min(Comparator.comparingInt(edge -> edge.weight))
-                    .map(edge -> {
-                        edge.visited = true;
-                        edgeSet.add(edge);
-                        edge.mirrorEdge.visited = true;
-                        edgeSet.add(edge.mirrorEdge);
-                        return edge.target;
-                    });
-            if (next.isEmpty()) queue.removeFirst();
-            else return next.get();
+                    .ifPresentOrElse(edge -> {
+                        List.of(edge, edge.mirrorEdge).forEach(e -> {
+                            e.visited = true;
+                            edgeSet.add(e);
+                        });
+                        edge.target.visited = true;
+                        queue.addLast(edge.target);
+                        chainResult.add(String.format("<html><font size=+1><b>%s</b></font>", edge.target.id));
+                    }, () -> queue.pollFirst());
         }
+        if (graph.vertices.stream().allMatch(v -> v.visited))
+            hideUnnecessaryEdges();
     }
-
-    private void hideUnnecessaryEdges() {
-        switch (algorithmMode) {
-            case DIJKSTRA_ALGORITHM:
-                edges.stream()
-                        .filter(edge -> !edgeSet.contains(edge))
-                        .forEach(edge -> edge.hidden = true);
-                break;
-            case DEPTH_FIRST_SEARCH:
-            case BREADTH_FIRST_SEARCH:
-            case PRIM_ALGORITHM:
-                edges.forEach(edge -> {
-                    if (edgeSet.contains(edge)) edge.visited = true;
-                    else edge.hidden = true;
-                });
-        }
-    }
-
-    protected void initAlgorithm(Vertex rootNode) {
-        paths = new HashMap<>();
-        edgeSet = new HashSet<>();
-        queue = new LinkedList<>(vertices);
-        rootNode.distance = 0;
-        rootNode.visited = true;
-        root = rootNode;
-        vertices.forEach(vertex -> paths.put(vertex, new ArrayList<>()));
-        root.connectedEdges.forEach(edge -> {
-            edge.target.distance = edge.weight;
-            paths.get(edge.target).add(edge);
-        });
-        queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
-    }
-
-//    protected void initAlgorithm(Vertex rootNode) {
-//        root = rootNode;
-//        rootNode.visited = true;
-////        edgeSet = new HashSet<>();
-////        chainResult = new StringJoiner(" > ");
-////        edgesResult = "";
-//        if (algorithmMode == AlgorithmMode.DIJKSTRA_ALGORITHM || algorithmMode == AlgorithmMode.PRIM_ALGORITHM) {
-//                    paths = new HashMap<>();
-//                    queue = new LinkedList<>(vertices);
-//                    rootNode.distance = 0;
-//                    vertices.forEach(vertex -> paths.put(vertex, new ArrayList<>()));
-//                    root.connectedEdges.forEach(edge -> {
-//                        edge.target.distance = edge.weight;
-//                        paths.get(edge.target).add(edge);
-//                    });
-//                    queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
-//            }
-//        }
 
     protected void dijkstraAlgorithm() {
         if (!queue.isEmpty()) {
@@ -138,13 +74,12 @@ public class Algorithm {
             current.visited = true;
             queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
         }
-
-        if (vertices.stream().allMatch(v -> v.visited)) {
+        if (graph.vertices.stream().allMatch(v -> v.visited)) {
             paths.values().stream()
                     .flatMap(Collection::stream)
                     .forEach(edge -> edgeSet.addAll(List.of(edge, edge.mirrorEdge)));
-
-            edgesResult = vertices.stream()
+            hideUnnecessaryEdges();
+            edgesResult = graph.vertices.stream()
                     .filter(v -> !v.equals(root))
                     .sorted(Comparator.comparing(v -> v.id))
                     .map(v -> String.format("<html><font size=+1 color=white><i><b> %s - </b></i></font>" +
@@ -155,7 +90,7 @@ public class Algorithm {
     }
 
     protected void primAlgorithm() {
-        edges.stream()
+        graph.edges.stream()
                 .filter(edge -> edge.source.visited && !edge.target.visited)
                 .min(Comparator.comparingInt(edge -> edge.weight))
                 .ifPresent(edge -> {
@@ -164,14 +99,55 @@ public class Algorithm {
                     edge.target.visited = true;
                     edgeSet.add(edge);
                 });
-
-        if (vertices.stream().allMatch(v -> v.visited)) {
+        if (graph.vertices.stream().allMatch(v -> v.visited)) {
             hideUnnecessaryEdges();
             edgesResult = edgeSet.stream()
                     .sorted(Comparator.comparing(edge -> edge.source.id))
-                    .map(e -> String.format("<html><font size=+1 color=white><i><b> %s-%s </b></i></font>",
+                    .map(e -> String.format("<html><font size=+1 color=white><i><b> %s - %s </b></i></font>",
                             e.source.id, e.target.id))
                     .collect(Collectors.joining(","));
         }
+    }
+
+    protected void initAlgorithm(Vertex rootNode) {
+        root = rootNode;
+        rootNode.visited = true;
+        edgeSet = new HashSet<>();
+        chainResult = new StringJoiner(" > ");
+        edgesResult = "";
+        switch (graph.algorithmMode) {
+            case DEPTH_FIRST_SEARCH:
+            case BREADTH_FIRST_SEARCH:
+                queue = new LinkedList<>();
+                queue.addLast(rootNode);
+                chainResult.add(String.format("<html><font size=+1><b>%s</b></font>", rootNode.id));
+                break;
+            case DIJKSTRA_ALGORITHM:
+            case PRIM_ALGORITHM:
+                paths = new HashMap<>();
+                queue = new LinkedList<>(graph.vertices);
+                rootNode.distance = 0;
+                graph.vertices.forEach(vertex -> paths.put(vertex, new ArrayList<>()));
+                root.connectedEdges.forEach(edge -> {
+                    edge.target.distance = edge.weight;
+                    paths.get(edge.target).add(edge);
+                });
+                queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
+        }
+    }
+
+    private void hideUnnecessaryEdges() {
+        graph.edges.stream()
+                .filter(edge -> !edgeSet.contains(edge))
+                .forEach(edge -> edge.hidden = true);
+    }
+
+    protected void resetAlgorithm() {
+        queue = new LinkedList<>();
+        edgeSet = new HashSet<>();
+        shortestPath = new LinkedList<>();
+        chainResult = new StringJoiner(" > ");
+        edgesResult = "";
+        root = null;
     }
 }

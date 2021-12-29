@@ -9,7 +9,7 @@ import java.util.*;
 import static visualizer.AlgorithmMode.*;
 
 public class GraphService {
-    private Vertex edgeSource, edgeTarget, rootNode;
+    private Vertex edgeSource, edgeTarget;
     private final Algorithm algorithm;
     private final Graph graph;
     private Timer timer;
@@ -17,82 +17,76 @@ public class GraphService {
     public GraphService(Graph graph) {
         graph.displayLabel.setVisible(false);
         this.graph = graph;
-        this.algorithm = new Algorithm(graph.vertices, graph.edges, graph.algorithmMode);
+        this.algorithm = new Algorithm(graph);
     }
 
     void startAlgorithm(MouseEvent e) {
         checkIfTheClickPointIsOnTheVertex(e)
-                .ifPresent(start -> {
+                .ifPresent(rootNode -> {
                     if (!algorithm.chainResult.toString().isBlank() || !algorithm.edgesResult.isBlank()) return;
-                    rootNode = start;
+                    algorithm.initAlgorithm(rootNode);
                     graph.displayLabel.setText("Please wait...");
 
-                    switch (graph.algorithmMode) {
+                    switch (graph.algorithmMode){
                         case DEPTH_FIRST_SEARCH:
                             timer = new Timer(500, event -> {
-                                var nextNode = algorithm.dfsAlgorithm(rootNode);
-                                if (nextNode != null) rootNode = nextNode;
-                                else {
+                                algorithm.dfsAlgorithm();
+                                graph.repaint();
+                                if (graph.vertices.stream().allMatch(v -> v.visited)) {
                                     graph.displayLabel.setText(
                                             "<html><font color=gray><i>DFS for </i></font>" +
-                                            "<font size=+2 color=blue>" + algorithm.root.id +
+                                            "<font size=+2 color=blue>" + Algorithm.root.id +
                                             ":   </font>" + algorithm.chainResult.toString());
                                     timer.stop();
                                 }
-                                graph.repaint();
                             });
                             timer.start();
                             break;
                         case BREADTH_FIRST_SEARCH:
                             timer = new Timer(500, event -> {
-                                var nextNode = algorithm.bfsAlgorithm(rootNode);
-                                if (nextNode != null) rootNode = nextNode;
-                                else {
+                                algorithm.bfsAlgorithm();
+                                graph.repaint();
+                                if (graph.vertices.stream().allMatch(v -> v.visited)) {
                                     graph.displayLabel.setText(
                                             "<html><font color=gray><i>BFS for </i></font>" +
-                                            "<font size=+2 color=blue>" + algorithm.root.id +
+                                            "<font size=+2 color=blue>" + Algorithm.root.id +
                                             ":   </font>" + algorithm.chainResult.toString());
                                     timer.stop();
                                 }
-                                graph.repaint();
                             });
                             timer.start();
                             break;
                         case DIJKSTRA_ALGORITHM:
-                            algorithm.initAlgorithm(rootNode);
                             timer = new Timer(500, event -> {
-                                if (graph.vertices.stream().anyMatch(v -> !v.visited)) {
-                                    algorithm.dijkstraAlgorithm();
-                                } else {
+                                algorithm.dijkstraAlgorithm();
+                                graph.repaint();
+                                if (graph.vertices.stream().allMatch(v -> v.visited)) {
                                     graph.displayLabel.setText(
                                             "<html><font color=gray><i>shortest distances from </i></font>" +
-                                            "<font size=+2 color=blue>" + algorithm.root.id +
+                                            "<font size=+2 color=blue>" + Algorithm.root.id +
                                             ":   </font>" + algorithm.edgesResult);
                                     timer.stop();
                                 }
-                                graph.repaint();
                             });
                             timer.start();
                             break;
                         case PRIM_ALGORITHM:
-                            algorithm.initAlgorithm(rootNode);
                             timer = new Timer(500, event -> {
-                                if (graph.vertices.stream().anyMatch(v -> !v.visited)) {
-                                    algorithm.primAlgorithm();
-                                } else {
+                                algorithm.primAlgorithm();
+                                graph.repaint();
+                                if (graph.vertices.stream().allMatch(v -> v.visited)) {
                                     graph.displayLabel.setText(
                                             "<html><font color=gray><i>MST for </i></font>" +
-                                            "<font size=+2 color=blue>" + algorithm.root.id +
+                                            "<font size=+2 color=blue>" + Algorithm.root.id +
                                             ":   </font>" + algorithm.edgesResult);
                                     timer.stop();
                                 }
-                                graph.repaint();
                             });
                             timer.start();
-                            break;
-                        default:
-                            graph.algorithmMode = NONE;
-                            graph.repaint();
+//                            break;
+//                        default:
+//                            graph.algorithmMode = NONE;
+//                            graph.repaint();
                     }
                 });
     }
@@ -217,10 +211,7 @@ public class GraphService {
         setCurrentModes(algorithmMode, Mode.NONE);
         graph.displayLabel.setVisible(true);
         graph.displayLabel.setText("Please choose a starting vertex");
-        algorithm.queue = new LinkedList<>();
-        algorithm.edgeSet = new HashSet<>();
-        algorithm.chainResult = new StringJoiner(" > ");
-        algorithm.edgesResult = "";
+        algorithm.resetAlgorithm();
         resetComponentLists();
         resetMarkedNodes();
     }
