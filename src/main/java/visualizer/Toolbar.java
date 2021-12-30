@@ -2,6 +2,8 @@ package visualizer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+import java.util.Map;
 
 public class Toolbar extends JPanel {
     JLabel algorithmModeLabel;
@@ -12,6 +14,7 @@ public class Toolbar extends JPanel {
     JButton openButton;
     JButton saveButton;
     private final JFileChooser fileChooser;
+    GraphService service;                                       // todo change IT!!!
 
     private static final ImageIcon OPEN = new ImageIcon(new ImageIcon("src/main/resources/icons/open.png")
             .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
@@ -23,9 +26,9 @@ public class Toolbar extends JPanel {
             .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
 
     public Toolbar(JFileChooser fileChooser) {
-        setLayout(new GridLayout(1, 3));
-        setBounds(0, 0, this.getWidth(), 50);
         this.fileChooser = fileChooser;
+        setLayout(new GridLayout(1, 3));
+        setPreferredSize(new Dimension(this.getWidth(), 30));
         algorithmModeLabel = addLabel("<html><font color=gray>ALGORITHM MODE - " +
                                       "<font size=+1 color=white><i>NONE</i>", "AlgorithmMode");
         add(algorithmModeLabel);
@@ -38,17 +41,19 @@ public class Toolbar extends JPanel {
         setVisible(true);
     }
 
+    @SuppressWarnings("unchecked")
     private void initComponents() {
         openButton = addButton(OPEN, "OpenButton");
         openButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Select graph data file");
             int returnValue = fileChooser.showOpenDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
-                Storage.deserialize(String.valueOf(fileChooser.getSelectedFile()));
+                var connects = (Map<Vertex, List<Edge>>)
+                        Storage.deserialize(String.valueOf(fileChooser.getSelectedFile()));
             }
         });
 
-        saveButton = addButton(SAVE,"SaveButton");
+        saveButton = addButton(SAVE, "SaveButton");
         saveButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Save graph data file");
             int returnValue = fileChooser.showSaveDialog(null);
@@ -57,12 +62,12 @@ public class Toolbar extends JPanel {
             }
         });
 
-        undoButton = addButton(UNDO,"UndoButton");
+        undoButton = addButton(UNDO, "UndoButton");
         undoButton.addActionListener(event -> {
 
         });
 
-        redoButton = addButton(REDO,"RedoButton");
+        redoButton = addButton(REDO, "RedoButton");
         redoButton.addActionListener(event -> {
 
         });

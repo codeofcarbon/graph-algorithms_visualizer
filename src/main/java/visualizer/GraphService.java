@@ -5,8 +5,9 @@ import javax.swing.Timer;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.util.*;
+import java.util.List;
 
-import static visualizer.AlgorithmMode.*;
+import static visualizer.AlgMode.*;
 
 public class GraphService {
     private Vertex edgeSource, edgeTarget;
@@ -22,58 +23,38 @@ public class GraphService {
 
     void startAlgorithm(MouseEvent e) {
         checkIfTheClickPointIsOnTheVertex(e)
-                .ifPresent(rootNode -> {
-                    if (!algorithm.chainResult.toString().isBlank() || !algorithm.edgesResult.isBlank()) return;
-                    algorithm.initAlgorithm(rootNode);
-                    graph.displayLabel.setText("Please wait...");
-
-                    timer = new Timer(500, event -> {
-                        switch (graph.algorithmMode) {
-                            case DEPTH_FIRST_SEARCH:
-                                algorithm.dfsAlgorithm();
-                                break;
-                            case BREADTH_FIRST_SEARCH:
-                                algorithm.bfsAlgorithm();
-                                break;
-                            case DIJKSTRA_ALGORITHM:
-                                algorithm.dijkstraAlgorithm();
-                                break;
-                            case PRIM_ALGORITHM:
-                                algorithm.primAlgorithm();
-                                break;
-                        }
-                        graph.repaint();
-                        if (graph.vertices.stream().allMatch(v -> v.visited)) {
+                .ifPresent(selectedNode -> {
+                    if (Algorithm.root != null && graph.algorithmMode == DIJKSTRA_ALGORITHM) {
+                        var shortestPath = algorithm.getShortestPath(selectedNode);
+                        graph.displayLabel.setText(shortestPath);
+                    }
+                    if (Algorithm.root == null) {
+                        algorithm.initAlgorithm(selectedNode);
+                        graph.displayLabel.setText("Please wait...");
+                        timer = new Timer(500, event -> {
                             switch (graph.algorithmMode) {
                                 case DEPTH_FIRST_SEARCH:
-                                    graph.displayLabel.setText(
-                                            "<html><font size=+1 color=gray><i>DFS for </i></font>" +
-                                            "<font size=+2 color=blue><b>" + Algorithm.root.id +
-                                            ":   </b></font>" + algorithm.chainResult.toString());
+                                    algorithm.dfsAlgorithm();
                                     break;
                                 case BREADTH_FIRST_SEARCH:
-                                    graph.displayLabel.setText(
-                                            "<html><font size=+1 color=gray><i>BFS for </i></font>" +
-                                            "<font size=+2 color=blue><b>" + Algorithm.root.id +
-                                            ":   </b></font>" + algorithm.chainResult.toString());
+                                    algorithm.bfsAlgorithm();
                                     break;
                                 case DIJKSTRA_ALGORITHM:
-                                    graph.displayLabel.setText(
-                                            "<html><font size=+1 color=gray><i>shortest paths from </i></font>" +
-                                            "<font size=+2 color=blue><b>" + Algorithm.root.id +
-                                            ":   </b></font>" + algorithm.edgesResult);
+                                    algorithm.dijkstraAlgorithm();
                                     break;
                                 case PRIM_ALGORITHM:
-                                    graph.displayLabel.setText(
-                                            "<html><font size=+1 color=gray><i>minimum spanning tree for </i></font>" +
-                                            "<font size=+2 color=blue><b>" + Algorithm.root.id +
-                                            ":   </b></font>" + algorithm.edgesResult);
+                                    algorithm.primAlgorithm();
                                     break;
                             }
-                            timer.stop();
-                        }
-                    });
-                    timer.start();
+                            var algorithmResult = algorithm.getResultIfReady();
+                            if (!algorithmResult.isBlank()) {
+                                graph.displayLabel.setText(algorithmResult);
+                                timer.stop();
+                            }
+                            graph.repaint();
+                        });
+                        timer.start();
+                    }
                 });
     }
 
@@ -181,6 +162,7 @@ public class GraphService {
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
         setCurrentModes(NONE, Mode.ADD_A_VERTEX);
         graph.displayLabel.setVisible(false);
+        algorithm.resetAlgorithm();
         graph.vertices.clear();
         graph.edges.clear();
         graph.repaint();
@@ -189,20 +171,23 @@ public class GraphService {
     void switchMode(Mode mode) {
         setCurrentModes(NONE, mode);
         graph.displayLabel.setVisible(false);
-        resetComponentLists();
-        resetMarkedNodes();
-    }
-
-    void switchAlgorithmMode(AlgorithmMode algorithmMode) {
-        setCurrentModes(algorithmMode, Mode.NONE);
-        graph.displayLabel.setVisible(true);
-        graph.displayLabel.setText("Please choose a starting vertex");
+        graph.setToolTipText(null);
         algorithm.resetAlgorithm();
         resetComponentLists();
         resetMarkedNodes();
     }
 
-    private void setCurrentModes(AlgorithmMode algorithmMode, Mode mode) {
+    void switchAlgorithmMode(AlgMode algorithmMode) {
+        setCurrentModes(algorithmMode, Mode.NONE);
+        graph.displayLabel.setVisible(true);
+        graph.displayLabel.setText("Please choose a starting vertex");
+        graph.setToolTipText(null);
+        algorithm.resetAlgorithm();
+        resetComponentLists();
+        resetMarkedNodes();
+    }
+
+    private void setCurrentModes(AlgMode algorithmMode, Mode mode) {
         graph.mode = mode;
         graph.algorithmMode = algorithmMode;
         graph.toolbar.modeLabel.setText(String.format(

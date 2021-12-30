@@ -22,22 +22,21 @@ public class MainFrame extends JFrame {
     }
 
     private void initComponents() {
-        final File graphDataDirectory = new File("src/main/java/visualizer/data/");
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(graphDataDirectory);
+        fileChooser.setCurrentDirectory(new File("src/main/java/visualizer/data/"));
         add(fileChooser);
 
         Toolbar toolbar = new Toolbar(fileChooser);
         add(toolbar, BorderLayout.NORTH);
 
         JLabel displayLabel = new JLabel("", SwingConstants.CENTER);
-        displayLabel.setPreferredSize(new Dimension(this.getWidth(), 50));
-        displayLabel.setBackground(Color.BLACK);
+        displayLabel.setPreferredSize(new Dimension(this.getWidth(), 30));
+        displayLabel.setBackground(Color.DARK_GRAY.darker());
         displayLabel.setForeground(Color.WHITE);
         displayLabel.setOpaque(true);
         add(displayLabel, BorderLayout.SOUTH, SwingConstants.CENTER);
 
-        Graph graph = new Graph(toolbar, displayLabel);
+        Graph graph = new Graph(displayLabel, toolbar);
         add(graph);
 
         MenuBar menuBar = new MenuBar(graph.service);
