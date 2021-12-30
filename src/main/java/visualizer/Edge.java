@@ -7,8 +7,8 @@ public class Edge extends JComponent {
     final JLabel edgeLabel;
     final Vertex source;
     final Vertex target;
-    Edge mirrorEdge;
     boolean visited, hidden;
+    Edge mirrorEdge;
     int weight;
 
     public Edge(Vertex source, Vertex target, int weight) {
@@ -21,7 +21,7 @@ public class Edge extends JComponent {
     }
 
     protected EdgeState getState() {
-        return Algorithm.shortestPath.contains(this) ? EdgeState.PATH
+        return Algorithm.pathResult.contains(this) ? EdgeState.PATH
                 : this.visited ? EdgeState.VISITED
                 : this.hidden ? EdgeState.HIDDEN
                 : EdgeState.RAW;
@@ -38,6 +38,7 @@ enum EdgeState {
     },
     VISITED() {
         public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
+            edge.setOpaque(true);
             g.setColor(Color.BLUE);
             g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
             g.setColor(Color.WHITE);
@@ -45,6 +46,7 @@ enum EdgeState {
     },
     HIDDEN() {
         public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
+            edge.setOpaque(false);
             g.setColor(Color.BLACK);
             g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
             g.setColor(Color.BLACK);
@@ -52,6 +54,7 @@ enum EdgeState {
     },
     PATH() {
         public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
+            edge.setOpaque(true);
             g.setColor(Color.GREEN);
             g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
             g.setColor(Color.WHITE);

@@ -9,16 +9,17 @@ import java.util.List;
 public class Graph extends JPanel {
     final List<Vertex> vertices = new ArrayList<>();
     final List<Edge> edges = new ArrayList<>();
-    AlgorithmMode algorithmMode = AlgorithmMode.NONE;
+    AlgMode algorithmMode = AlgMode.NONE;
     Mode mode = Mode.ADD_A_VERTEX;
     final GraphService service;
-    final Toolbar toolbar;
     final JLabel displayLabel;
+    final Toolbar toolbar;
 
-    public Graph(Toolbar toolbar, JLabel displayLabel) {
-        this.toolbar = toolbar;
+    public Graph(JLabel displayLabel, Toolbar toolbar) {
         this.displayLabel = displayLabel;
         this.service = new GraphService(this);
+        this.toolbar = toolbar;
+        toolbar.service = this.service;                                         // todo change IT!
         setName("Graph");
         setBackground(Color.BLACK);
         setSize(800, 600);
@@ -30,7 +31,7 @@ public class Graph extends JPanel {
                 if (mode == Mode.REMOVE_A_VERTEX) service.removeVertex(e);
                 if (mode == Mode.REMOVE_AN_EDGE) service.removeEdge(e);
                 if (mode == Mode.NONE) {
-                    if (algorithmMode != AlgorithmMode.NONE) service.startAlgorithm(e);
+                    if (algorithmMode != AlgMode.NONE) service.startAlgorithm(e);
                 }
             }
         });
@@ -74,7 +75,7 @@ enum Mode {
     }
 }
 
-enum AlgorithmMode {
+enum AlgMode {
     DEPTH_FIRST_SEARCH("Depth-First Search"),
     BREADTH_FIRST_SEARCH("Breadth-First Search"),
     DIJKSTRA_ALGORITHM("Dijkstra's Algorithm"),
@@ -83,7 +84,7 @@ enum AlgorithmMode {
 
     final String current;
 
-    AlgorithmMode(String current) {
+    AlgMode(String current) {
         this.current = current;
     }
 }

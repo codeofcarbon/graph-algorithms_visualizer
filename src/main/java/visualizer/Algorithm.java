@@ -4,17 +4,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Algorithm {
-    private Map<Vertex, List<Edge>> paths;
     private LinkedList<Vertex> queue;
     private Set<Edge> edgeSet;
     private final Graph graph;
-    static List<Edge> shortestPath;
+    private StringJoiner chainResult;
+    private String edgesResult;
+    static Map<Vertex, List<Edge>> paths;
+    static List<Edge> pathResult;
     static Vertex root;
-    StringJoiner chainResult;
-    String edgesResult;
 
     public Algorithm(Graph graph) {
-        shortestPath = new LinkedList<>();
+        pathResult = new LinkedList<>();
         this.graph = graph;
     }
 
@@ -33,7 +33,6 @@ public class Algorithm {
                         chainResult.add(String.format("<html><font size=+1><b>%s</b></font>", edge.target.id));
                     }, () -> queue.pollLast());
         }
-        getResultIfReady();
     }
 
     protected void bfsAlgorithm() {
@@ -51,7 +50,6 @@ public class Algorithm {
                         chainResult.add(String.format("<html><font size=+1><b>%s</b></font>", edge.target.id));
                     }, () -> queue.pollFirst());
         }
-        getResultIfReady();
     }
 
     protected void dijkstraAlgorithm() {
@@ -70,7 +68,12 @@ public class Algorithm {
             current.visited = true;
             queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
         }
-        getResultIfReady();
+        if (graph.vertices.stream().allMatch(v -> v.visited)) {
+            paths.values().stream()
+                    .flatMap(Collection::stream)
+//                    .peek(edge -> List.of(edge, edge.mirrorEdge).forEach(e -> e.visited = true))
+                    .forEach(edgeSet::add);
+        }
     }
 
     protected void primAlgorithm() {
@@ -83,7 +86,6 @@ public class Algorithm {
                     edge.target.visited = true;
                     edgeSet.add(edge);
                 });
-        getResultIfReady();
     }
 
     protected void initAlgorithm(Vertex rootNode) {
@@ -113,46 +115,77 @@ public class Algorithm {
         }
     }
 
-    private void getResultIfReady() {
+    protected String getResultIfReady() {
+        var algorithmResult = "";
         if (graph.vertices.stream().allMatch(v -> v.visited)) {
-            if (graph.algorithmMode == AlgorithmMode.DIJKSTRA_ALGORITHM) {
-                paths.values().stream()
-                        .flatMap(Collection::stream)
-                        .forEach(edge -> edgeSet.addAll(List.of(edge, edge.mirrorEdge)));
-            }
-            hideUnnecessaryEdges();
+            showResultEdges();
             switch (graph.algorithmMode) {
+                case DEPTH_FIRST_SEARCH:
+                    algorithmResult = "<html><font size=+1 color=gray><i>DFS for </i></font>" +
+                                      "<font size=+2 color=#0062ff><b>" + root.id +
+                                      ":   </b></font>" + chainResult.toString();
+                    break;
+                case BREADTH_FIRST_SEARCH:
+                    algorithmResult = "<html><font size=+1 color=gray><i>BFS for </i></font>" +
+                                      "<font size=+2 color=#0062ff><b>" + root.id +
+                                      ":   </b></font>" + chainResult.toString();
+                    break;
                 case DIJKSTRA_ALGORITHM:
                     edgesResult = graph.vertices.stream()
-                            .filter(v -> !v.equals(root))
+                            .filter(vertex -> !vertex.equals(root))
                             .sorted(Comparator.comparing(v -> v.id))
-                            .map(v -> String.format(
-                                    "<html><font size=+1 color=white><i><b> %s - </b></i></font>" +
-                                    "<font size=+1 color=green><i><b>%d</b></i></font>",
-                                    v.id, v.distance))
+                            .map(vertex -> String.format(
+                                    "<html><font size=+1><b> %s -<font color=#a0b7db><i> %d</i></b></font>",
+                                    vertex.id, vertex.distance))
                             .collect(Collectors.joining(","));
+
+                    algorithmResult = "<html><font size=+1 color=gray><i>shortest paths from </i></font>" +
+                                      "<font size=+2 color=#0062ff><b>" + root.id +
+                                      ":   </b></font>" + edgesResult;
+                    graph.setToolTipText("<html><font size=200%><b>click on node to get it shortest path</b>");
                     break;
                 case PRIM_ALGORITHM:
                     edgesResult = edgeSet.stream()
                             .sorted(Comparator.comparing(edge -> edge.source.id))
-                            .map(e -> String.format(
-                                    "<html><font size=+1 color=white><i><b> %s - %s</b></i></font>",
-                                    e.source.id, e.target.id))
+                            .map(edge -> String.format(
+                                    "<html><font size=+1><b> %s - %s</b></font>",
+                                    edge.source.id, edge.target.id))
                             .collect(Collectors.joining(","));
+
+                    algorithmResult = "<html><font size=+1 color=gray><i>minimum spanning tree for </i></font>" +
+                                      "<font size=+2 color=#0062ff><b>" + root.id +
+                                      ":   </b></font>" + edgesResult;
             }
         }
+        return algorithmResult;
     }
 
-    private void hideUnnecessaryEdges() {
-        graph.edges.stream()
-                .filter(edge -> !edgeSet.contains(edge))
-                .forEach(edge -> edge.hidden = true);
+    String getShortestPath(Vertex target) {
+        edgeSet.clear();
+        edgeSet.addAll(paths.get(target));
+        showResultEdges();
+        return "<html><font size=+1 color=gray><i>shortest paths from </i>" +
+               "<font size=+2 color=#0062ff><b>" + root.id +
+               "<font size=+1 color=gray><i> to </i>" +
+               "<font size=+2 color=#0062ff><b>" + target.id +
+               ":   </b></font>" + paths.get(target).stream()
+                       .map(e -> String.format("<html><font color=white size=+1><b> %s - %s</b></font>",
+                               e.source.id, e.target.id))
+                       .collect(Collectors.joining("<html><font color=white size=+1><b>,</b></font>"));
+    }
+
+    private void showResultEdges() {
+        graph.edges.forEach(edge -> {
+            edge.hidden = true;
+            if (edgeSet.contains(edge))
+                List.of(edge, edge.mirrorEdge).forEach(e -> e.visited = true);
+        });
     }
 
     protected void resetAlgorithm() {
         queue = new LinkedList<>();
         edgeSet = new HashSet<>();
-        shortestPath = new LinkedList<>();
+        pathResult = new LinkedList<>();
         chainResult = new StringJoiner(" > ");
         edgesResult = "";
         root = null;

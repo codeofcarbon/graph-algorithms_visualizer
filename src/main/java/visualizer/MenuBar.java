@@ -3,7 +3,7 @@ package visualizer;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 
-import static visualizer.AlgorithmMode.*;
+import static visualizer.AlgMode.*;
 
 public class MenuBar extends JMenuBar {
 

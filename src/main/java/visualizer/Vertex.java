@@ -5,8 +5,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.swing.SwingUtilities.updateComponentTreeUI;
-
 public class Vertex extends JPanel {
     final String id;
     final JLabel vertexID;
@@ -26,7 +24,6 @@ public class Vertex extends JPanel {
         this.vertexID = new JLabel(id);
         vertexID.setName("VertexLabel " + id);
         add(vertexID);
-        updateComponentTreeUI(this);
     }
 
     protected VertexState getState() {
@@ -80,7 +77,7 @@ enum VertexState {
             g.setColor(Color.WHITE);
             g.drawOval(v.getX() - 34, v.getY() - 34, 70, 70);
             g.setColor(Color.BLUE);
-            g.fillOval(v.getX() - 27, v.getY() - 27, 55, 55);
+            g.fillOval(v.getX() - 24, v.getY() - 24, 50, 50);
             g.setColor(Color.WHITE);
         }
     };
