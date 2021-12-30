@@ -2,10 +2,12 @@ package visualizer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Vertex extends JPanel {
+public class Vertex extends JPanel implements Serializable {
+    private static final long serialVersionUID = 12345L;
     final String id;
     final JLabel vertexID;
     final Point center;

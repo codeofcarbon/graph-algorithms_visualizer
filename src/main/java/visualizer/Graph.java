@@ -19,7 +19,7 @@ public class Graph extends JPanel {
         this.displayLabel = displayLabel;
         this.service = new GraphService(this);
         this.toolbar = toolbar;
-        toolbar.service = this.service;                                         // todo change IT!
+        toolbar.graph = this;                                         // todo change IT!
         setName("Graph");
         setBackground(Color.BLACK);
         setSize(800, 600);

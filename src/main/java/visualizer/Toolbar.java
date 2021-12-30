@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Toolbar extends JPanel {
     JLabel algorithmModeLabel;
@@ -14,7 +15,8 @@ public class Toolbar extends JPanel {
     JButton openButton;
     JButton saveButton;
     private final JFileChooser fileChooser;
-    GraphService service;                                       // todo change IT!!!
+    Graph graph;                                       // todo change IT!!!
+    Map<Vertex, List<Edge>> connects = new ConcurrentHashMap<>();
 
     private static final ImageIcon OPEN = new ImageIcon(new ImageIcon("src/main/resources/icons/open.png")
             .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
@@ -48,8 +50,16 @@ public class Toolbar extends JPanel {
             fileChooser.setDialogTitle("Select graph data file");
             int returnValue = fileChooser.showOpenDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
-                var connects = (Map<Vertex, List<Edge>>)
+                connects.clear();
+                connects = (ConcurrentHashMap<Vertex, List<Edge>>)
                         Storage.deserialize(String.valueOf(fileChooser.getSelectedFile()));
+                graph.vertices.clear();
+                graph.edges.clear();
+                connects.forEach((key, value) -> {
+                    graph.vertices.add(key);
+                    graph.edges.addAll(value);
+                });
+                graph.repaint();
             }
         });
 
@@ -58,7 +68,9 @@ public class Toolbar extends JPanel {
             fileChooser.setDialogTitle("Save graph data file");
             int returnValue = fileChooser.showSaveDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
-                Storage.serialize(this, String.valueOf(fileChooser.getSelectedFile()));
+                connects.clear();
+                graph.vertices.forEach(vertex -> connects.put(vertex, vertex.connectedEdges));
+                Storage.serialize(connects, String.valueOf(fileChooser.getSelectedFile()));
             }
         });
 

@@ -2,8 +2,10 @@ package visualizer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.Serializable;
 
-public class Edge extends JComponent {
+public class Edge extends JComponent implements Serializable {
+    private static final long serialVersionUID = 123L;
     final JLabel edgeLabel;
     final Vertex source;
     final Vertex target;
