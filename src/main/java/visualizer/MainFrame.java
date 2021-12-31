@@ -24,7 +24,6 @@ public class MainFrame extends JFrame {
     private void initComponents() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File("src/main/java/visualizer/data/"));
-        fileChooser.setLocation(this.getWidth() / 2, this.getHeight() / 6);
         add(fileChooser);
 
         Toolbar toolbar = new Toolbar(fileChooser);
