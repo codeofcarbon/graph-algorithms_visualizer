@@ -138,7 +138,7 @@ public class Algorithm {
                                               .sorted(Comparator.comparing(vertex -> vertex.id))
                                               .map(vertex -> String.format(
                                                       "<font size=+1 color=#0062ff> %s" +
-                                                      "<font color=#eb4034> (%d)", vertex.id, vertex.distance))
+                                                      "<font color=#eb4034> =%d", vertex.id, vertex.distance))
                                               .collect(Collectors.joining("<font color=white>,"));
 
                     graph.setToolTipText("<html><font size=+1>click on a node to see the shortest path");
@@ -176,7 +176,7 @@ public class Algorithm {
                        .map(edge -> String.format("<font size=+1 color=0062ff> %s - %s",
                                edge.source.id, edge.target.id))
                        .collect(Collectors.joining("<font color=white> > ")) +
-               String.format("<font size=+2 color=#eb4034>   (%d)", target.distance);
+               String.format("<font size=+2 color=#eb4034>   =%d", target.distance);
     }
 
     protected void resetAlgorithm() {

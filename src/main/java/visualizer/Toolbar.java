@@ -16,7 +16,7 @@ public class Toolbar extends JPanel {
     private static final ImageIcon REDO = new ImageIcon(new ImageIcon("src/main/resources/icons/redo.png")
             .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
 
-    private Map<Vertex, List<Edge>> connects = new ConcurrentHashMap<>();
+    private Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
     JLabel infoPanel;
     JLabel algorithmModeLabel;
@@ -34,7 +34,7 @@ public class Toolbar extends JPanel {
         setPreferredSize(new Dimension(this.getWidth(), 60));
         this.fileChooser = fileChooser;
         addComponents();
-        initComponents();
+        initListeners();
         setVisible(true);
     }
 
@@ -57,44 +57,41 @@ public class Toolbar extends JPanel {
     }
 
     @SuppressWarnings("unchecked")
-    private void initComponents() {
+    private void initListeners() {
         openButton = addButton(OPEN, "OpenButton");
         openButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Select graph data file");
-            int returnValue = fileChooser.showOpenDialog(null);
+            int returnValue = fileChooser.showOpenDialog(graph);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
-                connects.clear();
-                connects = (ConcurrentHashMap<Vertex, List<Edge>>)
+                graphData = (ConcurrentHashMap<Vertex, List<Edge>>)
                         Storage.deserialize(String.valueOf(fileChooser.getSelectedFile()));
                 graph.vertices.clear();
                 graph.edges.clear();
-                connects.forEach((key, value) -> {
+                graphData.forEach((key, value) -> {
                     graph.vertices.add(key);
                     graph.edges.addAll(value);
                 });
                 graph.repaint();
+                graphData.clear();
             }
         });
 
         saveButton = addButton(SAVE, "SaveButton");
         saveButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Save graph data file");
-            int returnValue = fileChooser.showSaveDialog(null);
+            int returnValue = fileChooser.showSaveDialog(graph);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
-                connects.clear();
-                graph.vertices.forEach(vertex -> connects.put(vertex, vertex.connectedEdges));
-                Storage.serialize(connects, String.valueOf(fileChooser.getSelectedFile()));
+                graph.vertices.forEach(vertex -> graphData.put(vertex, vertex.connectedEdges));
+                Storage.serialize(graphData, String.valueOf(fileChooser.getSelectedFile()));
             }
         });
 
         undoButton = addButton(UNDO, "UndoButton");
         undoButton.addActionListener(event -> {
-
         });
 
         redoButton = addButton(REDO, "RedoButton");
         redoButton.addActionListener(event -> {
-
         });
     }
 

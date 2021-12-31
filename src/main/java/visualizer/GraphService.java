@@ -161,7 +161,7 @@ public class GraphService {
     void clearGraph() {
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
         setCurrentModes(AlgMode.NONE, Mode.ADD_A_VERTEX);
-        toolbar.infoPanel.setVisible(false);
+//        toolbar.infoPanel.setVisible(false);
         algorithm.resetAlgorithm();
         graph.vertices.clear();
         graph.edges.clear();
@@ -170,7 +170,7 @@ public class GraphService {
 
     void switchMode(Mode mode) {
         setCurrentModes(AlgMode.NONE, mode);
-        toolbar.infoPanel.setVisible(false);
+//        toolbar.infoPanel.setVisible(false);
         graph.setToolTipText(null);
         algorithm.resetAlgorithm();
         resetComponentLists();
@@ -179,7 +179,7 @@ public class GraphService {
 
     void switchAlgorithmMode(AlgMode algorithmMode) {
         setCurrentModes(algorithmMode, Mode.NONE);
-        toolbar.infoPanel.setVisible(true);
+//        toolbar.infoPanel.setVisible(true);
         toolbar.infoPanel.setText("Please choose a starting vertex");
         graph.setToolTipText(null);
         algorithm.resetAlgorithm();
