@@ -7,31 +7,26 @@ import java.util.*;
 import java.util.List;
 
 public class Graph extends JPanel {
-    final List<Vertex> vertices = new ArrayList<>();
-    final List<Edge> edges = new ArrayList<>();
-    AlgMode algorithmMode = AlgMode.NONE;
-    Mode mode = Mode.ADD_A_VERTEX;
+    final List<Vertex> vertices;
+    final List<Edge> edges;
     final GraphService service;
-    final JLabel displayLabel;
-    final Toolbar toolbar;
 
-    public Graph(JLabel displayLabel, Toolbar toolbar) {
-        this.displayLabel = displayLabel;
-        this.service = new GraphService(this);
-        this.toolbar = toolbar;
-        toolbar.graph = this;                                         // todo change IT!
+    public Graph(Toolbar toolbar) {
+        this.vertices = new ArrayList<>();
+        this.edges = new ArrayList<>();
+        this.service = new GraphService(this, toolbar);
         setName("Graph");
         setBackground(Color.BLACK);
         setSize(800, 600);
         setLayout(null);
         addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                if (mode == Mode.ADD_A_VERTEX) service.createNewVertex(e);
-                if (mode == Mode.ADD_AN_EDGE) service.createNewEdge(e);
-                if (mode == Mode.REMOVE_A_VERTEX) service.removeVertex(e);
-                if (mode == Mode.REMOVE_AN_EDGE) service.removeEdge(e);
-                if (mode == Mode.NONE) {
-                    if (algorithmMode != AlgMode.NONE) service.startAlgorithm(e);
+                if (service.mode == Mode.ADD_A_VERTEX) service.createNewVertex(e);
+                if (service.mode == Mode.ADD_AN_EDGE) service.createNewEdge(e);
+                if (service.mode == Mode.REMOVE_A_VERTEX) service.removeVertex(e);
+                if (service.mode == Mode.REMOVE_AN_EDGE) service.removeEdge(e);
+                if (service.mode == Mode.NONE) {
+                    if (service.algorithmMode != AlgMode.NONE) service.startAlgorithm(e);
                 }
             }
         });
@@ -58,33 +53,5 @@ public class Graph extends JPanel {
             g.setFont(new Font("Courier", Font.ITALIC, 30));
             g.drawString(v.id, v.center.x - 8, v.center.y + 12);
         }
-    }
-}
-
-enum Mode {
-    ADD_A_VERTEX("Add a Vertex"),
-    ADD_AN_EDGE("Add an Edge"),
-    REMOVE_A_VERTEX("Remove a Vertex"),
-    REMOVE_AN_EDGE("Remove an Edge"),
-    NONE("None");
-
-    final String current;
-
-    Mode(String current) {
-        this.current = current;
-    }
-}
-
-enum AlgMode {
-    DEPTH_FIRST_SEARCH("Depth-First Search"),
-    BREADTH_FIRST_SEARCH("Breadth-First Search"),
-    DIJKSTRA_ALGORITHM("Dijkstra's Algorithm"),
-    PRIM_ALGORITHM("Prim's Algorithm"),
-    NONE("None");
-
-    final String current;
-
-    AlgMode(String current) {
-        this.current = current;
     }
 }

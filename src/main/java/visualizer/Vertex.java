@@ -9,10 +9,9 @@ import java.util.List;
 public class Vertex extends JPanel implements Serializable {
     private static final long serialVersionUID = 12345L;
     final String id;
-    final JLabel vertexID;
     final Point center;
     final float radius;
-    boolean visited, marked, connected;
+    boolean visited, marked, connected, path;
     final List<Edge> connectedEdges;
     int distance;
 
@@ -23,13 +22,12 @@ public class Vertex extends JPanel implements Serializable {
         this.connectedEdges = new ArrayList<>();
         setName("Vertex " + id);
         setLocation(center);
-        this.vertexID = new JLabel(id);
-        vertexID.setName("VertexLabel " + id);
-        add(vertexID);
+        setOpaque(true);
     }
 
     protected VertexState getState() {
-        return Algorithm.root == this ? VertexState.ROOT
+        return Algorithm.target == this || this.path ? VertexState.PATH
+                : Algorithm.root == this ? VertexState.ROOT
                 : this.marked ? VertexState.MARKED
                 : this.visited ? VertexState.VISITED
                 : this.connected ? VertexState.CONNECTED
@@ -81,6 +79,15 @@ enum VertexState {
             g.setColor(Color.BLUE);
             g.fillOval(v.getX() - 24, v.getY() - 24, 50, 50);
             g.setColor(Color.WHITE);
+        }
+    },
+    PATH() {
+        public void coloring(Graphics g, Vertex v) {
+            g.setColor(Color.WHITE);
+            g.drawOval(v.getX() - 34, v.getY() - 34, 70, 70);
+            g.setColor(new Color(90, 250, 70, 255));
+            g.fillOval(v.getX() - 24, v.getY() - 24, 50, 50);
+            g.setColor(Color.BLACK);
         }
     };
 

@@ -24,19 +24,13 @@ public class MainFrame extends JFrame {
     private void initComponents() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File("src/main/java/visualizer/data/"));
+        fileChooser.setLocation(this.getWidth() / 2, this.getHeight() / 6);
         add(fileChooser);
 
         Toolbar toolbar = new Toolbar(fileChooser);
         add(toolbar, BorderLayout.NORTH);
 
-        JLabel displayLabel = new JLabel("", SwingConstants.CENTER);
-        displayLabel.setPreferredSize(new Dimension(this.getWidth(), 30));
-        displayLabel.setBackground(Color.DARK_GRAY.darker());
-        displayLabel.setForeground(Color.WHITE);
-        displayLabel.setOpaque(true);
-        add(displayLabel, BorderLayout.SOUTH, SwingConstants.CENTER);
-
-        Graph graph = new Graph(displayLabel, toolbar);
+        Graph graph = new Graph(toolbar);
         add(graph);
 
         MenuBar menuBar = new MenuBar(graph.service);
