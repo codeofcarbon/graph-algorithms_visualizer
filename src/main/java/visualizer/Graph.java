@@ -14,6 +14,7 @@ public class Graph extends JPanel {
     final GraphService service;
     final Toolbar toolbar;
 
+
     public Graph(Toolbar toolbar) {
         this.toolbar = toolbar;
         toolbar.graph = this;                                               // todo remove!!!!!!!
