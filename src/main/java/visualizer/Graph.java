@@ -12,14 +12,11 @@ public class Graph extends JPanel {
     AlgMode algorithmMode = AlgMode.NONE;
     Mode mode = Mode.ADD_A_VERTEX;
     final GraphService service;
-    final JLabel displayLabel;
     final Toolbar toolbar;
 
-    public Graph(JLabel displayLabel, Toolbar toolbar) {
-        this.displayLabel = displayLabel;
+    public Graph(Toolbar toolbar) {
         this.toolbar = toolbar;
         toolbar.graph = this;                                               // todo remove!!!!!!!
-        toolbar.infoPanel = displayLabel;                                   // todo remove!!!!!!!
         this.service = new GraphService(this, toolbar);
         setName("Graph");
         setBackground(Color.BLACK);

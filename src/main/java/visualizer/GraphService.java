@@ -25,12 +25,12 @@ public class GraphService {
                 .ifPresent(selectedNode -> {
                     if (Algorithm.root != null && graph.algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
                         var shortestPath = algorithm.getShortestPath(selectedNode);
-                        graph.displayLabel.setText(shortestPath);
+                        toolbar.infoPanel.setText(shortestPath);
                         graph.repaint();
                     }
                     if (Algorithm.root == null) {
                         algorithm.initAlgorithm(selectedNode);
-                        graph.displayLabel.setText("Please wait...");
+                        toolbar.infoPanel.setText("Please wait...");
                         timer = new Timer(500, event -> {
                             switch (graph.algorithmMode) {
                                 case DEPTH_FIRST_SEARCH:
@@ -48,7 +48,7 @@ public class GraphService {
                             }
                             var algorithmResult = algorithm.getResultIfReady();
                             if (!algorithmResult.isBlank()) {
-                                graph.displayLabel.setText(algorithmResult);
+                                toolbar.infoPanel.setText(algorithmResult);
                                 timer.stop();
                             }
                             graph.repaint();
@@ -161,7 +161,7 @@ public class GraphService {
     void clearGraph() {
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
         setCurrentModes(AlgMode.NONE, Mode.ADD_A_VERTEX);
-        graph.displayLabel.setVisible(false);
+        toolbar.infoPanel.setVisible(false);
         algorithm.resetAlgorithm();
         graph.vertices.clear();
         graph.edges.clear();
@@ -170,7 +170,7 @@ public class GraphService {
 
     void switchMode(Mode mode) {
         setCurrentModes(AlgMode.NONE, mode);
-        graph.displayLabel.setVisible(false);
+        toolbar.infoPanel.setVisible(false);
         graph.setToolTipText(null);
         algorithm.resetAlgorithm();
         resetComponentLists();
@@ -179,8 +179,8 @@ public class GraphService {
 
     void switchAlgorithmMode(AlgMode algorithmMode) {
         setCurrentModes(algorithmMode, Mode.NONE);
-        graph.displayLabel.setVisible(true);
-        graph.displayLabel.setText("Please choose a starting vertex");
+        toolbar.infoPanel.setVisible(true);
+        toolbar.infoPanel.setText("Please choose a starting vertex");
         graph.setToolTipText(null);
         algorithm.resetAlgorithm();
         resetComponentLists();

@@ -16,9 +16,8 @@ public class Toolbar extends JPanel {
     private static final ImageIcon REDO = new ImageIcon(new ImageIcon("src/main/resources/icons/redo.png")
             .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
 
-    Map<Vertex, List<Edge>> connects = new ConcurrentHashMap<>();
+    private Map<Vertex, List<Edge>> connects = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
-
     JLabel infoPanel;
     JLabel algorithmModeLabel;
     JLabel modeLabel;
@@ -29,52 +28,32 @@ public class Toolbar extends JPanel {
     JButton saveButton;
 
     Graph graph;                                       // todo change IT!!!
-    JPanel toolPanel;
 
-    public Toolbar(JFileChooser fileChooser, JLabel displayLabel) {
+    public Toolbar(JFileChooser fileChooser) {
         setLayout(new GridLayout(2, 1));
         setPreferredSize(new Dimension(this.getWidth(), 60));
         this.fileChooser = fileChooser;
-        this.infoPanel = displayLabel;
         addComponents();
         initComponents();
-//        setOpaque(true);
         setVisible(true);
     }
 
     private void addComponents() {
-        toolPanel = new JPanel(new GridLayout(1, 3));
-        toolPanel.setPreferredSize(new Dimension(this.getWidth(), 25));
-//        toolPanel.setBackground(new Color(25, 25, 25, 255));
-        toolPanel.setBackground(Color.BLACK);
-        toolPanel.setForeground(Color.WHITE);
-        toolPanel.setOpaque(true);
-        toolPanel.setVisible(true);
-        add(toolPanel);
-
-        add(infoPanel);
-
+        JPanel toolPanel = new JPanel(new GridLayout(1, 3));
         algorithmModeLabel = addLabel("ALGORITHM MODE - ", "NONE", "AlgorithmMode");
-        toolPanel.add(algorithmModeLabel);
-//        add(algorithmModeLabel);
-
         buttonsPanel = new JPanel(new GridLayout(1, 4));
-        toolPanel.add(buttonsPanel);
-//        add(buttonsPanel);
-
         modeLabel = addLabel("GRAPH MODE - ", "ADD A VERTEX", "Mode");
+
+        infoPanel = new JLabel("", SwingConstants.CENTER);
+        infoPanel.setBackground(new Color(12, 12, 12, 255));
+        infoPanel.setForeground(Color.WHITE);
+        infoPanel.setOpaque(true);
+
+        toolPanel.add(algorithmModeLabel);
+        toolPanel.add(buttonsPanel);
         toolPanel.add(modeLabel);
-//        add(modeLabel);
-
-
-
-//        infoPanel = new JLabel("", SwingConstants.CENTER);
-//        infoPanel.setPreferredSize(new Dimension(this.getWidth(), 25));
-//        infoPanel.setBackground(new Color(25, 25, 25, 255));
-//        infoPanel.setForeground(Color.WHITE);
-//        infoPanel.setOpaque(true);
-//        infoPanel.setVisible(true);
-//        add(infoPanel, BorderLayout.SOUTH, SwingConstants.CENTER);
+        add(toolPanel);
+        add(infoPanel);
     }
 
     @SuppressWarnings("unchecked")
@@ -122,7 +101,7 @@ public class Toolbar extends JPanel {
     private JButton addButton(Icon icon, String name) {
         var button = new JButton(icon);
         button.setPreferredSize(new Dimension(40, 25));
-        button.setBackground(new Color(25, 25, 25, 255));
+        button.setBackground(Color.BLACK);
         button.setOpaque(true);
         button.setName(name);
         button.setIcon(icon);
@@ -135,10 +114,9 @@ public class Toolbar extends JPanel {
         var label = new JLabel(String.format(
                 "<html><font color=gray>%s<font size=+1 color=white><i>%s</i>",
                 partOne, partTwo), SwingConstants.CENTER);
-        label.setName(name);
-//        label.setBackground(new Color(25, 25, 25, 255));
         label.setBackground(Color.BLACK);
         label.setOpaque(true);
+        label.setName(name);
         return label;
     }
 }
