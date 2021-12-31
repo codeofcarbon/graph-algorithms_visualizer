@@ -33,21 +33,21 @@ public class Edge extends JComponent implements Serializable {
 enum EdgeState {
     RAW() {
         public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
-            g.setColor(new Color(59, 59, 59, 255));
+            g.setColor(new Color(60, 60, 60, 255));
             g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
             g.setColor(Color.LIGHT_GRAY);
         }
     },
     VISITED() {
         public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
-            g.setColor(Color.BLUE);
+            g.setColor(new Color(20, 80, 230, 255));
             g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
             g.setColor(Color.WHITE);
         }
     },
     HIDDEN() {
         public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
-            g.setColor(new Color(59, 59, 59, 0));
+            g.setColor(new Color(60, 60, 60, 0));
             g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
         }
     },

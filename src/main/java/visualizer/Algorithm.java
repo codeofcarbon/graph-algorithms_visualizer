@@ -9,11 +9,11 @@ public class Algorithm {
     private static LinkedList<Vertex> nodeList;
     private static String algorithmResult;
     private static Map<Vertex, List<Edge>> paths;
-    private final GraphService service;
+    private final Graph graph;
     static Vertex root, target;
 
-    public Algorithm(GraphService service) {
-        this.service = service;
+    public Algorithm(Graph graph) {
+        this.graph = graph;
     }
 
     protected void dfsAlgorithm() {
@@ -66,13 +66,13 @@ public class Algorithm {
             current.visited = true;
             queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
         }
-        if (service.vertices.stream().allMatch(vertex -> vertex.visited)) {
+        if (graph.vertices.stream().allMatch(vertex -> vertex.visited)) {
             paths.values().forEach(pathEdges -> edgeSet.addAll(pathEdges));
         }
     }
 
     protected void primAlgorithm() {
-        service.edges.stream()
+        graph.edges.stream()
                 .filter(edge -> edge.source.visited && !edge.target.visited)
                 .min(Comparator.comparingInt(edge -> edge.weight))
                 .ifPresent(edge -> {
@@ -87,7 +87,7 @@ public class Algorithm {
         resetAlgorithm();
         root = rootNode;
         rootNode.visited = true;
-        switch (service.algorithmMode) {
+        switch (graph.algorithmMode) {
             case DEPTH_FIRST_SEARCH:
             case BREADTH_FIRST_SEARCH:
                 queue.addLast(rootNode);
@@ -95,9 +95,9 @@ public class Algorithm {
                 break;
             case DIJKSTRA_ALGORITHM:
             case PRIM_ALGORITHM:
-                queue.addAll(service.vertices);
+                queue.addAll(graph.vertices);
                 rootNode.distance = 0;
-                service.vertices.forEach(vertex -> paths.put(vertex, new ArrayList<>()));
+                graph.vertices.forEach(vertex -> paths.put(vertex, new ArrayList<>()));
                 root.connectedEdges.forEach(edge -> {
                     edge.target.distance = edge.weight;
                     paths.get(edge.target).add(edge);
@@ -107,13 +107,13 @@ public class Algorithm {
     }
 
     protected String getResultIfReady() {
-        if (service.vertices.stream().allMatch(vertex -> vertex.visited)) {
-            service.edges.forEach(edge -> edge.hidden = true);
+        if (graph.vertices.stream().allMatch(vertex -> vertex.visited)) {
+            graph.edges.forEach(edge -> edge.hidden = true);
             edgeSet.forEach(edge -> edge.visited = true);
-            switch (service.algorithmMode) {
+            switch (graph.algorithmMode) {
                 case DEPTH_FIRST_SEARCH:
                     algorithmResult = String.format("<html><font size=+1 color=gray>DFS for " +
-                                                    "<font size=+2 color=#0062ff><b>%s</b>" +
+                                                    "<font size=+2 color=#5afa46><b>%s</b>" +
                                                     "<font size=+1 color=gray>:   ", root.id) +
                                       nodeList.stream()
                                               .map(vertex -> String.format(
@@ -122,7 +122,7 @@ public class Algorithm {
                     break;
                 case BREADTH_FIRST_SEARCH:
                     algorithmResult = String.format("<html><font size=+1 color=gray>BFS for " +
-                                                    "<font size=+2 color=#0062ff><b>%s</b>" +
+                                                    "<font size=+2 color=#5afa46><b>%s</b>" +
                                                     "<font size=+1 color=gray>:   ", root.id) +
                                       nodeList.stream()
                                               .map(vertex -> String.format(
@@ -131,23 +131,23 @@ public class Algorithm {
                     break;
                 case DIJKSTRA_ALGORITHM:
                     algorithmResult = String.format("<html><font size=+1 color=gray>shortest paths from " +
-                                                    "<font size=+2 color=#0062ff><b>%s</b>" +
+                                                    "<font size=+2 color=#5afa46><b>%s</b>" +
                                                     "<font size=+1 color=gray>:   ", root.id) +
-                                      service.vertices.stream()
+                                      graph.vertices.stream()
                                               .filter(vertex -> !vertex.equals(root))
                                               .sorted(Comparator.comparing(vertex -> vertex.id))
                                               .map(vertex -> String.format(
-                                                      "<font size=+1 color=white><b> %s</b>" +
+                                                      "<font size=+1 color=#0062ff> %s" +
                                                       "<font color=#eb4034> (%d)", vertex.id, vertex.distance))
                                               .collect(Collectors.joining("<font color=white>,"));
 
-                    service.getGraph().setToolTipText("<html><font size=+1>click on a node to see the shortest path");
+                    graph.setToolTipText("<html><font size=+1>click on a node to see the shortest path");
                     break;
                 case PRIM_ALGORITHM:
                     algorithmResult = "<html><font size=+1 color=gray>minimum spanning tree:" +
                                       edgeSet.stream()
                                               .sorted(Comparator.comparing(edge -> edge.source.id))
-                                              .map(edge -> String.format("<font size=+1 color=white><b> %s - %s</b>",
+                                              .map(edge -> String.format("<font size=+1 color=#0062ff><b> %s - %s</b>",
                                                       edge.source.id, edge.target.id))
                                               .collect(Collectors.joining(","));
             }
@@ -160,22 +160,23 @@ public class Algorithm {
         paths.keySet().forEach(vertex -> vertex.path = false);
 
         if ((target = targetNode).equals(root)) {
+            target.path = false;
             edgeSet.forEach(edge -> edge.visited = true);
             return algorithmResult;
         }
         paths.get(target).forEach(edge -> {
             edge.path = true;
-            edge.source.path = true;
-            edge.target.path = true;
+            if (edge.source != root) edge.source.path = true;
+            if (edge.target != root) edge.target.path = true;
         });
         return String.format("<html><font size=+1 color=gray>shortest path from " +
-                             "<b><font size=+2 color=#0062ff>%s</b><font size=+1 color=gray> to " +
+                             "<b><font size=+2 color=#5afa46>%s</b><font size=+1 color=gray> to " +
                              "<b><font size=+2 color=#5afa46>%s</b><font size=+1 color=gray>:   ", root.id, target.id) +
                paths.get(target).stream()
-                       .map(edge -> String.format("<font size=+1 color=white><b> %s - %s</b>",
+                       .map(edge -> String.format("<font size=+1 color=0062ff> %s - %s",
                                edge.source.id, edge.target.id))
                        .collect(Collectors.joining("<font color=white> > ")) +
-               String.format("<font size=+2 color=#eb4034><b>   (%d)</b>", target.distance);
+               String.format("<font size=+2 color=#eb4034>   (%d)", target.distance);
     }
 
     protected void resetAlgorithm() {

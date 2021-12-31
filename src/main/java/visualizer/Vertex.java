@@ -65,20 +65,20 @@ enum VertexState {
     },
     VISITED() {
         public void coloring(Graphics g, Vertex v) {
-            g.setColor(Color.BLUE);
-            g.drawOval(v.getX() - 24, v.getY() - 24, 50, 50);
             g.setColor(Color.WHITE);
+            g.drawOval(v.getX() - 24, v.getY() - 24, 50, 50);
+            g.setColor(new Color(20, 80, 230, 255));
             g.fillOval(v.getX() - 17, v.getY() - 17, 36, 36);
-            g.setColor(Color.BLUE);
+            g.setColor(Color.WHITE);
         }
     },
     ROOT() {
         public void coloring(Graphics g, Vertex v) {
-            g.setColor(Color.WHITE);
+            g.setColor(new Color(20, 80, 230, 255));
             g.drawOval(v.getX() - 34, v.getY() - 34, 70, 70);
-            g.setColor(Color.BLUE);
+            g.setColor(new Color(90, 250, 70, 255));
             g.fillOval(v.getX() - 24, v.getY() - 24, 50, 50);
-            g.setColor(Color.WHITE);
+            g.setColor(Color.BLACK);
         }
     },
     PATH() {
