@@ -3,8 +3,6 @@ package visualizer;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 
-import static visualizer.AlgMode.*;
-
 public class MenuBar extends JMenuBar {
 
     public MenuBar(GraphService service) {
@@ -41,16 +39,16 @@ public class MenuBar extends JMenuBar {
         JMenu algorithmMenu = addMenu("Algorithms", KeyEvent.VK_A);
 
         JMenuItem dfsAlgorithm = addMenuItem("Depth-First Search", KeyEvent.VK_F, algorithmMenu);
-        dfsAlgorithm.addActionListener(e -> service.switchAlgorithmMode(DEPTH_FIRST_SEARCH));
+        dfsAlgorithm.addActionListener(e -> service.switchAlgorithmMode(AlgMode.DEPTH_FIRST_SEARCH));
 
         JMenuItem bfsAlgorithm = addMenuItem("Breadth-First Search", KeyEvent.VK_B, algorithmMenu);
-        bfsAlgorithm.addActionListener(e -> service.switchAlgorithmMode(BREADTH_FIRST_SEARCH));
+        bfsAlgorithm.addActionListener(e -> service.switchAlgorithmMode(AlgMode.BREADTH_FIRST_SEARCH));
 
         JMenuItem dijkstraAlgorithm = addMenuItem("Dijkstra's Algorithm", KeyEvent.VK_D, algorithmMenu);
-        dijkstraAlgorithm.addActionListener(e -> service.switchAlgorithmMode(DIJKSTRA_ALGORITHM));
+        dijkstraAlgorithm.addActionListener(e -> service.switchAlgorithmMode(AlgMode.DIJKSTRA_ALGORITHM));
 
         JMenuItem primAlgorithm = addMenuItem("Prim's Algorithm", KeyEvent.VK_P, algorithmMenu);
-        primAlgorithm.addActionListener(e -> service.switchAlgorithmMode(PRIM_ALGORITHM));
+        primAlgorithm.addActionListener(e -> service.switchAlgorithmMode(AlgMode.PRIM_ALGORITHM));
     }
 
     private JMenu addMenu(String text, int mnemonic) {

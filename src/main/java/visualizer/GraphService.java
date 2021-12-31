@@ -7,32 +7,46 @@ import java.awt.geom.Line2D;
 import java.util.*;
 import java.util.List;
 
-import static visualizer.AlgMode.*;
-
 public class GraphService {
     private Vertex edgeSource, edgeTarget;
     private final Algorithm algorithm;
+    private final Toolbar toolbar;
     private final Graph graph;
     private Timer timer;
 
-    public GraphService(Graph graph) {
-        graph.displayLabel.setVisible(false);
+    final List<Vertex> vertices;
+    final List<Edge> edges;
+    AlgMode algorithmMode = AlgMode.NONE;
+    Mode mode = Mode.ADD_A_VERTEX;
+
+    public Graph getGraph() {
+        return graph;
+    }
+
+
+
+
+    public GraphService(Graph graph, Toolbar toolbar) {
         this.graph = graph;
-        this.algorithm = new Algorithm(graph);
+        this.toolbar = toolbar;
+        this.algorithm = new Algorithm(this);
+        this.vertices = graph.vertices;
+        this.edges = graph.edges;
     }
 
     void startAlgorithm(MouseEvent e) {
         checkIfTheClickPointIsOnTheVertex(e)
                 .ifPresent(selectedNode -> {
-                    if (Algorithm.root != null && graph.algorithmMode == DIJKSTRA_ALGORITHM) {
+                    if (Algorithm.root != null && algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
                         var shortestPath = algorithm.getShortestPath(selectedNode);
-                        graph.displayLabel.setText(shortestPath);
+                        toolbar.infoPanel.setText(shortestPath);
+                        graph.repaint();
                     }
                     if (Algorithm.root == null) {
                         algorithm.initAlgorithm(selectedNode);
-                        graph.displayLabel.setText("Please wait...");
+                        toolbar.infoPanel.setText("Please wait...");
                         timer = new Timer(500, event -> {
-                            switch (graph.algorithmMode) {
+                            switch (algorithmMode) {
                                 case DEPTH_FIRST_SEARCH:
                                     algorithm.dfsAlgorithm();
                                     break;
@@ -48,7 +62,7 @@ public class GraphService {
                             }
                             var algorithmResult = algorithm.getResultIfReady();
                             if (!algorithmResult.isBlank()) {
-                                graph.displayLabel.setText(algorithmResult);
+                                toolbar.infoPanel.setText(algorithmResult);
                                 timer.stop();
                             }
                             graph.repaint();
@@ -60,7 +74,7 @@ public class GraphService {
 
     void createNewVertex(MouseEvent point) {
         if (checkIfTheClickPointIsOnTheVertex(point).isEmpty()) {
-            var input = JOptionPane.showInputDialog(graph, "Enter the Vertex ID (should be 1 char):", "Vertex",
+            var input = JOptionPane.showInputDialog(graph, "Enter the vertex ID (should be 1 char):", "Vertex ID",
                     JOptionPane.INFORMATION_MESSAGE, null, null, null);
             if (input == null) return;
             String id = input.toString();
@@ -99,7 +113,7 @@ public class GraphService {
                 }
 
                 while (true) {
-                    var input = JOptionPane.showInputDialog(graph, "Enter Weight", "Input",
+                    var input = JOptionPane.showInputDialog(graph, "Enter weight", "Edge weight",
                             JOptionPane.INFORMATION_MESSAGE, null, null, null);
                     if (input == null) {
                         resetMarkedNodes();
@@ -160,8 +174,8 @@ public class GraphService {
 
     void clearGraph() {
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
-        setCurrentModes(NONE, Mode.ADD_A_VERTEX);
-        graph.displayLabel.setVisible(false);
+        setCurrentModes(AlgMode.NONE, Mode.ADD_A_VERTEX);
+        toolbar.infoPanel.setVisible(false);
         algorithm.resetAlgorithm();
         graph.vertices.clear();
         graph.edges.clear();
@@ -169,8 +183,8 @@ public class GraphService {
     }
 
     void switchMode(Mode mode) {
-        setCurrentModes(NONE, mode);
-        graph.displayLabel.setVisible(false);
+        setCurrentModes(AlgMode.NONE, mode);
+        toolbar.infoPanel.setVisible(false);
         graph.setToolTipText(null);
         algorithm.resetAlgorithm();
         resetComponentLists();
@@ -179,8 +193,8 @@ public class GraphService {
 
     void switchAlgorithmMode(AlgMode algorithmMode) {
         setCurrentModes(algorithmMode, Mode.NONE);
-        graph.displayLabel.setVisible(true);
-        graph.displayLabel.setText("Please choose a starting vertex");
+        toolbar.infoPanel.setVisible(true);
+        toolbar.infoPanel.setText("Please choose a starting vertex");
         graph.setToolTipText(null);
         algorithm.resetAlgorithm();
         resetComponentLists();
@@ -188,14 +202,12 @@ public class GraphService {
     }
 
     private void setCurrentModes(AlgMode algorithmMode, Mode mode) {
-        graph.mode = mode;
-        graph.algorithmMode = algorithmMode;
-        graph.toolbar.modeLabel.setText(String.format(
+        toolbar.modeLabel.setText(String.format(
                 "<html><font color=gray>GRAPH MODE - " +
-                "<font size=+1 color=white><i>%s</i>", graph.mode.current.toUpperCase()));
-        graph.toolbar.algorithmModeLabel.setText(String.format(
+                "<font size=+1 color=white><i>%s</i>", mode.current.toUpperCase()));
+        toolbar.algorithmModeLabel.setText(String.format(
                 "<html><font color=gray>ALGORITHM MODE - " +
-                "<font size=+1 color=white><i>%s</i>", graph.algorithmMode.current.toUpperCase()));
+                "<font size=+1 color=white><i>%s</i>", algorithmMode.current.toUpperCase()));
     }
 
     private void resetComponentLists() {
