@@ -17,22 +17,17 @@ public class MainFrame extends JFrame {
             e.printStackTrace();
         }
         setLocationRelativeTo(null);
-        initComponents();
-        setVisible(true);
-    }
 
-    private void initComponents() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File("src/main/java/visualizer/data/"));
         add(fileChooser);
-
+        Graph graph = new Graph();
+        add(graph);
         Toolbar toolbar = new Toolbar(fileChooser);
         add(toolbar, BorderLayout.NORTH);
-
-        Graph graph = new Graph(toolbar);
-        add(graph);
-
-        MenuBar menuBar = new MenuBar(graph.service);
+        GraphService service = new GraphService(graph, toolbar);
+        MenuBar menuBar = new MenuBar(service);
         setJMenuBar(menuBar);
+        setVisible(true);
     }
 }

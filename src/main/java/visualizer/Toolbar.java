@@ -15,84 +15,76 @@ public class Toolbar extends JPanel {
             .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
     private static final ImageIcon REDO = new ImageIcon(new ImageIcon("src/main/resources/icons/redo.png")
             .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
-
     private Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
+    private final JPanel buttonsPanel;
+    GraphService service;
     JLabel infoPanel;
     JLabel algorithmModeLabel;
     JLabel modeLabel;
-    JPanel buttonsPanel;
-    JButton undoButton;
-    JButton redoButton;
-    JButton openButton;
-    JButton saveButton;
-
-    Graph graph;                                       // todo change IT!!!
 
     public Toolbar(JFileChooser fileChooser) {
         setLayout(new GridLayout(2, 1));
         setPreferredSize(new Dimension(this.getWidth(), 60));
         this.fileChooser = fileChooser;
-        addComponents();
-        initListeners();
-        setVisible(true);
-    }
 
-    private void addComponents() {
         JPanel toolPanel = new JPanel(new GridLayout(1, 3));
         algorithmModeLabel = addLabel("ALGORITHM MODE - ", "NONE", "AlgorithmMode");
         buttonsPanel = new JPanel(new GridLayout(1, 4));
         modeLabel = addLabel("GRAPH MODE - ", "ADD A VERTEX", "Mode");
-
-        infoPanel = new JLabel("", SwingConstants.CENTER);
-        infoPanel.setBackground(new Color(12, 12, 12, 255));
-        infoPanel.setForeground(Color.WHITE);
-        infoPanel.setOpaque(true);
-
         toolPanel.add(algorithmModeLabel);
         toolPanel.add(buttonsPanel);
         toolPanel.add(modeLabel);
         add(toolPanel);
+        infoPanel = new JLabel("", SwingConstants.CENTER);
+        infoPanel.setBackground(new Color(12, 12, 12, 255));
+        infoPanel.setForeground(Color.WHITE);
+        infoPanel.setOpaque(true);
         add(infoPanel);
+
+        initListeners();
+        setVisible(true);
     }
 
     @SuppressWarnings("unchecked")
     private void initListeners() {
-        openButton = addButton(OPEN, "OpenButton");
+        JButton openButton = addButton(OPEN, "OpenButton");
         openButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Select graph data file");
-            int returnValue = fileChooser.showOpenDialog(graph);
+            int returnValue = fileChooser.showOpenDialog(service.getGraph());
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 graphData = (ConcurrentHashMap<Vertex, List<Edge>>)
                         Storage.deserialize(String.valueOf(fileChooser.getSelectedFile()));
-                graph.vertices.clear();
-                graph.edges.clear();
+                service.getGraph().getVertices().clear();
+                service.getGraph().getEdges().clear();
                 graphData.forEach((key, value) -> {
-                    graph.vertices.add(key);
-                    graph.edges.addAll(value);
+                    service.getGraph().getVertices().add(key);
+                    service.getGraph().getEdges().addAll(value);
                 });
-                graph.repaint();
+                service.getGraph().repaint();
                 graphData.clear();
             }
         });
 
-        saveButton = addButton(SAVE, "SaveButton");
+        JButton saveButton = addButton(SAVE, "SaveButton");
         saveButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Save graph data file");
-            int returnValue = fileChooser.showSaveDialog(graph);
+            int returnValue = fileChooser.showSaveDialog(service.getGraph());
             if (returnValue == JFileChooser.APPROVE_OPTION) {
-                graph.vertices.forEach(vertex -> graphData.put(vertex, vertex.connectedEdges));
+                service.getGraph().getVertices().forEach(vertex -> graphData.put(vertex, vertex.connectedEdges));
                 Storage.serialize(graphData, String.valueOf(fileChooser.getSelectedFile()));
             }
         });
 
-        undoButton = addButton(UNDO, "UndoButton");
+        JButton undoButton = addButton(UNDO, "UndoButton");
         undoButton.addActionListener(event -> {
-        });
 
-        redoButton = addButton(REDO, "RedoButton");
+        }/*service.undo()*/);
+
+        JButton redoButton = addButton(REDO, "RedoButton");
         redoButton.addActionListener(event -> {
-        });
+
+        }/*service.redo()*/);
     }
 
     private JButton addButton(Icon icon, String name) {

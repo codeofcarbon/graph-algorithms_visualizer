@@ -1,5 +1,7 @@
 package visualizer;
 
+import lombok.Getter;
+
 import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.event.MouseEvent;
@@ -7,23 +9,28 @@ import java.awt.geom.Line2D;
 import java.util.*;
 import java.util.List;
 
+@Getter
 public class GraphService {
-    private Vertex edgeSource, edgeTarget;
     private final Algorithm algorithm;
     private final Toolbar toolbar;
     private final Graph graph;
+    private AlgMode algorithmMode = AlgMode.NONE;
+    private GraphMode graphMode = GraphMode.ADD_A_VERTEX;
+    private Vertex edgeSource, edgeTarget;
     private Timer timer;
 
     public GraphService(Graph graph, Toolbar toolbar) {
         this.graph = graph;
         this.toolbar = toolbar;
-        this.algorithm = new Algorithm(graph);
+        graph.service = this;
+        toolbar.service = this;
+        this.algorithm = new Algorithm(this);
     }
 
     void startAlgorithm(MouseEvent e) {
         checkIfTheClickPointIsOnTheVertex(e)
                 .ifPresent(selectedNode -> {
-                    if (Algorithm.root != null && graph.algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
+                    if (Algorithm.root != null && algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
                         var shortestPath = algorithm.getShortestPath(selectedNode);
                         toolbar.infoPanel.setText(shortestPath);
                         graph.repaint();
@@ -32,7 +39,7 @@ public class GraphService {
                         algorithm.initAlgorithm(selectedNode);
                         toolbar.infoPanel.setText("Please wait...");
                         timer = new Timer(500, event -> {
-                            switch (graph.algorithmMode) {
+                            switch (algorithmMode) {
                                 case DEPTH_FIRST_SEARCH:
                                     algorithm.dfsAlgorithm();
                                     break;
@@ -66,7 +73,7 @@ public class GraphService {
             String id = input.toString();
             if (!id.isBlank() && id.length() == 1) {
                 Vertex vertex = new Vertex(id, point.getPoint());
-                graph.vertices.add(vertex);
+                graph.getVertices().add(vertex);
                 graph.add(vertex);
                 graph.repaint();
             } else {
@@ -91,7 +98,7 @@ public class GraphService {
                 edgeTarget = target;
                 edgeTarget.marked = true;
                 graph.repaint();
-                if (edgeSource.equals(edgeTarget) || graph.edges.stream().anyMatch(edge ->
+                if (edgeSource.equals(edgeTarget) || graph.getEdges().stream().anyMatch(edge ->
                         edge.source.equals(edgeTarget) && edge.target.equals(edgeSource)
                         || edge.source.equals(edgeSource) && edge.target.equals(edgeTarget))) {
                     resetMarkedNodes();
@@ -111,7 +118,7 @@ public class GraphService {
                         Edge reversedEdge = new Edge(edgeTarget, edgeSource, weight);
                         List.of(edge, reversedEdge).forEach(e -> {
                             graph.add(e);
-                            graph.edges.add(e);
+                            graph.getEdges().add(e);
                             graph.add(edge.edgeLabel);
                         });
                         edgeSource.connected = true;
@@ -135,11 +142,11 @@ public class GraphService {
         checkIfTheClickPointIsOnTheVertex(point).ifPresent(vertex -> {
             vertex.connectedEdges.forEach(edge -> List.of(edge, edge.mirrorEdge).forEach(e -> {
                 graph.remove(e);
-                graph.edges.remove(e);
+                graph.getEdges().remove(e);
                 if (e.edgeLabel != null) graph.remove(e.edgeLabel);
                 edge.target.connectedEdges.remove(edge.mirrorEdge);
             }));
-            graph.vertices.remove(vertex);
+            graph.getVertices().remove(vertex);
             graph.remove(vertex);
             graph.repaint();
         });
@@ -149,7 +156,7 @@ public class GraphService {
         checkIfTheClickPointIsOnTheEdge(point).ifPresent(edge -> {
             List.of(edge, edge.mirrorEdge).forEach(e -> {
                 graph.remove(e);
-                graph.edges.remove(e);
+                graph.getEdges().remove(e);
                 if (e.edgeLabel != null) graph.remove(e.edgeLabel);
                 edge.source.connectedEdges.remove(edge);
                 edge.target.connectedEdges.remove(edge.mirrorEdge);
@@ -160,17 +167,17 @@ public class GraphService {
 
     void clearGraph() {
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
-        setCurrentModes(AlgMode.NONE, Mode.ADD_A_VERTEX);
-//        toolbar.infoPanel.setVisible(false);
+        setCurrentModes(AlgMode.NONE, GraphMode.ADD_A_VERTEX);
+        toolbar.infoPanel.setText("");
         algorithm.resetAlgorithm();
-        graph.vertices.clear();
-        graph.edges.clear();
+        graph.getVertices().clear();
+        graph.getEdges().clear();
         graph.repaint();
     }
 
-    void switchMode(Mode mode) {
-        setCurrentModes(AlgMode.NONE, mode);
-//        toolbar.infoPanel.setVisible(false);
+    void switchMode(GraphMode graphMode) {
+        setCurrentModes(AlgMode.NONE, graphMode);
+        toolbar.infoPanel.setText("");
         graph.setToolTipText(null);
         algorithm.resetAlgorithm();
         resetComponentLists();
@@ -178,8 +185,7 @@ public class GraphService {
     }
 
     void switchAlgorithmMode(AlgMode algorithmMode) {
-        setCurrentModes(algorithmMode, Mode.NONE);
-//        toolbar.infoPanel.setVisible(true);
+        setCurrentModes(algorithmMode, GraphMode.NONE);
         toolbar.infoPanel.setText("Please choose a starting vertex");
         graph.setToolTipText(null);
         algorithm.resetAlgorithm();
@@ -187,24 +193,24 @@ public class GraphService {
         resetMarkedNodes();
     }
 
-    private void setCurrentModes(AlgMode algorithmMode, Mode mode) {
-        graph.mode = mode;
-        graph.algorithmMode = algorithmMode;
+    private void setCurrentModes(AlgMode algorithmMode, GraphMode graphMode) {
+        this.graphMode = graphMode;
+        this.algorithmMode = algorithmMode;
         toolbar.modeLabel.setText(String.format(
                 "<html><font color=gray>GRAPH MODE - " +
-                "<font size=+1 color=white><i>%s</i>", mode.current.toUpperCase()));
+                "<font size=+1 color=white><i>%s</i>", graphMode.current.toUpperCase()));
         toolbar.algorithmModeLabel.setText(String.format(
                 "<html><font color=gray>ALGORITHM MODE - " +
                 "<font size=+1 color=white><i>%s</i>", algorithmMode.current.toUpperCase()));
     }
 
     private void resetComponentLists() {
-        graph.vertices.forEach(vertex -> {
+        graph.getVertices().forEach(vertex -> {
             vertex.distance = Integer.MAX_VALUE;
             vertex.visited = false;
             vertex.path = false;
         });
-        graph.edges.forEach(edge -> {
+        graph.getEdges().forEach(edge -> {
             edge.hidden = false;
             edge.visited = false;
             edge.path = false;
@@ -224,13 +230,13 @@ public class GraphService {
     }
 
     private Optional<Vertex> checkIfTheClickPointIsOnTheVertex(MouseEvent e) {
-        return graph.vertices.stream()
+        return graph.getVertices().stream()
                 .filter(v -> e.getPoint().distance(v.center) < 25)
                 .findAny();
     }
 
     private Optional<Edge> checkIfTheClickPointIsOnTheEdge(MouseEvent e) {
-        return graph.edges.stream()
+        return graph.getEdges().stream()
                 .filter(edge -> new Line2D.Double(edge.source.center.x, edge.source.center.y,
                         edge.target.center.x, edge.target.center.y).ptLineDist(e.getPoint()) < 5)
                 .findAny();

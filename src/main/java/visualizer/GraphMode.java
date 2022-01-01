@@ -1,6 +1,6 @@
 package visualizer;
 
-public enum Mode {
+public enum GraphMode {
     ADD_A_VERTEX("Add a Vertex"),
     ADD_AN_EDGE("Add an Edge"),
     REMOVE_A_VERTEX("Remove a Vertex"),
@@ -9,7 +9,7 @@ public enum Mode {
 
     final String current;
 
-    Mode(String current) {
+    GraphMode(String current) {
         this.current = current;
     }
 }

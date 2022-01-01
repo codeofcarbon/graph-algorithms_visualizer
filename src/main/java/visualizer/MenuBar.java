@@ -21,19 +21,19 @@ public class MenuBar extends JMenuBar {
         JMenu modeMenu = addMenu("Mode", KeyEvent.VK_M);
 
         JMenuItem addVertex = addMenuItem("Add a Vertex", KeyEvent.VK_A, modeMenu);
-        addVertex.addActionListener(e -> service.switchMode(Mode.ADD_A_VERTEX));
+        addVertex.addActionListener(e -> service.switchMode(GraphMode.ADD_A_VERTEX));
 
         JMenuItem addEdge = addMenuItem("Add an Edge", KeyEvent.VK_E, modeMenu);
-        addEdge.addActionListener(e -> service.switchMode(Mode.ADD_AN_EDGE));
+        addEdge.addActionListener(e -> service.switchMode(GraphMode.ADD_AN_EDGE));
 
         JMenuItem removeVertex = addMenuItem("Remove a Vertex", KeyEvent.VK_X, modeMenu);
-        removeVertex.addActionListener(e -> service.switchMode(Mode.REMOVE_A_VERTEX));
+        removeVertex.addActionListener(e -> service.switchMode(GraphMode.REMOVE_A_VERTEX));
 
         JMenuItem removeEdge = addMenuItem("Remove an Edge", KeyEvent.VK_R, modeMenu);
-        removeEdge.addActionListener(e -> service.switchMode(Mode.REMOVE_AN_EDGE));
+        removeEdge.addActionListener(e -> service.switchMode(GraphMode.REMOVE_AN_EDGE));
 
         JMenuItem none = addMenuItem("None", KeyEvent.VK_N, modeMenu);
-        none.addActionListener(e -> service.switchMode(Mode.NONE));
+        none.addActionListener(e -> service.switchMode(GraphMode.NONE));
 
         // ============================================================= algorithm mode menu =====
         JMenu algorithmMenu = addMenu("Algorithms", KeyEvent.VK_A);

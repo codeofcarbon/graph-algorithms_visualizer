@@ -1,36 +1,32 @@
 package visualizer;
 
+import lombok.Getter;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
+@Getter
 public class Graph extends JPanel {
-    final List<Vertex> vertices = new ArrayList<>();
-    final List<Edge> edges = new ArrayList<>();
-    AlgMode algorithmMode = AlgMode.NONE;
-    Mode mode = Mode.ADD_A_VERTEX;
-    final GraphService service;
-    final Toolbar toolbar;
+    private final List<Vertex> vertices = new ArrayList<>();
+    private final List<Edge> edges = new ArrayList<>();
+    GraphService service;
 
-
-    public Graph(Toolbar toolbar) {
-        this.toolbar = toolbar;
-        toolbar.graph = this;                                               // todo remove!!!!!!!
-        this.service = new GraphService(this, toolbar);
+    public Graph() {
         setName("Graph");
         setBackground(Color.BLACK);
         setSize(800, 600);
         setLayout(null);
         addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                if (mode == Mode.ADD_A_VERTEX) service.createNewVertex(e);
-                if (mode == Mode.ADD_AN_EDGE) service.createNewEdge(e);
-                if (mode == Mode.REMOVE_A_VERTEX) service.removeVertex(e);
-                if (mode == Mode.REMOVE_AN_EDGE) service.removeEdge(e);
-                if (mode == Mode.NONE) {
-                    if (algorithmMode != AlgMode.NONE) service.startAlgorithm(e);
+                if (service.getGraphMode() == GraphMode.ADD_A_VERTEX) service.createNewVertex(e);
+                if (service.getGraphMode() == GraphMode.ADD_AN_EDGE) service.createNewEdge(e);
+                if (service.getGraphMode() == GraphMode.REMOVE_A_VERTEX) service.removeVertex(e);
+                if (service.getGraphMode() == GraphMode.REMOVE_AN_EDGE) service.removeEdge(e);
+                if (service.getGraphMode() == GraphMode.NONE) {
+                    if (service.getAlgorithmMode() != AlgMode.NONE) service.startAlgorithm(e);
                 }
             }
         });
