@@ -21,11 +21,11 @@ public class MainFrame extends JFrame {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File("src/main/java/visualizer/data/"));
         add(fileChooser);
-        Graph graph = new Graph();
-        add(graph);
+        GraphWindow graphWindow = new GraphWindow();
+        add(graphWindow);
         Toolbar toolbar = new Toolbar(fileChooser);
         add(toolbar, BorderLayout.NORTH);
-        GraphService service = new GraphService(graph, toolbar);
+        GraphService service = new GraphService(graphWindow, toolbar);
         MenuBar menuBar = new MenuBar(service);
         setJMenuBar(menuBar);
         setVisible(true);

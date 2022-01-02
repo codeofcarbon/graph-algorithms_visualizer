@@ -13,16 +13,15 @@ import java.util.List;
 public class GraphService {
     private final Algorithm algorithm;
     private final Toolbar toolbar;
-    private final Graph graph;
+    private final GraphWindow graphWindow;
     private AlgMode algorithmMode = AlgMode.NONE;
-    private GraphMode graphMode = GraphMode.ADD_A_VERTEX;
     private Vertex edgeSource, edgeTarget;
     private Timer timer;
 
-    public GraphService(Graph graph, Toolbar toolbar) {
-        this.graph = graph;
+    public GraphService(GraphWindow graphWindow, Toolbar toolbar) {
+        this.graphWindow = graphWindow;
         this.toolbar = toolbar;
-        graph.service = this;
+        graphWindow.service = this;
         toolbar.service = this;
         this.algorithm = new Algorithm(this);
     }
@@ -33,7 +32,7 @@ public class GraphService {
                     if (Algorithm.root != null && algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
                         var shortestPath = algorithm.getShortestPath(selectedNode);
                         toolbar.infoPanel.setText(shortestPath);
-                        graph.repaint();
+                        graphWindow.repaint();
                     }
                     if (Algorithm.root == null) {
                         algorithm.initAlgorithm(selectedNode);
@@ -58,7 +57,7 @@ public class GraphService {
                                 toolbar.infoPanel.setText(algorithmResult);
                                 timer.stop();
                             }
-                            graph.repaint();
+                            graphWindow.repaint();
                         });
                         timer.start();
                     }
@@ -67,17 +66,17 @@ public class GraphService {
 
     void createNewVertex(MouseEvent point) {
         if (checkIfTheClickPointIsOnTheVertex(point).isEmpty()) {
-            var input = JOptionPane.showInputDialog(graph, "Enter the vertex ID (should be 1 char):", "Vertex ID",
+            var input = JOptionPane.showInputDialog(graphWindow, "Enter the vertex ID (should be 1 char):", "Vertex ID",
                     JOptionPane.INFORMATION_MESSAGE, null, null, null);
             if (input == null) return;
             String id = input.toString();
             if (!id.isBlank() && id.length() == 1) {
                 Vertex vertex = new Vertex(id, point.getPoint());
-                graph.getVertices().add(vertex);
-                graph.add(vertex);
-                graph.repaint();
+                graphWindow.getVertices().add(vertex);
+                graphWindow.add(vertex);
+                graphWindow.repaint();
             } else {
-                JOptionPane.showMessageDialog(graph,
+                JOptionPane.showMessageDialog(graphWindow,
                         "Input must be one character long", "Error. Try again", JOptionPane.ERROR_MESSAGE);
                 createNewVertex(point);
             }
@@ -89,7 +88,7 @@ public class GraphService {
             checkIfTheClickPointIsOnTheVertex(point).ifPresent(source -> {
                 edgeSource = source;
                 edgeSource.marked = true;
-                graph.repaint();
+                graphWindow.repaint();
             });
             return;
         }
@@ -97,8 +96,8 @@ public class GraphService {
             checkIfTheClickPointIsOnTheVertex(point).ifPresent(target -> {
                 edgeTarget = target;
                 edgeTarget.marked = true;
-                graph.repaint();
-                if (edgeSource.equals(edgeTarget) || graph.getEdges().stream().anyMatch(edge ->
+                graphWindow.repaint();
+                if (edgeSource.equals(edgeTarget) || graphWindow.getEdges().stream().anyMatch(edge ->
                         edge.source.equals(edgeTarget) && edge.target.equals(edgeSource)
                         || edge.source.equals(edgeSource) && edge.target.equals(edgeTarget))) {
                     resetMarkedNodes();
@@ -106,7 +105,7 @@ public class GraphService {
                 }
 
                 while (true) {
-                    var input = JOptionPane.showInputDialog(graph, "Enter weight", "Edge weight",
+                    var input = JOptionPane.showInputDialog(graphWindow, "Enter weight", "Edge weight",
                             JOptionPane.INFORMATION_MESSAGE, null, null, null);
                     if (input == null) {
                         resetMarkedNodes();
@@ -117,9 +116,9 @@ public class GraphService {
                         Edge edge = new Edge(edgeSource, edgeTarget, weight);
                         Edge reversedEdge = new Edge(edgeTarget, edgeSource, weight);
                         List.of(edge, reversedEdge).forEach(e -> {
-                            graph.add(e);
-                            graph.getEdges().add(e);
-                            graph.add(edge.edgeLabel);
+                            graphWindow.add(e);
+                            graphWindow.getEdges().add(e);
+                            graphWindow.add(edge.edgeLabel);
                         });
                         edgeSource.connected = true;
                         edgeTarget.connected = true;
@@ -130,7 +129,7 @@ public class GraphService {
                         resetMarkedNodes();
                         return;
                     } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(graph,
+                        JOptionPane.showMessageDialog(graphWindow,
                                 "Edge weight must be a number", "Error. Try again", JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -141,44 +140,44 @@ public class GraphService {
     void removeVertex(MouseEvent point) {
         checkIfTheClickPointIsOnTheVertex(point).ifPresent(vertex -> {
             vertex.connectedEdges.forEach(edge -> List.of(edge, edge.mirrorEdge).forEach(e -> {
-                graph.remove(e);
-                graph.getEdges().remove(e);
-                if (e.edgeLabel != null) graph.remove(e.edgeLabel);
+                graphWindow.remove(e);
+                graphWindow.getEdges().remove(e);
+                if (e.edgeLabel != null) graphWindow.remove(e.edgeLabel);
                 edge.target.connectedEdges.remove(edge.mirrorEdge);
             }));
-            graph.getVertices().remove(vertex);
-            graph.remove(vertex);
-            graph.repaint();
+            graphWindow.getVertices().remove(vertex);
+            graphWindow.remove(vertex);
+            graphWindow.repaint();
         });
     }
 
     void removeEdge(MouseEvent point) {
         checkIfTheClickPointIsOnTheEdge(point).ifPresent(edge -> {
             List.of(edge, edge.mirrorEdge).forEach(e -> {
-                graph.remove(e);
-                graph.getEdges().remove(e);
-                if (e.edgeLabel != null) graph.remove(e.edgeLabel);
+                graphWindow.remove(e);
+                graphWindow.getEdges().remove(e);
+                if (e.edgeLabel != null) graphWindow.remove(e.edgeLabel);
                 edge.source.connectedEdges.remove(edge);
                 edge.target.connectedEdges.remove(edge.mirrorEdge);
             });
-            graph.repaint();
+            graphWindow.repaint();
         });
     }
 
     void clearGraph() {
-        Arrays.stream(graph.getComponents()).forEach(graph::remove);
+        Arrays.stream(graphWindow.getComponents()).forEach(graphWindow::remove);
         setCurrentModes(AlgMode.NONE, GraphMode.ADD_A_VERTEX);
         toolbar.infoPanel.setText("");
         algorithm.resetAlgorithm();
-        graph.getVertices().clear();
-        graph.getEdges().clear();
-        graph.repaint();
+        graphWindow.getVertices().clear();
+        graphWindow.getEdges().clear();
+        graphWindow.repaint();
     }
 
     void switchMode(GraphMode graphMode) {
         setCurrentModes(AlgMode.NONE, graphMode);
         toolbar.infoPanel.setText("");
-        graph.setToolTipText(null);
+        graphWindow.setToolTipText(null);
         algorithm.resetAlgorithm();
         resetComponentLists();
         resetMarkedNodes();
@@ -187,14 +186,14 @@ public class GraphService {
     void switchAlgorithmMode(AlgMode algorithmMode) {
         setCurrentModes(algorithmMode, GraphMode.NONE);
         toolbar.infoPanel.setText("Please choose a starting vertex");
-        graph.setToolTipText(null);
+        graphWindow.setToolTipText(null);
         algorithm.resetAlgorithm();
         resetComponentLists();
         resetMarkedNodes();
     }
 
     private void setCurrentModes(AlgMode algorithmMode, GraphMode graphMode) {
-        this.graphMode = graphMode;
+        graphWindow.graphMode = graphMode;
         this.algorithmMode = algorithmMode;
         toolbar.modeLabel.setText(String.format(
                 "<html><font color=gray>GRAPH MODE - " +
@@ -205,12 +204,12 @@ public class GraphService {
     }
 
     private void resetComponentLists() {
-        graph.getVertices().forEach(vertex -> {
+        graphWindow.getVertices().forEach(vertex -> {
             vertex.distance = Integer.MAX_VALUE;
             vertex.visited = false;
             vertex.path = false;
         });
-        graph.getEdges().forEach(edge -> {
+        graphWindow.getEdges().forEach(edge -> {
             edge.hidden = false;
             edge.visited = false;
             edge.path = false;
@@ -226,19 +225,23 @@ public class GraphService {
             edgeTarget.marked = false;
             edgeTarget = null;
         }
-        graph.repaint();
+        graphWindow.repaint();
     }
 
     private Optional<Vertex> checkIfTheClickPointIsOnTheVertex(MouseEvent e) {
-        return graph.getVertices().stream()
+        return graphWindow.getVertices().stream()
                 .filter(v -> e.getPoint().distance(v.center) < 25)
                 .findAny();
     }
 
     private Optional<Edge> checkIfTheClickPointIsOnTheEdge(MouseEvent e) {
-        return graph.getEdges().stream()
+        return graphWindow.getEdges().stream()
                 .filter(edge -> new Line2D.Double(edge.source.center.x, edge.source.center.y,
                         edge.target.center.x, edge.target.center.y).ptLineDist(e.getPoint()) < 5)
                 .findAny();
+    }
+
+    protected Vertex moveVertex(MouseEvent point) {
+        return checkIfTheClickPointIsOnTheVertex(point).orElse(null);
     }
 }

@@ -51,17 +51,17 @@ public class Toolbar extends JPanel {
         JButton openButton = addButton(OPEN, "OpenButton");
         openButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Select graph data file");
-            int returnValue = fileChooser.showOpenDialog(service.getGraph());
+            int returnValue = fileChooser.showOpenDialog(service.getGraphWindow());
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 graphData = (ConcurrentHashMap<Vertex, List<Edge>>)
                         Storage.deserialize(String.valueOf(fileChooser.getSelectedFile()));
-                service.getGraph().getVertices().clear();
-                service.getGraph().getEdges().clear();
+                service.getGraphWindow().getVertices().clear();
+                service.getGraphWindow().getEdges().clear();
                 graphData.forEach((key, value) -> {
-                    service.getGraph().getVertices().add(key);
-                    service.getGraph().getEdges().addAll(value);
+                    service.getGraphWindow().getVertices().add(key);
+                    service.getGraphWindow().getEdges().addAll(value);
                 });
-                service.getGraph().repaint();
+                service.getGraphWindow().repaint();
                 graphData.clear();
             }
         });
@@ -69,9 +69,9 @@ public class Toolbar extends JPanel {
         JButton saveButton = addButton(SAVE, "SaveButton");
         saveButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Save graph data file");
-            int returnValue = fileChooser.showSaveDialog(service.getGraph());
+            int returnValue = fileChooser.showSaveDialog(service.getGraphWindow());
             if (returnValue == JFileChooser.APPROVE_OPTION) {
-                service.getGraph().getVertices().forEach(vertex -> graphData.put(vertex, vertex.connectedEdges));
+                service.getGraphWindow().getVertices().forEach(vertex -> graphData.put(vertex, vertex.connectedEdges));
                 Storage.serialize(graphData, String.valueOf(fileChooser.getSelectedFile()));
             }
         });

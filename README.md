@@ -1,6 +1,6 @@
 # Graph-Algorithms Visualizer (:jigsaw: in progress :jigsaw:)
  
-Based on the Swing library, Java GUI application for creating and visualizing graph algorithms such 
+Based on the Swing library, Java GUI application for creating and visualizing graphWindow algorithms such 
 as traversals, spanning trees, and finding the shortest path.
 
 ## Table of contents
@@ -35,6 +35,6 @@ If you want clone the repo:
 
 - run command line in the directory you want to store the app and type the following command:
 
-``git clone https://github.com/codeofcarbon/graph-algorithms_visualizer``
+``git clone https://github.com/codeofcarbon/graphWindow-algorithms_visualizer``
 
 - or start with Project from Version Control in your IDE by providing the url of this repository.
