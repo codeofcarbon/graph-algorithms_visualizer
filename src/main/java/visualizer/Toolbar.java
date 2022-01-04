@@ -11,10 +11,6 @@ public class Toolbar extends JPanel {
             .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
     private static final ImageIcon SAVE = new ImageIcon(new ImageIcon("src/main/resources/icons/save.png")
             .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
-    private static final ImageIcon UNDO = new ImageIcon(new ImageIcon("src/main/resources/icons/undo.png")
-            .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
-    private static final ImageIcon REDO = new ImageIcon(new ImageIcon("src/main/resources/icons/redo.png")
-            .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
     private Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
     private final JPanel buttonsPanel;
@@ -51,17 +47,16 @@ public class Toolbar extends JPanel {
         JButton openButton = addButton(OPEN, "OpenButton");
         openButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Select graph data file");
-            int returnValue = fileChooser.showOpenDialog(service.getGraphWindow());
+            int returnValue = fileChooser.showOpenDialog(service.getGraph());
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 graphData = (ConcurrentHashMap<Vertex, List<Edge>>)
                         Storage.deserialize(String.valueOf(fileChooser.getSelectedFile()));
-                service.getGraphWindow().getVertices().clear();
-                service.getGraphWindow().getEdges().clear();
+                service.clearGraph();
                 graphData.forEach((key, value) -> {
-                    service.getGraphWindow().getVertices().add(key);
-                    service.getGraphWindow().getEdges().addAll(value);
+                    service.getGraph().getVertices().add(key);
+                    service.getGraph().getEdges().addAll(value);
                 });
-                service.getGraphWindow().repaint();
+                service.getGraph().repaint();
                 graphData.clear();
             }
         });
@@ -69,22 +64,12 @@ public class Toolbar extends JPanel {
         JButton saveButton = addButton(SAVE, "SaveButton");
         saveButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Save graph data file");
-            int returnValue = fileChooser.showSaveDialog(service.getGraphWindow());
+            int returnValue = fileChooser.showSaveDialog(service.getGraph());
             if (returnValue == JFileChooser.APPROVE_OPTION) {
-                service.getGraphWindow().getVertices().forEach(vertex -> graphData.put(vertex, vertex.connectedEdges));
+                service.getGraph().getVertices().forEach(vertex -> graphData.put(vertex, vertex.connectedEdges));
                 Storage.serialize(graphData, String.valueOf(fileChooser.getSelectedFile()));
             }
         });
-
-        JButton undoButton = addButton(UNDO, "UndoButton");
-        undoButton.addActionListener(event -> {
-
-        }/*service.undo()*/);
-
-        JButton redoButton = addButton(REDO, "RedoButton");
-        redoButton.addActionListener(event -> {
-
-        }/*service.redo()*/);
     }
 
     private JButton addButton(Icon icon, String name) {

@@ -32,9 +32,6 @@ public class MenuBar extends JMenuBar {
         JMenuItem removeEdge = addMenuItem("Remove an Edge", KeyEvent.VK_R, modeMenu);
         removeEdge.addActionListener(e -> service.switchMode(GraphMode.REMOVE_AN_EDGE));
 
-        JMenuItem moveVertex = addMenuItem("Move a Vertex", 'R', modeMenu);
-        moveVertex.addActionListener(e -> service.switchMode(GraphMode.MOVE_VERTEX));
-
         modeMenu.addSeparator();
 
         JMenuItem none = addMenuItem("None", KeyEvent.VK_N, modeMenu);

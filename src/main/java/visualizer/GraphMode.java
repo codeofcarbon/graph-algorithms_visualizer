@@ -5,7 +5,6 @@ public enum GraphMode {
     ADD_AN_EDGE("Add an Edge"),
     REMOVE_A_VERTEX("Remove a Vertex"),
     REMOVE_AN_EDGE("Remove an Edge"),
-    MOVE_VERTEX("Move a Vertex"),
     NONE("None");
 
     final String current;
