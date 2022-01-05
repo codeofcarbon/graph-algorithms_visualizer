@@ -14,10 +14,10 @@ public class Edge extends JComponent implements Serializable {
     int weight;
 
     public Edge(Vertex source, Vertex target, int weight) {
+        setName(String.format("Edge <%s -> %s>", source.id, target.id));
         this.source = source;
         this.target = target;
         this.weight = weight;
-        setName(String.format("Edge <%s -> %s>", source.id, target.id));
         this.edgeLabel = new JLabel(String.valueOf(weight));
         setOpaque(true);
     }
@@ -34,27 +34,31 @@ enum EdgeState {
     RAW() {
         public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
             g.setColor(new Color(60, 60, 60, 255));
-            g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
+            g2d.drawLine(edge.source.getX() + edge.source.radius, edge.source.getY() + edge.source.radius,
+                    edge.target.getX() + edge.target.radius, edge.target.getY() + edge.target.radius);
             g.setColor(Color.LIGHT_GRAY);
         }
     },
     VISITED() {
         public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
             g.setColor(new Color(20, 80, 230, 255));
-            g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
+            g2d.drawLine(edge.source.getX() + edge.source.radius, edge.source.getY() + edge.source.radius,
+                    edge.target.getX() + edge.target.radius, edge.target.getY() + edge.target.radius);
             g.setColor(Color.WHITE);
         }
     },
     HIDDEN() {
         public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
             g.setColor(new Color(60, 60, 60, 0));
-            g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
+//            g2d.drawLine(edge.source.getX() + edge.source.radius, edge.source.getY() + edge.source.radius,
+//                    edge.target.getX() + edge.target.radius, edge.target.getY() + edge.target.radius);
         }
     },
     PATH() {
         public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
             g.setColor(new Color(90, 250, 70, 255));
-            g2d.drawLine(edge.source.getX(), edge.source.getY(), edge.target.getX(), edge.target.getY());
+            g2d.drawLine(edge.source.getX() + edge.source.radius, edge.source.getY() + edge.source.radius,
+                    edge.target.getX() + edge.target.radius, edge.target.getY() + edge.target.radius);
             g.setColor(Color.WHITE);
         }
     };

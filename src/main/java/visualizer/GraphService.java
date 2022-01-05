@@ -3,17 +3,20 @@ package visualizer;
 import lombok.Getter;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 
 @Getter
 public class GraphService {
+    private final List<Vertex> vertices = new ArrayList<>();
+    private final List<Edge> edges = new ArrayList<>();
     private final Algorithm algorithm;
     private final Toolbar toolbar;
     private final Graph graph;
+    private GraphMode graphMode = GraphMode.ADD_A_VERTEX;
     private AlgMode algorithmMode = AlgMode.NONE;
     private Vertex edgeSource, edgeTarget;
     private Timer timer;
@@ -21,11 +24,9 @@ public class GraphService {
     public GraphService(Graph graph, Toolbar toolbar) {
         this.graph = graph;
         this.toolbar = toolbar;
-        graph.service = this;
         toolbar.service = this;
         this.algorithm = new Algorithm(this);
     }
-
 
     void startAlgorithm(MouseEvent e) {
         checkIfVertex(e)
@@ -72,8 +73,8 @@ public class GraphService {
             if (input == null) return;
             String id = input.toString();
             if (!id.isBlank() && id.length() == 1) {
-                Vertex vertex = new Vertex(id, point.getPoint());
-                graph.getVertices().add(vertex);
+                Vertex vertex = new Vertex(id, point.getPoint(), this);
+                vertices.add(vertex);
                 graph.add(vertex);
                 graph.repaint();
             } else {
@@ -98,7 +99,7 @@ public class GraphService {
                 edgeTarget = target;
                 edgeTarget.marked = true;
                 graph.repaint();
-                if (edgeSource.equals(edgeTarget) || graph.getEdges().stream().anyMatch(edge ->
+                if (edgeSource.equals(edgeTarget) || edges.stream().anyMatch(edge ->
                         edge.source.equals(edgeTarget) && edge.target.equals(edgeSource)
                         || edge.source.equals(edgeSource) && edge.target.equals(edgeTarget))) {
                     resetMarkedNodes();
@@ -118,7 +119,7 @@ public class GraphService {
                         Edge reversedEdge = new Edge(edgeTarget, edgeSource, weight);
                         List.of(edge, reversedEdge).forEach(e -> {
                             graph.add(e);
-                            graph.getEdges().add(e);
+                            edges.add(e);
                             graph.add(edge.edgeLabel);
                         });
                         edgeSource.connected = true;
@@ -142,11 +143,11 @@ public class GraphService {
         checkIfVertex(point).ifPresent(vertex -> {
             vertex.connectedEdges.forEach(edge -> List.of(edge, edge.mirrorEdge).forEach(e -> {
                 graph.remove(e);
-                graph.getEdges().remove(e);
+                edges.remove(e);
                 if (e.edgeLabel != null) graph.remove(e.edgeLabel);
                 edge.target.connectedEdges.remove(edge.mirrorEdge);
             }));
-            graph.getVertices().remove(vertex);
+            vertices.remove(vertex);
             graph.remove(vertex);
             graph.repaint();
         });
@@ -156,7 +157,7 @@ public class GraphService {
         checkIfEdge(point).ifPresent(edge -> {
             List.of(edge, edge.mirrorEdge).forEach(e -> {
                 graph.remove(e);
-                graph.getEdges().remove(e);
+                edges.remove(e);
                 if (e.edgeLabel != null) graph.remove(e.edgeLabel);
                 edge.source.connectedEdges.remove(edge);
                 edge.target.connectedEdges.remove(edge.mirrorEdge);
@@ -170,8 +171,8 @@ public class GraphService {
         setCurrentModes(AlgMode.NONE, GraphMode.ADD_A_VERTEX);
         toolbar.infoPanel.setText("");
         algorithm.resetAlgorithm();
-        graph.getVertices().clear();
-        graph.getEdges().clear();
+        vertices.clear();
+        edges.clear();
         graph.repaint();
     }
 
@@ -194,7 +195,7 @@ public class GraphService {
     }
 
     private void setCurrentModes(AlgMode algorithmMode, GraphMode graphMode) {
-        graph.graphMode = graphMode;
+        this.graphMode = graphMode;
         this.algorithmMode = algorithmMode;
         toolbar.modeLabel.setText(String.format(
                 "<html><font color=gray>GRAPH MODE - " +
@@ -205,12 +206,12 @@ public class GraphService {
     }
 
     private void resetComponentLists() {
-        graph.getVertices().forEach(vertex -> {
+        vertices.forEach(vertex -> {
             vertex.distance = Integer.MAX_VALUE;
             vertex.visited = false;
             vertex.path = false;
         });
-        graph.getEdges().forEach(edge -> {
+        edges.forEach(edge -> {
             edge.hidden = false;
             edge.visited = false;
             edge.path = false;
@@ -229,16 +230,15 @@ public class GraphService {
         graph.repaint();
     }
 
-    Optional<Vertex> checkIfVertex(MouseEvent e) {
-        return graph.getVertices().stream()
-                .filter(v -> e.getPoint().distance(v.center) < 25)
-                .findAny();
+    private Optional<Vertex> checkIfVertex(MouseEvent event) {
+        return event.getSource() instanceof Vertex ? Optional.of((Vertex) event.getSource()) : Optional.empty();
     }
 
-    private Optional<Edge> checkIfEdge(MouseEvent e) {
-        return graph.getEdges().stream()
-                .filter(edge -> new Line2D.Double(edge.source.center.x, edge.source.center.y,
-                        edge.target.center.x, edge.target.center.y).ptLineDist(e.getPoint()) < 5)
+    private Optional<Edge> checkIfEdge(MouseEvent event) {
+        return edges.stream()
+                .filter(edge -> new Line2D.Double(edge.source.getX() + edge.source.radius,
+                        edge.source.getY() + edge.source.radius, edge.target.getX() + edge.target.radius,
+                        edge.target.getY() + edge.target.radius).ptLineDist(event.getPoint()) < 5)
                 .findAny();
     }
 }
