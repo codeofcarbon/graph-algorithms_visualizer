@@ -2,7 +2,6 @@ package visualizer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,7 @@ public class Vertex extends JPanel implements Serializable {
     final String id;
     int distance;
 
-    public Vertex(String id, Point center, GraphService service) {
+    public Vertex(String id, Point center) {
         setName("Vertex " + id);
         this.id = id;
         this.connectedEdges = new ArrayList<>();
@@ -24,34 +23,6 @@ public class Vertex extends JPanel implements Serializable {
         setSize(getPreferredSize());
         setBackground(Color.BLACK);
         setOpaque(true);
-
-        var mouseAdapter = new MouseAdapter() {
-            Point location, pressed;
-
-            public void mouseClicked(MouseEvent e) {
-                if (service.getGraphMode() == GraphMode.ADD_A_VERTEX) service.createNewVertex(e);
-                if (service.getGraphMode() == GraphMode.ADD_AN_EDGE) service.createNewEdge(e);
-                if (service.getGraphMode() == GraphMode.REMOVE_A_VERTEX) service.removeVertex(e);
-                if (service.getGraphMode() == GraphMode.NONE) {
-                    if (service.getAlgorithmMode() != AlgMode.NONE) service.startAlgorithm(e);
-                }
-            }
-
-            public void mousePressed(MouseEvent e) {
-                pressed = e.getLocationOnScreen();
-                location = getLocation();
-            }
-
-            public void mouseDragged(MouseEvent e) {
-                Point dragged = e.getLocationOnScreen();
-                int x = (int) (location.x + dragged.getX() - pressed.getX());
-                int y = (int) (location.y + dragged.getY() - pressed.getY());
-                setLocation(x, y);
-                getParent().repaint();
-            }
-        };
-        addMouseListener(mouseAdapter);
-        addMouseMotionListener(mouseAdapter);
     }
 
     protected VertexState getState() {

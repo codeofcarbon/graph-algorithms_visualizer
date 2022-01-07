@@ -112,27 +112,27 @@ public class Algorithm {
             edgeSet.forEach(edge -> edge.visited = true);
             switch (service.getAlgorithmMode()) {
                 case DEPTH_FIRST_SEARCH:
-                    algorithmResult = String.format("<html><font size=+1 color=white>DFS for " +
+                    algorithmResult = String.format("<html><font size=+1 color=gray>DFS for " +
                                                     "<font size=+2 color=#5afa46><b>%s</b>" +
-                                                    "<font size=+1 color=white>:   ", root.id) +
+                                                    "<font size=+1 color=gray>:   ", root.id) +
                                       nodeList.stream()
                                               .map(vertex -> String.format(
                                                       "<font size=+1 color=#0062ff><b>%s</b>", vertex.id))
                                               .collect(Collectors.joining(" &rarr "));
                     break;
                 case BREADTH_FIRST_SEARCH:
-                    algorithmResult = String.format("<html><font size=+1 color=white>BFS for " +
+                    algorithmResult = String.format("<html><font size=+1 color=gray>BFS for " +
                                                     "<font size=+2 color=#5afa46><b>%s</b>" +
-                                                    "<font size=+1 color=white>:   ", root.id) +
+                                                    "<font size=+1 color=gray>:   ", root.id) +
                                       nodeList.stream()
                                               .map(vertex -> String.format(
                                                       "<font size=+1 color=#0062ff><b>%s</b>", vertex.id))
                                               .collect(Collectors.joining(" &rarr "));
                     break;
                 case DIJKSTRA_ALGORITHM:
-                    algorithmResult = String.format("<html><font size=+1 color=white>shortest distances from " +
+                    algorithmResult = String.format("<html><font size=+1 color=gray>shortest distances from " +
                                                     "<font size=+2 color=#5afa46><b>%s</b>" +
-                                                    "<font size=+1 color=white>:   ", root.id) +
+                                                    "<font size=+1 color=gray>:   ", root.id) +
                                       service.getVertices().stream()
                                               .filter(vertex -> !vertex.equals(root))
                                               .sorted(Comparator.comparing(vertex -> vertex.id))
@@ -140,17 +140,17 @@ public class Algorithm {
                                                       "<font size=+1 color=#0062ff> %s<font color=#eb4034> &#8680 %s",
                                                       vertex.id, vertex.distance == Integer.MAX_VALUE ?
                                                               "inf" : String.valueOf(vertex.distance)))
-                                              .collect(Collectors.joining("<font color=white>,"));
+                                              .collect(Collectors.joining("<font color=gray>,"));
 
                     service.getGraph().setToolTipText("<html><font size=+1>click on a node to see the shortest path");
                     break;
                 case PRIM_ALGORITHM:
-                    algorithmResult = "<html><font size=+1>minimum spanning tree:" +
+                    algorithmResult = "<html><font size=+1 color=gray>minimum spanning tree:" +
                                       edgeSet.stream()
                                               .sorted(Comparator.comparing(edge -> edge.source.id))
                                               .map(edge -> String.format("<font size=+1 color=#0062ff><b> %s &#8644 %s</b>",
                                                       edge.source.id, edge.target.id))
-                                              .collect(Collectors.joining("<font color=white>,"));
+                                              .collect(Collectors.joining("<font color=gray>,"));
             }
         }
         return algorithmResult;
@@ -176,7 +176,7 @@ public class Algorithm {
                paths.get(target).stream()
                        .map(edge -> String.format("<font size=+1 color=0062ff> %s &#8644 %s",
                                edge.source.id, edge.target.id))
-                       .collect(Collectors.joining("<font color=white> > ")) +
+                       .collect(Collectors.joining("<font color=gray> &rarr ")) +
                String.format("<font size=+2 color=#eb4034>   &#8680 %d", target.distance);
     }
 

@@ -2,34 +2,18 @@ package visualizer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.File;
 
 public class Graph extends JPanel {
     private GraphService service;
 
     public Graph() {
-        setName("Visualizer");
+        setName("Graph");
         setPreferredSize(new Dimension(960, 600));
         setSize(getPreferredSize());
         setBackground(Color.BLACK);
         createFrame();
-        addListeners();
         setLayout(null);
-    }
-
-    private void addListeners() {
-        addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (service.getGraphMode() == GraphMode.ADD_A_VERTEX) service.createNewVertex(e);
-                if (service.getGraphMode() == GraphMode.ADD_AN_EDGE) service.createNewEdge(e);
-                if (service.getGraphMode() == GraphMode.REMOVE_A_VERTEX) service.removeVertex(e);
-                if (service.getGraphMode() == GraphMode.REMOVE_AN_EDGE) service.removeEdge(e);
-                if (service.getGraphMode() == GraphMode.NONE) {
-                    if (service.getAlgorithmMode() != AlgMode.NONE) service.startAlgorithm(e);
-                }
-            }
-        });
     }
 
     private void createFrame() {
@@ -48,7 +32,7 @@ public class Graph extends JPanel {
         fileChooser.setCurrentDirectory(new File("src/main/java/visualizer/data/"));
         Toolbar toolbar = new Toolbar(fileChooser);
         this.service = new GraphService(this, toolbar);
-        MenuBar menuBar = new MenuBar(service);
+        MenuBar menuBar = new MenuBar(service, toolbar);
 
         mainFrame.add(fileChooser);
         mainFrame.add(toolbar, BorderLayout.NORTH);

@@ -6,11 +6,13 @@ import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
+import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
 @Getter
-public class GraphService {
+public class GraphService implements Serializable {
+    private final MouseHandler mouseHandler = new MouseHandler(this);
     private final List<Vertex> vertices = new ArrayList<>();
     private final List<Edge> edges = new ArrayList<>();
     private final Algorithm algorithm;
@@ -24,7 +26,8 @@ public class GraphService {
     public GraphService(Graph graph, Toolbar toolbar) {
         this.graph = graph;
         this.toolbar = toolbar;
-        toolbar.service = this;
+        this.toolbar.setService(this);
+        this.mouseHandler.addComponent(graph);
         this.algorithm = new Algorithm(this);
     }
 
@@ -33,12 +36,12 @@ public class GraphService {
                 .ifPresent(selectedNode -> {
                     if (Algorithm.root != null && algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
                         var shortestPath = algorithm.getShortestPath(selectedNode);
-                        toolbar.infoPanel.setText(shortestPath);
+                        toolbar.getInfoLabelTwo().setText(shortestPath);
                         graph.repaint();
                     }
                     if (Algorithm.root == null) {
                         algorithm.initAlgorithm(selectedNode);
-                        toolbar.infoPanel.setText("Please wait...");
+                        toolbar.getInfoLabelTwo().setText("Please wait...");
                         timer = new Timer(500, event -> {
                             switch (algorithmMode) {
                                 case DEPTH_FIRST_SEARCH:
@@ -56,7 +59,7 @@ public class GraphService {
                             }
                             var algorithmResult = algorithm.getResultIfReady();
                             if (!algorithmResult.isBlank()) {
-                                toolbar.infoPanel.setText(algorithmResult);
+                                toolbar.getInfoLabelTwo().setText(algorithmResult);
                                 timer.stop();
                             }
                             graph.repaint();
@@ -73,7 +76,8 @@ public class GraphService {
             if (input == null) return;
             String id = input.toString();
             if (!id.isBlank() && id.length() == 1) {
-                Vertex vertex = new Vertex(id, point.getPoint(), this);
+                Vertex vertex = new Vertex(id, point.getPoint());
+                mouseHandler.addComponent(vertex);
                 vertices.add(vertex);
                 graph.add(vertex);
                 graph.repaint();
@@ -169,40 +173,22 @@ public class GraphService {
     void clearGraph() {
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
         setCurrentModes(AlgMode.NONE, GraphMode.ADD_A_VERTEX);
-        toolbar.infoPanel.setText("");
+        toolbar.getInfoLabelTwo().setText("");
         algorithm.resetAlgorithm();
         vertices.clear();
         edges.clear();
         graph.repaint();
     }
 
-    void switchMode(GraphMode graphMode) {
-        setCurrentModes(AlgMode.NONE, graphMode);
-        toolbar.infoPanel.setText("");
-        graph.setToolTipText(null);
-        algorithm.resetAlgorithm();
-        resetComponentLists();
-        resetMarkedNodes();
-    }
-
-    void switchAlgorithmMode(AlgMode algorithmMode) {
-        setCurrentModes(algorithmMode, GraphMode.NONE);
-        toolbar.infoPanel.setText("Please choose a starting vertex");
-        graph.setToolTipText(null);
-        algorithm.resetAlgorithm();
-        resetComponentLists();
-        resetMarkedNodes();
-    }
-
-    private void setCurrentModes(AlgMode algorithmMode, GraphMode graphMode) {
+    void setCurrentModes(AlgMode algorithmMode, GraphMode graphMode) {
+        toolbar.getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algorithmMode));
+        toolbar.getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
         this.graphMode = graphMode;
         this.algorithmMode = algorithmMode;
-        toolbar.modeLabel.setText(String.format(
-                "<html><font color=gray>GRAPH MODE - " +
-                "<font size=+1 color=white><i>%s</i>", graphMode.current.toUpperCase()));
-        toolbar.algorithmModeLabel.setText(String.format(
-                "<html><font color=gray>ALGORITHM MODE - " +
-                "<font size=+1 color=white><i>%s</i>", algorithmMode.current.toUpperCase()));
+        graph.setToolTipText(null);
+        algorithm.resetAlgorithm();
+        resetComponentLists();
+        resetMarkedNodes();
     }
 
     private void resetComponentLists() {
@@ -240,5 +226,33 @@ public class GraphService {
                         edge.source.getY() + edge.source.radius, edge.target.getX() + edge.target.radius,
                         edge.target.getY() + edge.target.radius).ptLineDist(event.getPoint()) < 5)
                 .findAny();
+    }
+}
+
+enum GraphMode {
+    ADD_A_VERTEX("Add a Vertex"),
+    ADD_AN_EDGE("Add an Edge"),
+    REMOVE_A_VERTEX("Remove a Vertex"),
+    REMOVE_AN_EDGE("Remove an Edge"),
+    NONE("None");
+
+    final String current;
+
+    GraphMode(String current) {
+        this.current = current;
+    }
+}
+
+enum AlgMode {
+    DEPTH_FIRST_SEARCH("Depth-First Search"),
+    BREADTH_FIRST_SEARCH("Breadth-First Search"),
+    DIJKSTRA_ALGORITHM("Dijkstra's Algorithm"),
+    PRIM_ALGORITHM("Prim's Algorithm"),
+    NONE("None");
+
+    final String current;
+
+    AlgMode(String current) {
+        this.current = current;
     }
 }

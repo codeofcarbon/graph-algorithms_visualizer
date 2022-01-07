@@ -50,8 +50,6 @@ enum EdgeState {
     HIDDEN() {
         public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
             g.setColor(new Color(60, 60, 60, 0));
-//            g2d.drawLine(edge.source.getX() + edge.source.radius, edge.source.getY() + edge.source.radius,
-//                    edge.target.getX() + edge.target.radius, edge.target.getY() + edge.target.radius);
         }
     },
     PATH() {
