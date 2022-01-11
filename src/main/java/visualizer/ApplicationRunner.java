@@ -1,7 +1,9 @@
 package visualizer;
 
+import java.awt.*;
+
 public class ApplicationRunner {
     public static void main(String[] args) {
-        new Graph();
+        EventQueue.invokeLater(Graph::new);
     }
 }

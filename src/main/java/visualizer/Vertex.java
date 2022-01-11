@@ -21,8 +21,7 @@ public class Vertex extends JPanel implements Serializable {
         setLocation(center.x - radius, center.y - radius);
         setPreferredSize(new Dimension(50, 50));
         setSize(getPreferredSize());
-        setBackground(Color.BLACK);
-        setOpaque(true);
+        setOpaque(false);
     }
 
     protected VertexState getState() {
@@ -38,11 +37,11 @@ public class Vertex extends JPanel implements Serializable {
 enum VertexState {
     RAW() {
         public void coloring(Graphics g, Vertex v) {
-            g.setColor(Color.LIGHT_GRAY);
-            g.drawOval(v.getX() + 1, v.getY() + 1, 48, 48);
-            g.setColor(Color.DARK_GRAY);
-            g.fillOval(v.getX() + 10, v.getY() + 10, 30, 30);
             g.setColor(Color.WHITE);
+            g.drawOval(v.getX() + 1, v.getY() + 1, 48, 48);
+            g.setColor(Color.WHITE);
+            g.fillOval(v.getX() + 10, v.getY() + 10, 30, 30);
+            g.setColor(Color.BLACK);
         }
     },
     MARKED() {

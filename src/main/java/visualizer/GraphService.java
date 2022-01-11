@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 public class GraphService implements Serializable {
     private final MouseHandler mouseHandler = new MouseHandler(this);
-    private final List<Vertex> vertices = new ArrayList<>();
+    private final List<Vertex> nodes = new ArrayList<>();
     private final List<Edge> edges = new ArrayList<>();
     private final Algorithm algorithm;
     private final Toolbar toolbar;
@@ -73,18 +73,20 @@ public class GraphService implements Serializable {
         if (checkIfVertex(point).isEmpty()) {
             var input = JOptionPane.showInputDialog(graph, "Enter the vertex ID (should be 1 char):", "Vertex ID",
                     JOptionPane.INFORMATION_MESSAGE, null, null, null);
-            if (input == null) return;
-            String id = input.toString();
-            if (!id.isBlank() && id.length() == 1) {
-                Vertex vertex = new Vertex(id, point.getPoint());
-                mouseHandler.addComponent(vertex);
-                vertices.add(vertex);
-                graph.add(vertex);
-                graph.repaint();
-            } else {
-                JOptionPane.showMessageDialog(graph,
-                        "Input must be one character long", "Error. Try again", JOptionPane.ERROR_MESSAGE);
-                createNewVertex(point);
+            if (input != null) {
+                Vertex vertex;
+                String id = input.toString();
+                if (!id.isBlank() && id.length() == 1) {
+                    vertex = new Vertex(id, point.getPoint());
+                    mouseHandler.addComponent(vertex);
+                    nodes.add(vertex);
+                    graph.add(vertex);
+                    graph.repaint();
+                } else {
+                    JOptionPane.showMessageDialog(graph,
+                            "Input must be one character long", "Error. Try again", JOptionPane.ERROR_MESSAGE);
+                    createNewVertex(point);
+                }
             }
         }
     }
@@ -111,7 +113,7 @@ public class GraphService implements Serializable {
                 }
 
                 while (true) {
-                    var input = JOptionPane.showInputDialog(graph, "Enter weight", "Edge weight",
+                    var input = JOptionPane.showInputDialog(edgeTarget, "Enter weight", "Edge weight",
                             JOptionPane.INFORMATION_MESSAGE, null, null, null);
                     if (input == null) {
                         resetMarkedNodes();
@@ -135,7 +137,7 @@ public class GraphService implements Serializable {
                         resetMarkedNodes();
                         return;
                     } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(graph,
+                        JOptionPane.showMessageDialog(edgeTarget,
                                 "Edge weight must be a number", "Error. Try again", JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -151,7 +153,7 @@ public class GraphService implements Serializable {
                 if (e.edgeLabel != null) graph.remove(e.edgeLabel);
                 edge.target.connectedEdges.remove(edge.mirrorEdge);
             }));
-            vertices.remove(vertex);
+            nodes.remove(vertex);
             graph.remove(vertex);
             graph.repaint();
         });
@@ -174,8 +176,8 @@ public class GraphService implements Serializable {
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
         setCurrentModes(AlgMode.NONE, GraphMode.ADD_A_VERTEX);
         toolbar.getInfoLabelTwo().setText("");
-        algorithm.resetAlgorithm();
-        vertices.clear();
+        algorithm.resetAlgorithmData();
+        nodes.clear();
         edges.clear();
         graph.repaint();
     }
@@ -186,13 +188,13 @@ public class GraphService implements Serializable {
         this.graphMode = graphMode;
         this.algorithmMode = algorithmMode;
         graph.setToolTipText(null);
-        algorithm.resetAlgorithm();
+        algorithm.resetAlgorithmData();
         resetComponentLists();
         resetMarkedNodes();
     }
 
     private void resetComponentLists() {
-        vertices.forEach(vertex -> {
+        nodes.forEach(vertex -> {
             vertex.distance = Integer.MAX_VALUE;
             vertex.visited = false;
             vertex.path = false;

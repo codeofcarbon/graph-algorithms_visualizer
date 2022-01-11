@@ -37,17 +37,25 @@ public class MouseHandler extends MouseAdapter {
     }
 
     public void mousePressed(MouseEvent event) {
+        try {                                                                       // todo=======================
         component = event.getComponent();
         pressed = event.getLocationOnScreen();
         location = component.getLocation();
+        } catch (Exception e) {
+            System.err.println(component.getClass().getSimpleName());
+        }
     }
 
     public void mouseDragged(MouseEvent event) {
         if (component instanceof Graph) return;
-        Point dragged = event.getLocationOnScreen();
-        int x = (int) (location.x + dragged.getX() - pressed.getX());
-        int y = (int) (location.y + dragged.getY() - pressed.getY());
-        component.setLocation(x, y);
-        component.getParent().repaint();
+        try {                                                                       // todo=======================
+            Point dragged = event.getLocationOnScreen();
+            int x = (int) (location.x + dragged.getX() - pressed.getX());
+            int y = (int) (location.y + dragged.getY() - pressed.getY());
+            component.setLocation(x, y);
+            component.getParent().repaint();
+        } catch (Exception e) {
+            System.err.println(component.getClass().getSimpleName());
+        }
     }
 }

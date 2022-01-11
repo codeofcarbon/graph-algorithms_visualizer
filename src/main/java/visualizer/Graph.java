@@ -11,15 +11,18 @@ public class Graph extends JPanel {
         setName("Graph");
         setPreferredSize(new Dimension(960, 600));
         setSize(getPreferredSize());
+//        setBackground(new Color(0, 0, 0, 0));
         setBackground(Color.BLACK);
         createFrame();
+
         setLayout(null);
     }
 
     private void createFrame() {
         JFrame mainFrame = new JFrame("Graph-Algorithms Visualizer");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setSize(1000, 700);
+        mainFrame.setPreferredSize(new Dimension(1000, 700));
+        mainFrame.setSize(mainFrame.getPreferredSize());
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | UnsupportedLookAndFeelException
@@ -28,16 +31,18 @@ public class Graph extends JPanel {
         }
         mainFrame.setLocationRelativeTo(null);
 
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File("src/main/java/visualizer/data/"));
+        ToolTipManager.sharedInstance().setInitialDelay(500);
+        ToolTipManager.sharedInstance().setDismissDelay(2000);
+        JFileChooser fileChooser = new JFileChooser(new File("src/main/java/visualizer/data"));
         Toolbar toolbar = new Toolbar(fileChooser);
+        MenuBar menuBar = new MenuBar(toolbar);
         this.service = new GraphService(this, toolbar);
-        MenuBar menuBar = new MenuBar(service, toolbar);
 
         mainFrame.add(fileChooser);
         mainFrame.add(toolbar, BorderLayout.NORTH);
-        mainFrame.add(this);
         mainFrame.setJMenuBar(menuBar);
+        mainFrame.add(this);
+        mainFrame.pack();
         mainFrame.setVisible(true);
     }
 
@@ -57,7 +62,7 @@ public class Graph extends JPanel {
         }
 
         g2d.setStroke(new BasicStroke(1f));
-        for (var v : service.getVertices()) {
+        for (var v : service.getNodes()) {
             v.getState().coloring(g, v);
             g.setFont(new Font("Courier", Font.ITALIC, 30));
             g.drawString(v.id, v.getX() + 16, v.getY() + 36);

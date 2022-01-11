@@ -7,20 +7,19 @@ import java.util.Arrays;
 public class MenuBar extends JMenuBar {
     private final Toolbar toolbar;
 
-    public MenuBar(GraphService service, Toolbar toolbar) {
+    public MenuBar(Toolbar toolbar) {
         this.toolbar = toolbar;
-        setName("MenuBar");
 
         // ======================================================================= file menu =====
         JMenu fileMenu = addMenu("File", KeyEvent.VK_F);
 
         JMenuItem clearGraph = addMenuItem("New", KeyEvent.VK_N, fileMenu);
-        clearGraph.addActionListener(event -> service.clearGraph());
+        clearGraph.addActionListener(event -> toolbar.getRefreshButton().doClick());
 
         JMenuItem exit = addMenuItem("Exit", KeyEvent.VK_E, fileMenu);
-        exit.addActionListener(event -> System.exit(0));
+        exit.addActionListener(event -> toolbar.getCloseButton().doClick());
 
-        // ================================================================= graph mode menu =====
+        // ================================================================= graph.txt mode menu =====
         JMenu modeMenu = addMenu("Mode", KeyEvent.VK_M);
 
         JMenuItem addVertex = addMenuItem("Add a Vertex", KeyEvent.VK_A, modeMenu);
@@ -37,8 +36,8 @@ public class MenuBar extends JMenuBar {
 
         modeMenu.addSeparator();
 
-        JMenuItem none = addMenuItem("None", KeyEvent.VK_N, modeMenu);
-        none.addActionListener(event -> setGraphMode(GraphMode.NONE));
+        JMenuItem graphNoneMode = addMenuItem("None", KeyEvent.VK_N, modeMenu);
+        graphNoneMode.addActionListener(event -> setGraphMode(GraphMode.NONE));
 
         // ============================================================= algorithm mode menu =====
         JMenu algorithmMenu = addMenu("Algorithms", KeyEvent.VK_A);
@@ -54,6 +53,11 @@ public class MenuBar extends JMenuBar {
 
         JMenuItem primAlgorithm = addMenuItem("Prim's Algorithm", KeyEvent.VK_P, algorithmMenu);
         primAlgorithm.addActionListener(event -> setAlgorithmMode(AlgMode.PRIM_ALGORITHM));
+
+        algorithmMenu.addSeparator();
+
+        JMenuItem algNoneMode = addMenuItem("None", KeyEvent.VK_N, algorithmMenu);
+        algNoneMode.addActionListener(event -> setAlgorithmMode(AlgMode.NONE));
     }
 
     private void setAlgorithmMode(AlgMode algMode) {

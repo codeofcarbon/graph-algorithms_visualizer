@@ -66,7 +66,7 @@ public class Algorithm {
             current.visited = true;
             queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
         }
-        if (service.getVertices().stream().allMatch(vertex -> vertex.visited)) {
+        if (service.getNodes().stream().allMatch(vertex -> vertex.visited)) {
             paths.values().forEach(pathEdges -> edgeSet.addAll(pathEdges));
         }
     }
@@ -84,7 +84,7 @@ public class Algorithm {
     }
 
     protected void initAlgorithm(Vertex rootNode) {
-        resetAlgorithm();
+        resetAlgorithmData();
         root = rootNode;
         rootNode.visited = true;
         switch (service.getAlgorithmMode()) {
@@ -95,9 +95,9 @@ public class Algorithm {
                 break;
             case DIJKSTRA_ALGORITHM:
             case PRIM_ALGORITHM:
-                queue.addAll(service.getVertices());
+                queue.addAll(service.getNodes());
                 rootNode.distance = 0;
-                service.getVertices().forEach(vertex -> paths.put(vertex, new ArrayList<>()));
+                service.getNodes().forEach(vertex -> paths.put(vertex, new ArrayList<>()));
                 root.connectedEdges.forEach(edge -> {
                     edge.target.distance = edge.weight;
                     paths.get(edge.target).add(edge);
@@ -107,7 +107,7 @@ public class Algorithm {
     }
 
     protected String getResultIfReady() {
-        if (service.getVertices().stream().allMatch(vertex -> vertex.visited)) {
+        if (service.getNodes().stream().allMatch(vertex -> vertex.visited)) {
             service.getEdges().forEach(edge -> edge.hidden = true);
             edgeSet.forEach(edge -> edge.visited = true);
             switch (service.getAlgorithmMode()) {
@@ -133,7 +133,7 @@ public class Algorithm {
                     algorithmResult = String.format("<html><font size=+1 color=gray>shortest distances from " +
                                                     "<font size=+2 color=#5afa46><b>%s</b>" +
                                                     "<font size=+1 color=gray>:   ", root.id) +
-                                      service.getVertices().stream()
+                                      service.getNodes().stream()
                                               .filter(vertex -> !vertex.equals(root))
                                               .sorted(Comparator.comparing(vertex -> vertex.id))
                                               .map(vertex -> String.format(
@@ -148,7 +148,8 @@ public class Algorithm {
                     algorithmResult = "<html><font size=+1 color=gray>minimum spanning tree:" +
                                       edgeSet.stream()
                                               .sorted(Comparator.comparing(edge -> edge.source.id))
-                                              .map(edge -> String.format("<font size=+1 color=#0062ff><b> %s &#8644 %s</b>",
+                                              .map(edge -> String.format(
+                                                      "<font size=+1 color=#0062ff><b> %s &#8644 %s</b>",
                                                       edge.source.id, edge.target.id))
                                               .collect(Collectors.joining("<font color=gray>,"));
             }
@@ -180,7 +181,7 @@ public class Algorithm {
                String.format("<font size=+2 color=#eb4034>   &#8680 %d", target.distance);
     }
 
-    protected void resetAlgorithm() {
+    protected void resetAlgorithmData() {
         queue = new LinkedList<>();
         edgeSet = new HashSet<>();
         nodeList = new LinkedList<>();
