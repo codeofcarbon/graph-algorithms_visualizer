@@ -36,12 +36,12 @@ public class GraphService implements Serializable {
                 .ifPresent(selectedNode -> {
                     if (Algorithm.root != null && algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
                         var shortestPath = algorithm.getShortestPath(selectedNode);
-                        toolbar.getInfoLabelTwo().setText(shortestPath);
+                        toolbar.getInfoLabel().setText(shortestPath);
                         graph.repaint();
                     }
                     if (Algorithm.root == null) {
                         algorithm.initAlgorithm(selectedNode);
-                        toolbar.getInfoLabelTwo().setText("Please wait...");
+                        toolbar.getInfoLabel().setText("Please wait...");
                         timer = new Timer(500, event -> {
                             switch (algorithmMode) {
                                 case DEPTH_FIRST_SEARCH:
@@ -59,7 +59,7 @@ public class GraphService implements Serializable {
                             }
                             var algorithmResult = algorithm.getResultIfReady();
                             if (!algorithmResult.isBlank()) {
-                                toolbar.getInfoLabelTwo().setText(algorithmResult);
+                                toolbar.getInfoLabel().setText(algorithmResult);
                                 timer.stop();
                             }
                             graph.repaint();
@@ -175,7 +175,7 @@ public class GraphService implements Serializable {
     void clearGraph() {
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
         setCurrentModes(AlgMode.NONE, GraphMode.ADD_A_VERTEX);
-        toolbar.getInfoLabelTwo().setText("");
+        toolbar.getInfoLabel().setText("");
         algorithm.resetAlgorithmData();
         nodes.clear();
         edges.clear();
