@@ -11,12 +11,15 @@ public class Vertex extends JPanel implements Serializable {
     boolean visited, marked, connected, path;
     final List<Edge> connectedEdges;
     final int radius = 25;
+    final String imageName;
     final String id;
     int distance;
 
     public Vertex(String id, Point center) {
         setName("Vertex " + id);
         this.id = id;
+        this.imageName = id.matches("[a-z]") ? id.concat("_lower")
+                : id.matches("[A-Z]") ? id.concat("_upper") : id;
         this.connectedEdges = new ArrayList<>();
         setLocation(center.x - radius, center.y - radius);
         setPreferredSize(new Dimension(50, 50));
@@ -25,9 +28,9 @@ public class Vertex extends JPanel implements Serializable {
     }
 
     protected VertexState getState() {
-        return Algorithm.target == this || this.path ? VertexState.PATH
-                : Algorithm.root == this ? VertexState.ROOT
-                : this.marked ? VertexState.MARKED
+        return Algorithm.root == this ? VertexState.ROOT
+                : Algorithm.target == this ? VertexState.TARGET
+                : this.path ? VertexState.PATH
                 : this.visited ? VertexState.VISITED
                 : this.connected ? VertexState.CONNECTED
                 : VertexState.RAW;
@@ -36,59 +39,61 @@ public class Vertex extends JPanel implements Serializable {
 
 enum VertexState {
     RAW() {
-        public void coloring(Graphics g, Vertex v) {
-            g.setColor(Color.WHITE);
-            g.drawOval(v.getX() + 1, v.getY() + 1, 48, 48);
-            g.setColor(Color.WHITE);
-            g.fillOval(v.getX() + 10, v.getY() + 10, 30, 30);
-            g.setColor(Color.BLACK);
-        }
-    },
-    MARKED() {
-        public void coloring(Graphics g, Vertex v) {
-            g.setColor(Color.RED);
-            g.drawOval(v.getX() + 1, v.getY() + 1, 48, 48);
-            g.setColor(Color.DARK_GRAY);
-            g.fillOval(v.getX() + 10, v.getY() + 10, 30, 30);
-            g.setColor(Color.WHITE);
+        public void draw(Graphics g, Vertex v) {
+            g.drawImage(getNodeImage(v.imageName, "raw", 40, 40), v.getX() + 5, v.getY() + 5, null);
+            if (v.marked) g.drawImage(dashedMark, v.getX() - 5, v.getY() - 5, null);
+            else g.drawImage(raw, v.getX() - 5, v.getY() - 5, null);
         }
     },
     CONNECTED() {
-        public void coloring(Graphics g, Vertex v) {
-            g.setColor(Color.GREEN);
-            g.drawOval(v.getX() + 1, v.getY() + 1, 48, 48);
-            g.setColor(Color.WHITE);
-            g.fillOval(v.getX() + 7, v.getY() + 7, 36, 36);
-            g.setColor(Color.BLACK);
+        public void draw(Graphics g, Vertex v) {
+            g.drawImage(getNodeImage(v.imageName, "connected", 40, 40), v.getX() + 5, v.getY() + 5, null);
+            if (v.marked) g.drawImage(dashedMark, v.getX() - 5, v.getY() - 5, null);
+            else g.drawImage(connected, v.getX() - 5, v.getY() - 5, null);
         }
     },
     VISITED() {
-        public void coloring(Graphics g, Vertex v) {
-            g.setColor(Color.WHITE);
-            g.drawOval(v.getX() + 1, v.getY() + 1, 48, 48);
-            g.setColor(new Color(20, 80, 230, 255));
-            g.fillOval(v.getX() + 7, v.getY() + 7, 36, 36);
-            g.setColor(Color.WHITE);
-        }
-    },
-    ROOT() {
-        public void coloring(Graphics g, Vertex v) {
-            g.setColor(new Color(20, 80, 230, 255));
-            g.drawOval(v.getX() - 9, v.getY() - 9, 68, 68);
-            g.setColor(new Color(90, 250, 70, 255));
-            g.fillOval(v.getX() + 1, v.getY() + 1, 48, 48);
-            g.setColor(Color.BLACK);
+        public void draw(Graphics g, Vertex v) {
+            g.drawImage(getNodeImage(v.imageName, "visited", 40, 40), v.getX() + 5, v.getY() + 5, null);
+            g.drawImage(visited, v.getX() - 5, v.getY() - 5, null);
         }
     },
     PATH() {
-        public void coloring(Graphics g, Vertex v) {
-            g.setColor(Color.WHITE);
-            g.drawOval(v.getX() - 9, v.getY() - 9, 68, 68);
-            g.setColor(new Color(90, 250, 70, 255));
-            g.fillOval(v.getX() + 1, v.getY() + 1, 48, 48);
-            g.setColor(Color.BLACK);
+        public void draw(Graphics g, Vertex v) {
+            g.drawImage(getNodeImage(v.imageName, "path", 50, 50), v.getX(), v.getY(), null);
+            g.drawImage(path, v.getX() - 10, v.getY() - 10, null);
+        }
+    },
+    ROOT() {
+        public void draw(Graphics g, Vertex v) {
+            g.drawImage(rootNode, v.getX() - 21, v.getY() - 21, null);
+            g.drawImage(getNodeImage(v.imageName, "path", 50, 50), v.getX(), v.getY(), null);
+        }
+    },
+    TARGET() {
+        public void draw(Graphics g, Vertex v) {
+            g.drawImage(getNodeImage(v.imageName, "path", 50, 50), v.getX(), v.getY(), null);
+            g.drawImage(targetMark, v.getX() - 15, v.getY() - 15, null);
         }
     };
 
-    abstract void coloring(Graphics g, Vertex v);
+    final Image raw = getSpecialImage("white fancy slim", 60, 60);
+    final Image connected = getSpecialImage("green fancy slim", 60, 60);
+    final Image visited = getSpecialImage("blue fancy slim", 60, 60);
+    final Image path = getSpecialImage("orange fancy slim", 70, 70);
+    final Image rootNode = getSpecialImage("root node", 100, 100);
+    final Image targetMark = getSpecialImage("orange layered", 80, 80);
+    final Image dashedMark = getSpecialImage("green dashed", 60, 60);
+
+    abstract void draw(Graphics g, Vertex v);
+
+     private static Image getNodeImage(String imageName, String currentState, int width, int height) {
+        return new ImageIcon(new ImageIcon(String.format("src/main/resources/icons/nodes/%s/%s.png",
+                currentState, imageName)).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH)).getImage();
+    }
+
+    private Image getSpecialImage(String imageName, int targetWidth, int targetHeight) {
+        return new ImageIcon(new ImageIcon(String.format("src/main/resources/icons/special/%s.png", imageName))
+                .getImage().getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH)).getImage();
+    }
 }

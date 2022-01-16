@@ -6,7 +6,7 @@ import java.awt.event.*;
 public class MouseHandler extends MouseAdapter {
     private final GraphService service;
     private Point location, pressed;
-    private Component component;
+    private Component source;
 
     MouseHandler(GraphService service) {
         this.service = service;
@@ -37,25 +37,23 @@ public class MouseHandler extends MouseAdapter {
     }
 
     public void mousePressed(MouseEvent event) {
-        try {                                                                       // todo=======================
-        component = event.getComponent();
+        source = event.getComponent();
         pressed = event.getLocationOnScreen();
-        location = component.getLocation();
-        } catch (Exception e) {
-            System.err.println(component.getClass().getSimpleName());
-        }
+        location = source.getLocation();
     }
 
     public void mouseDragged(MouseEvent event) {
-        if (component instanceof Graph) return;
-        try {                                                                       // todo=======================
-            Point dragged = event.getLocationOnScreen();
-            int x = (int) (location.x + dragged.getX() - pressed.getX());
-            int y = (int) (location.y + dragged.getY() - pressed.getY());
-            component.setLocation(x, y);
-            component.getParent().repaint();
-        } catch (Exception e) {
-            System.err.println(component.getClass().getSimpleName());
+        if (source instanceof Graph) return;
+        if (source instanceof Vertex) {
+            var drag = event.getLocationOnScreen();
+            int x = (int) (location.x + drag.getX() - pressed.getX());
+            int y = (int) (location.y + drag.getY() - pressed.getY());
+            if (x < source.getParent().getWidth() - 10
+                && y < source.getParent().getHeight() - 10
+                && x > -40 && y > -40) {
+                source.setLocation(x, y);
+            }
+            source.getParent().repaint();
         }
     }
 }

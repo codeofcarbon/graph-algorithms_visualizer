@@ -32,7 +32,7 @@ public class Edge extends JComponent implements Serializable {
 
 enum EdgeState {
     RAW() {
-        public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
+        public void draw(Graphics g, Graphics2D g2d, Edge edge) {
             g.setColor(new Color(60, 60, 60, 255));
             g2d.drawLine(edge.source.getX() + edge.source.radius, edge.source.getY() + edge.source.radius,
                     edge.target.getX() + edge.target.radius, edge.target.getY() + edge.target.radius);
@@ -40,7 +40,7 @@ enum EdgeState {
         }
     },
     VISITED() {
-        public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
+        public void draw(Graphics g, Graphics2D g2d, Edge edge) {
             g.setColor(new Color(20, 80, 230, 255));
             g2d.drawLine(edge.source.getX() + edge.source.radius, edge.source.getY() + edge.source.radius,
                     edge.target.getX() + edge.target.radius, edge.target.getY() + edge.target.radius);
@@ -48,18 +48,18 @@ enum EdgeState {
         }
     },
     HIDDEN() {
-        public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
+        public void draw(Graphics g, Graphics2D g2d, Edge edge) {
             g.setColor(new Color(60, 60, 60, 0));
         }
     },
     PATH() {
-        public void coloring(Graphics g, Graphics2D g2d, Edge edge) {
-            g.setColor(new Color(90, 250, 70, 255));
+        public void draw(Graphics g, Graphics2D g2d, Edge edge) {
+            g.setColor(new Color(255, 87, 34, 255));
             g2d.drawLine(edge.source.getX() + edge.source.radius, edge.source.getY() + edge.source.radius,
                     edge.target.getX() + edge.target.radius, edge.target.getY() + edge.target.radius);
             g.setColor(Color.WHITE);
         }
     };
 
-    abstract void coloring(Graphics g, Graphics2D g2d, Edge edge);
+    abstract void draw(Graphics g, Graphics2D g2d, Edge edge);
 }

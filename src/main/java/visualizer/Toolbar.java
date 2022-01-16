@@ -24,11 +24,10 @@ public class Toolbar extends JPanel {
     private final JButton closeButton;
     private final JButton algModeButton;
     private final JButton graphModeButton;
-    private final JLabel infoLabelTwo;
+    private final JLabel infoLabel;
     @Setter
     private GraphService service;
 
-    // todo =========================================================
     public Toolbar(JFileChooser fileChooser) {
         setLayout(new GridLayout(3, 1));
         setPreferredSize(new Dimension(1000, 100));
@@ -45,105 +44,70 @@ public class Toolbar extends JPanel {
         buttonsPanel.add(saveButton = addButton("save", "SAVE GRAPH"));
         buttonsPanel.add(closeButton = addButton("exit", "EXIT AN APP"));
         buttonsPanel.add(refreshButton = addButton("new", "NEW GRAPH"));
-        // todo =========================================================
         buttonsPanel.add(addButton("prev", "PREV STEP"));
         buttonsPanel.add(addButton("next", "NEXT STEP"));
-        // todo =========================================================
         buttonsPanel.add(addButton("undo", "UNDO"));
         buttonsPanel.add(addButton("redo", "REDO"));
-        // todo =========================================================
         buttonsPanel.add(addButton("info", "INFO"));
         buttonsPanel.add(addButton("message", "MESSAGE"));
         buttonsPanel.add(addButton("linked", "CONTACT"));
-
         add(buttonsPanel);
 
-        JPanel modePanelOne = new JPanel(new GridLayout(1, 4));
-        modePanelOne.setPreferredSize(new Dimension(1000, 50));
-        modePanelOne.setSize(modePanelOne.getPreferredSize());
-        modePanelOne.setBackground(Color.BLACK);
-        modePanelOne.setOpaque(true);
-
-        // todo =========================================================
-        JLabel infoLabelOne = new JLabel("", SwingConstants.CENTER);
-        infoLabelOne.setBackground(new Color(12, 12, 12, 255));
-        infoLabelOne.setForeground(Color.WHITE);
-        infoLabelOne.setOpaque(true);
-
-        JLabel emptyLabelOne = new JLabel("", SwingConstants.CENTER);
-        emptyLabelOne.setBackground(new Color(12, 12, 12, 255));
-        emptyLabelOne.setForeground(Color.WHITE);
-        emptyLabelOne.setOpaque(true);
+        JPanel modePanel = new JPanel(new GridLayout(1, 4));
+        modePanel.setPreferredSize(new Dimension(1000, 30));
+        modePanel.setSize(modePanel.getPreferredSize());
+        modePanel.setBackground(Color.BLACK);
+        modePanel.setOpaque(true);
 
         algModeComboBox = addComboBox(AlgMode.values());
         algModeComboBox.setSelectedIndex(4);
-
         algModeButton = addButton("algorithm", "ALGORITHM MODE");
         algModeButton.setPreferredSize(new Dimension(50, 50));
         algModeButton.setSize(algModeButton.getPreferredSize());
         algModeButton.addActionListener(event -> algModeComboBox.showPopup());
 
-        modePanelOne.add(infoLabelOne);
-        modePanelOne.add(emptyLabelOne);
-        modePanelOne.add(algModeComboBox);
-        modePanelOne.add(algModeButton);
-        add(modePanelOne);
-
-        JPanel modePanelTwo = new JPanel(new GridLayout(1, 4));
-        modePanelTwo.setPreferredSize(new Dimension(1000, 50));
-        modePanelTwo.setSize(modePanelTwo.getPreferredSize());
-        modePanelTwo.setBackground(Color.BLACK);
-        modePanelTwo.setOpaque(true);
-
-        // todo =========================================================
-        infoLabelTwo = new JLabel("", SwingConstants.CENTER);
-        infoLabelTwo.setBackground(new Color(12, 12, 12, 255));
-        infoLabelTwo.setForeground(Color.WHITE);
-        infoLabelTwo.setOpaque(true);
-
-        JLabel emptyLabelTwo = new JLabel("", SwingConstants.CENTER);
-        emptyLabelTwo.setBackground(new Color(12, 12, 12, 255));
-        emptyLabelTwo.setForeground(Color.WHITE);
-        emptyLabelTwo.setOpaque(true);
-
         graphModeComboBox = addComboBox(GraphMode.values());
         graphModeComboBox.setSelectedIndex(0);
-
         graphModeButton = addButton("graph", "GRAPH MODE");
         graphModeButton.setPreferredSize(new Dimension(50, 50));
         graphModeButton.setSize(graphModeButton.getPreferredSize());
         graphModeButton.addActionListener(event -> graphModeComboBox.showPopup());
 
-        modePanelTwo.add(infoLabelTwo);
-        modePanelTwo.add(emptyLabelTwo);
-        modePanelTwo.add(graphModeComboBox);
-        modePanelTwo.add(graphModeButton);
-        add(modePanelTwo);
+        modePanel.add(algModeComboBox);
+        modePanel.add(algModeButton);
+        modePanel.add(graphModeComboBox);
+        modePanel.add(graphModeButton);
+        add(modePanel);
+
+        infoLabel = new JLabel("", SwingConstants.CENTER);
+        infoLabel.setPreferredSize(new Dimension(1000, 30));
+        infoLabel.setSize(modePanel.getPreferredSize());
+        infoLabel.setBackground(new Color(12, 12, 12, 255));
+        infoLabel.setForeground(Color.WHITE);
+        infoLabel.setOpaque(true);
+        add(infoLabel);
 
         addListeners();
     }
 
     @SuppressWarnings("unchecked")
     private void addListeners() {
-        // todo =========================================================
         algModeComboBox.addActionListener(event -> {
             service.setCurrentModes(Arrays.stream(AlgMode.values())
                     .filter(algMode -> algMode.current.equalsIgnoreCase((String) algModeComboBox.getSelectedItem()))
                     .findFirst().orElse(AlgMode.NONE), GraphMode.NONE);
-            infoLabelTwo.setText("Please choose a starting vertex");
+            infoLabel.setText("Please choose a starting vertex");
             algModeComboBox.setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(service.getAlgorithmMode()));
         });
 
-        // todo =========================================================
         graphModeComboBox.addActionListener(event -> {
             service.setCurrentModes(AlgMode.NONE, Arrays.stream(GraphMode.values())
                     .filter(graphMode -> graphMode.current.equalsIgnoreCase((String) graphModeComboBox.getSelectedItem()))
                     .findFirst().orElse(GraphMode.NONE));
-            infoLabelTwo.setText("");
+            infoLabel.setText("");
             graphModeComboBox.setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(service.getGraphMode()));
         });
 
-        // todo =========================================================
         openButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Select graph data file");
             if (fileChooser.showOpenDialog(service.getGraph()) == JFileChooser.APPROVE_OPTION) {
@@ -184,7 +148,7 @@ public class Toolbar extends JPanel {
             exitDialogButton.setFocusPainted(false);
             var confirm = JOptionPane.showOptionDialog(service.getGraph(), "Are you sure you want to exit?",
                     "Exit an app", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
-                    new ImageIcon(new ImageIcon("src/main/resources/icons/exit_dialog.png").getImage().
+                    new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/exit_dialog.png").getImage().
                             getScaledInstance(30, 30, Image.SCALE_SMOOTH)),
                     new Object[]{exitDialogButton.getText(), "Cancel"}, exitDialogButton);
             if (confirm == JFileChooser.APPROVE_OPTION) {
@@ -197,10 +161,9 @@ public class Toolbar extends JPanel {
             clearDialogButton.setFocusable(false);
             var confirm = JOptionPane.showOptionDialog(service.getGraph(), "Clear the board and start new graph?",
                     "Graph reset", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
-                    new ImageIcon(new ImageIcon("src/main/resources/icons/new_dialog.png").getImage().
+                    new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/new_dialog.png").getImage().
                             getScaledInstance(30, 30, Image.SCALE_SMOOTH)),
                     new Object[]{clearDialogButton.getText(), "Cancel"}, clearDialogButton);
-// todo =========================================================
             if (confirm == JFileChooser.APPROVE_OPTION) {
                 service.clearGraph();
             }
@@ -228,7 +191,7 @@ public class Toolbar extends JPanel {
         comboBox.setBackground(Color.BLACK);
         comboBox.setForeground(Color.LIGHT_GRAY.darker());
         comboBox.setOpaque(true);
-        comboBox.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 15));
+        comboBox.setFont(new Font("Roman", Font.BOLD | Font.ITALIC, 15));
         comboBox.setFocusable(false);
         comboBox.setRenderer(new CellRenderer<>());
         return comboBox;
@@ -240,7 +203,6 @@ public class Toolbar extends JPanel {
             public JToolTip createToolTip() {
                 var tip = new JToolTip();
                 tip.setBackground(new Color(0, 0, 0, 0));
-//                                  tip.setForeground(Color.CYAN);
                 tip.setBorder(null);
                 tip.setOpaque(false);
                 return tip;
@@ -258,7 +220,7 @@ public class Toolbar extends JPanel {
         button.setSize(button.getPreferredSize());
         button.setBackground(Color.BLACK);
         button.setForeground(Color.BLACK);
-        button.setIcon(new ImageIcon(new ImageIcon(String.format("src/main/resources/icons/%s.png", iconFilename))
+        button.setIcon(new ImageIcon(new ImageIcon(String.format("src/main/resources/icons/buttons/%s.png", iconFilename))
                 .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
         button.setToolTipText(String.format("<html><font color=gray>%s", toolTipText));
         return button;
