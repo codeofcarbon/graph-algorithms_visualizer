@@ -60,14 +60,14 @@ public class Toolbar extends JPanel {
         modePanel.setOpaque(true);
 
         algModeComboBox = addComboBox(AlgMode.values());
-        algModeComboBox.setSelectedIndex(4);
+        algModeComboBox.setSelectedIndex(4);                        // algorithm mode: none
         algModeButton = addButton("algorithm", "ALGORITHM MODE");
         algModeButton.setPreferredSize(new Dimension(50, 50));
         algModeButton.setSize(algModeButton.getPreferredSize());
         algModeButton.addActionListener(event -> algModeComboBox.showPopup());
 
         graphModeComboBox = addComboBox(GraphMode.values());
-        graphModeComboBox.setSelectedIndex(0);
+        graphModeComboBox.setSelectedIndex(0);                      // graph mode: add a vertex
         graphModeButton = addButton("graph", "GRAPH MODE");
         graphModeButton.setPreferredSize(new Dimension(50, 50));
         graphModeButton.setSize(graphModeButton.getPreferredSize());
@@ -187,7 +187,7 @@ public class Toolbar extends JPanel {
                 };
             }
         });
-        comboBox.remove(comboBox.getComponent(0)); // removing an arrowButton
+        comboBox.remove(comboBox.getComponent(0));                  // removing an arrowButton
         comboBox.setBackground(Color.BLACK);
         comboBox.setForeground(Color.LIGHT_GRAY.darker());
         comboBox.setOpaque(true);

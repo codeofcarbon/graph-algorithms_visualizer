@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Vertex extends JPanel implements Serializable {
+public class Vertex extends JLabel implements Serializable {
     private static final long serialVersionUID = 12345L;
     boolean visited, marked, connected, path;
     final List<Edge> connectedEdges;

@@ -113,7 +113,7 @@ public class GraphService implements Serializable {
                 }
 
                 while (true) {
-                    var input = JOptionPane.showInputDialog(edgeTarget, "Enter weight", "Edge weight",
+                    var input = JOptionPane.showInputDialog(graph, "Enter weight", "Edge weight",
                             JOptionPane.INFORMATION_MESSAGE, null, null, null);
                     if (input == null) {
                         resetMarkedNodes();
@@ -126,7 +126,6 @@ public class GraphService implements Serializable {
                         List.of(edge, reversedEdge).forEach(e -> {
                             graph.add(e);
                             edges.add(e);
-                            graph.add(edge.edgeLabel);
                         });
                         edgeSource.connected = true;
                         edgeTarget.connected = true;
@@ -137,7 +136,7 @@ public class GraphService implements Serializable {
                         resetMarkedNodes();
                         return;
                     } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(edgeTarget,
+                        JOptionPane.showMessageDialog(graph,
                                 "Edge weight must be a number", "Error. Try again", JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -150,7 +149,6 @@ public class GraphService implements Serializable {
             vertex.connectedEdges.forEach(edge -> List.of(edge, edge.mirrorEdge).forEach(e -> {
                 graph.remove(e);
                 edges.remove(e);
-                if (e.edgeLabel != null) graph.remove(e.edgeLabel);
                 edge.target.connectedEdges.remove(edge.mirrorEdge);
             }));
             nodes.remove(vertex);
@@ -164,7 +162,6 @@ public class GraphService implements Serializable {
             List.of(edge, edge.mirrorEdge).forEach(e -> {
                 graph.remove(e);
                 edges.remove(e);
-                if (e.edgeLabel != null) graph.remove(e.edgeLabel);
                 edge.source.connectedEdges.remove(edge);
                 edge.target.connectedEdges.remove(edge.mirrorEdge);
             });

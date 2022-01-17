@@ -47,18 +47,13 @@ public class Graph extends JPanel {
     }
 
     @Override
-    public void paint(Graphics g) {
-        super.paint(g);
-        Graphics2D g2d = (Graphics2D) g;
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
         g.drawImage(backgroundImage, 0, 0, Color.BLACK, null);
+        Graphics2D g2d = (Graphics2D) g;
         g2d.setStroke(new BasicStroke(3f));
         for (var e : service.getEdges()) {
             e.getState().draw(g, g2d, e);
-            g.setFont(new Font("Courier", Font.PLAIN, 20));
-            boolean align = Math.abs(e.source.getX() - e.target.getX()) > Math.abs(e.source.getY() - e.target.getY());
-            g.drawString(e.edgeLabel.getText(),
-                    (e.source.getX() + e.source.radius + e.target.getX() + e.target.radius) / 2 + (align ? -10 : 10),
-                    (e.source.getY() + e.source.radius + e.target.getY() + e.target.radius) / 2 + (align ? 25 : 10));
         }
         for (var v : service.getNodes()) {
             v.getState().draw(g, v);
