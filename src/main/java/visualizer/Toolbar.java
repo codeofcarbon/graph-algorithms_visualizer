@@ -125,7 +125,7 @@ public class Toolbar extends JPanel {
                     service.getGraph().repaint();
                     graphData.clear();
                 } catch (IOException | ClassNotFoundException e) {
-                    System.err.println("Graph loading error" + e.getMessage());
+                    System.err.println("Graph loading error: " + e.getMessage());
                 }
             }
         });
@@ -138,7 +138,7 @@ public class Toolbar extends JPanel {
                     service.getNodes().forEach(vertex -> graphData.put(vertex, vertex.connectedEdges));
                     outStream.writeObject(graphData);
                 } catch (IOException e) {
-                    System.err.println("Graph saving error" + e.getMessage());
+                    System.err.println("Graph saving error: " + e.getMessage());
                 }
             }
         });
