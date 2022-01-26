@@ -1,13 +1,18 @@
 package visualizer;
 
+import lombok.Getter;
+
 import javax.swing.*;
+import javax.swing.undo.StateEditable;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.io.Serializable;
+import java.util.Hashtable;
 
-public class Edge extends JLabel implements Serializable {
+@Getter
+public class Edge extends JLabel implements Serializable , StateEditable {
     private static final long serialVersionUID = 123L;
-    final Vertex source, target;
+    private Vertex source, target;
     final int weight;
     boolean visited, hidden, path;
     Edge mirrorEdge;
@@ -31,6 +36,20 @@ public class Edge extends JLabel implements Serializable {
                 : this.visited ? EdgeState.VISITED
                 : this.hidden ? EdgeState.HIDDEN
                 : EdgeState.RAW;
+    }
+
+    @Override
+    public void storeState(Hashtable<Object, Object> state) {               // todo do i need that??
+        state.put("SourceNode", source);
+        state.put("TargetNode", target);
+    }
+
+    @Override
+    public void restoreState(Hashtable<?, ?> state) {
+        var sourceNode = (Vertex) state.get("SourceNode");
+        if (sourceNode != null) this.source = sourceNode;
+        var targetNode = (Vertex) state.get("TargetNode");
+        if (targetNode != null) this.target = targetNode;
     }
 }
 
@@ -60,6 +79,10 @@ enum EdgeState {
         }
     };
 
+    static final Image labelCircle = new ImageIcon(
+            new ImageIcon("src/main/resources/icons/special/label circle.png")
+            .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)).getImage();
+
     abstract void draw(Graphics g, Graphics2D g2d, Edge edge);
 
     private static void drawEdge(Graphics g, Graphics2D g2d, Edge edge) {
@@ -71,13 +94,12 @@ enum EdgeState {
         edge.setLocation(midpoint.x - 15, midpoint.y - 15);
     }
 
-    static final Image labelCircle = new ImageIcon(new ImageIcon("src/main/resources/icons/special/label circle.png")
-            .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)).getImage();
-
     private static Line2D.Double getLine(Edge edge) {
+        var source = edge.getSource();
+        var target = edge.getTarget();
         return new Line2D.Double(
-                edge.source.getX() + edge.source.radius, edge.source.getY() + edge.source.radius,
-                edge.target.getX() + edge.target.radius, edge.target.getY() + edge.target.radius);
+                source.getX() + source.radius, source.getY() + source.radius,
+                target.getX() + target.radius, target.getY() + target.radius);
     }
 
     private static Point getMidpoint(Line2D.Double line) {

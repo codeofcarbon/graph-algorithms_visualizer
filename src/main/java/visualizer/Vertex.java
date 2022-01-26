@@ -1,12 +1,13 @@
 package visualizer;
 
 import javax.swing.*;
+import javax.swing.undo.*;
 import java.awt.*;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
-public class Vertex extends JLabel implements Serializable {
+public class Vertex extends JLabel implements Serializable, StateEditable {
     private static final long serialVersionUID = 12345L;
     boolean visited, marked, connected, path;
     final List<Edge> connectedEdges;
@@ -35,43 +36,63 @@ public class Vertex extends JLabel implements Serializable {
                 : this.connected ? VertexState.CONNECTED
                 : VertexState.RAW;
     }
+
+    @Override
+    public void storeState(Hashtable<Object, Object> state) {
+        state.put("Location", getLocation());
+//        state.put("Edges", connectedEdges);
+//        System.err.println(getLocation());                           // todo debugging
+//        System.err.println(connectedEdges);
+    }
+
+    @Override
+//    @SuppressWarnings("unchecked")
+    public void restoreState(Hashtable<?, ?> state) {
+        var nodeLocation = (Point) state.get("Location");
+        if (nodeLocation != null) setLocation(nodeLocation);
+//        var edges = (List<Edge>) state.get("Edges");
+//        if (edges != null) connectedEdges = edges;
+        getParent().repaint();                          // todo sth wrong after loading saved graph - check it
+//        System.err.println(getLocation());                           // todo debugging
+//        System.err.println(connectedEdges);
+    }
 }
 
 enum VertexState {
     RAW() {
-        public void draw(Graphics g, Vertex v) {
+        public void draw(Graphics g, Graphics2D g2d, Vertex v) {
             g.drawImage(getNodeImage(v.imageName, "raw", 40, 40), v.getX() + 5, v.getY() + 5, null);
             if (v.marked) g.drawImage(dashedMark, v.getX() - 5, v.getY() - 5, null);
             else g.drawImage(raw, v.getX() - 5, v.getY() - 5, null);
         }
     },
     CONNECTED() {
-        public void draw(Graphics g, Vertex v) {
+        public void draw(Graphics g, Graphics2D g2d, Vertex v) {
             g.drawImage(getNodeImage(v.imageName, "connected", 40, 40), v.getX() + 5, v.getY() + 5, null);
             if (v.marked) g.drawImage(dashedMark, v.getX() - 5, v.getY() - 5, null);
             else g.drawImage(connected, v.getX() - 5, v.getY() - 5, null);
         }
     },
     VISITED() {
-        public void draw(Graphics g, Vertex v) {
+        public void draw(Graphics g, Graphics2D g2d, Vertex v) {
             g.drawImage(getNodeImage(v.imageName, "visited", 40, 40), v.getX() + 5, v.getY() + 5, null);
             g.drawImage(visited, v.getX() - 5, v.getY() - 5, null);
         }
     },
     PATH() {
-        public void draw(Graphics g, Vertex v) {
+        public void draw(Graphics g, Graphics2D g2d, Vertex v) {
             g.drawImage(getNodeImage(v.imageName, "path", 50, 50), v.getX(), v.getY(), null);
             g.drawImage(path, v.getX() - 10, v.getY() - 10, null);
         }
     },
     ROOT() {
-        public void draw(Graphics g, Vertex v) {
+        public void draw(Graphics g, Graphics2D g2d, Vertex v) {
             g.drawImage(rootNode, v.getX() - 21, v.getY() - 21, null);
             g.drawImage(getNodeImage(v.imageName, "path", 50, 50), v.getX(), v.getY(), null);
         }
     },
     TARGET() {
-        public void draw(Graphics g, Vertex v) {
+        public void draw(Graphics g, Graphics2D graphics2D, Vertex v) {
             g.drawImage(getNodeImage(v.imageName, "path", 50, 50), v.getX(), v.getY(), null);
             g.drawImage(targetMark, v.getX() - 15, v.getY() - 15, null);
         }
@@ -85,9 +106,9 @@ enum VertexState {
     final Image targetMark = getSpecialImage("orange layered", 80, 80);
     final Image dashedMark = getSpecialImage("green dashed", 60, 60);
 
-    abstract void draw(Graphics g, Vertex v);
+    abstract void draw(Graphics g, Graphics2D g2d, Vertex v);
 
-     private static Image getNodeImage(String imageName, String currentState, int width, int height) {
+    private static Image getNodeImage(String imageName, String currentState, int width, int height) {
         return new ImageIcon(new ImageIcon(String.format("src/main/resources/icons/nodes/%s/%s.png",
                 currentState, imageName)).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH)).getImage();
     }
