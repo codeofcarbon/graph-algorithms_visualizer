@@ -4,17 +4,20 @@ import lombok.Getter;
 
 import javax.swing.*;
 import javax.swing.Timer;
+import javax.swing.undo.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.io.Serializable;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
-public class GraphService implements Serializable {
+public class GraphService implements Serializable, StateEditable {
+    private final UndoableEditSupport undoableEditSupport = new UndoableEditSupport(this);
     private final MouseHandler mouseHandler = new MouseHandler(this);
-    private final List<Vertex> nodes = new ArrayList<>();
-    private final List<Edge> edges = new ArrayList<>();
+    private List<Vertex> nodes = new ArrayList<>();
+    private List<Edge> edges = new ArrayList<>();
     private final Algorithm algorithm;
     private final Toolbar toolbar;
     private final Graph graph;
@@ -22,13 +25,50 @@ public class GraphService implements Serializable {
     private AlgMode algorithmMode = AlgMode.NONE;
     private Vertex edgeSource, edgeTarget;
     private Timer timer;
+    UndoManager manager;
+    Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
 
-    public GraphService(Graph graph, Toolbar toolbar) {
+    public GraphService(Graph graph, Toolbar toolbar, UndoManager manager) {
         this.graph = graph;
         this.toolbar = toolbar;
         this.toolbar.setService(this);
         this.mouseHandler.addComponent(graph);
         this.algorithm = new Algorithm(this);
+        this.manager = manager;
+        this.undoableEditSupport.addUndoableEditListener(manager);
+    }
+
+    public void storeState(Hashtable<Object, Object> state) {
+//        state.put("GraphData", nodes.stream()
+//                .collect(Collectors.toConcurrentMap(Function.identity(), v -> v.connectedEdges)));
+//        state.put("Components", graph.getComponents().clone());                           // todo debugging
+        state.put("Edges", new ArrayList<>(edges));
+        state.put("Nodes", new ArrayList<>(nodes));
+        System.err.println("++++++++++++++++++++Store+++++++++++++++++");
+        System.err.println("nodes: " + nodes.size() + " edges: " +
+                           edges.size() + " comps: " + graph.getComponents().length);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void restoreState(Hashtable<?, ?> state) {
+        var edgesState = (List<Edge>) state.get("Edges");
+        edges = edgesState != null ? edgesState : edges;
+
+        var nodesState = (List<Vertex>) state.get("Nodes");
+        nodes = nodesState != null ? nodesState : nodes;                            // todo refactor that
+        edges.forEach(edge -> {
+                    if (!edge.getTarget().connectedEdges.contains(edge.mirrorEdge)) {
+                        edge.getTarget().connectedEdges.add(edge.mirrorEdge);
+                    }
+                    if (!edge.getSource().connectedEdges.contains(edge)) {
+                        edge.getSource().connectedEdges.add(edge);
+                    }
+                });
+
+        Arrays.stream(graph.getComponents()).forEach(graph::remove);
+        nodes.forEach(graph::add);
+        edges.forEach(graph::add);
+        graph.repaint();
     }
 
     void startAlgorithm(MouseEvent e) {
@@ -71,8 +111,8 @@ public class GraphService implements Serializable {
 
     void createNewVertex(MouseEvent point) {
         if (checkIfVertex(point).isEmpty()) {
-            var input = JOptionPane.showInputDialog(graph, "Enter the vertex ID (should be 1 char):", "Vertex ID",
-                    JOptionPane.INFORMATION_MESSAGE, null, null, null);
+            var input = JOptionPane.showInputDialog(graph, "<html>Set vertex ID <br>(alphanumeric char):",
+                    "Vertex ID", JOptionPane.INFORMATION_MESSAGE, null, null, null);
             if (input != null) {
                 Vertex vertex;
                 String id = input.toString();
@@ -84,7 +124,7 @@ public class GraphService implements Serializable {
                     graph.repaint();
                 } else {
                     JOptionPane.showMessageDialog(graph,
-                            "Input must be one character long", "Error. Try again", JOptionPane.ERROR_MESSAGE);
+                            "Id must be one character long", "Error. Try again", JOptionPane.ERROR_MESSAGE);
                     createNewVertex(point);
                 }
             }
@@ -106,14 +146,14 @@ public class GraphService implements Serializable {
                 edgeTarget.marked = true;
                 graph.repaint();
                 if (edgeSource.equals(edgeTarget) || edges.stream().anyMatch(edge ->
-                        edge.source.equals(edgeTarget) && edge.target.equals(edgeSource)
-                        || edge.source.equals(edgeSource) && edge.target.equals(edgeTarget))) {
+//                    nodes.stream().flatMap(v -> v.connectedEdges.stream()).anyMatch(edge -> // todo debugging
+                        edge.getSource().equals(edgeTarget) && edge.getTarget().equals(edgeSource)
+                        || edge.getSource().equals(edgeSource) && edge.getTarget().equals(edgeTarget))) {
                     resetMarkedNodes();
                     return;
                 }
-
                 while (true) {
-                    var input = JOptionPane.showInputDialog(edgeTarget, "Enter weight", "Edge weight",
+                    var input = JOptionPane.showInputDialog(graph, "Enter weight", "Edge weight",
                             JOptionPane.INFORMATION_MESSAGE, null, null, null);
                     if (input == null) {
                         resetMarkedNodes();
@@ -126,7 +166,6 @@ public class GraphService implements Serializable {
                         List.of(edge, reversedEdge).forEach(e -> {
                             graph.add(e);
                             edges.add(e);
-                            graph.add(edge.edgeLabel);
                         });
                         edgeSource.connected = true;
                         edgeTarget.connected = true;
@@ -137,7 +176,7 @@ public class GraphService implements Serializable {
                         resetMarkedNodes();
                         return;
                     } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(edgeTarget,
+                        JOptionPane.showMessageDialog(graph,
                                 "Edge weight must be a number", "Error. Try again", JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -148,13 +187,25 @@ public class GraphService implements Serializable {
     void removeVertex(MouseEvent point) {
         checkIfVertex(point).ifPresent(vertex -> {
             vertex.connectedEdges.forEach(edge -> List.of(edge, edge.mirrorEdge).forEach(e -> {
+                System.err.println(edge.mirrorEdge.getName());
+                edge.getTarget().connectedEdges.remove(edge.mirrorEdge);            // todo do i need that?
                 graph.remove(e);
                 edges.remove(e);
-                if (e.edgeLabel != null) graph.remove(e.edgeLabel);
-                edge.target.connectedEdges.remove(edge.mirrorEdge);
             }));
+//            vertex.connectedEdges.forEach(edge -> {
+//                System.err.println(edge.mirrorEdge.getName());
+////                edge.getTarget().connectedEdges.remove(edge.mirrorEdge);            // todo do i need that?
+//                edge.getTarget().connectedEdges.remove(edge);            // todo do i need that?
+//                graph.remove(edge);
+//                edges.remove(edge);
+//            });
+//            vertex.removing = true;                                               // todo fading
+//            vertex.connectedEdges.clear();
             nodes.remove(vertex);
             graph.remove(vertex);
+            // todo debugging
+//            manager.undoableEditHappened(new UndoableEditEvent(this, new RemoveVertexCommand(this, vertex)));
+
             graph.repaint();
         });
     }
@@ -162,11 +213,15 @@ public class GraphService implements Serializable {
     void removeEdge(MouseEvent point) {
         checkIfEdge(point).ifPresent(edge -> {
             List.of(edge, edge.mirrorEdge).forEach(e -> {
+
+                edge.getSource().connectedEdges.remove(edge);
+                edge.getTarget().connectedEdges.remove(edge.mirrorEdge);
                 graph.remove(e);
                 edges.remove(e);
-                if (e.edgeLabel != null) graph.remove(e.edgeLabel);
-                edge.source.connectedEdges.remove(edge);
-                edge.target.connectedEdges.remove(edge.mirrorEdge);
+                // todo debugging
+//                manager.undoableEditHappened(new UndoableEditEvent(this,
+//                        new RemoveEdgeCommand(this, edge, edge.mirrorEdge)));
+
             });
             graph.repaint();
         });
@@ -199,6 +254,13 @@ public class GraphService implements Serializable {
             vertex.visited = false;
             vertex.path = false;
         });
+//        nodes.stream()                                                       // todo debugging
+//                .flatMap(v -> v.connectedEdges.stream())
+//                .forEach(edge -> {
+//                    edge.hidden = false;
+//                    edge.visited = false;
+//                    edge.path = false;
+//                });
         edges.forEach(edge -> {
             edge.hidden = false;
             edge.visited = false;
@@ -224,9 +286,16 @@ public class GraphService implements Serializable {
 
     private Optional<Edge> checkIfEdge(MouseEvent event) {
         return edges.stream()
-                .filter(edge -> new Line2D.Double(edge.source.getX() + edge.source.radius,
-                        edge.source.getY() + edge.source.radius, edge.target.getX() + edge.target.radius,
-                        edge.target.getY() + edge.target.radius).ptLineDist(event.getPoint()) < 5)
+//        return nodes.stream()                                                            // todo debugging
+//                .flatMap(v -> v.connectedEdges.stream())
+                .filter(edge -> {
+                    var source = edge.getSource();
+                    var target = edge.getTarget();
+                    return new Line2D.Double(
+                            source.getX() + source.radius, source.getY() + source.radius,
+                            target.getX() + target.radius, target.getY() + target.radius)
+                                   .ptLineDist(event.getPoint()) < 5;
+                })
                 .findAny();
     }
 }
