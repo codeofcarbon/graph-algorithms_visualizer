@@ -1,5 +1,6 @@
 package visualizer;
 
+import javax.swing.undo.StateEdit;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -7,8 +8,10 @@ public class MouseHandler extends MouseAdapter {
     private final GraphService service;
     private Point location, pressed;
     private Component source;
+    private StateEdit stateEdit;
+    private StateEdit moveStateEdit;
 
-    MouseHandler(GraphService service) {
+    public MouseHandler(GraphService service) {
         this.service = service;
     }
 
@@ -17,13 +20,25 @@ public class MouseHandler extends MouseAdapter {
         component.addMouseMotionListener(this);
     }
 
+    @Override
+    public void mousePressed(MouseEvent event) {
+        source = event.getComponent();
+        pressed = event.getLocationOnScreen();
+        location = source.getLocation();
+        if (source instanceof Vertex) {
+            moveStateEdit = new StateEdit((Vertex) source);
+        }
+    }
+
+    @Override
     public void mouseClicked(MouseEvent event) {
+        stateEdit = new StateEdit(service);
         switch (service.getGraphMode()) {
             case ADD_A_VERTEX:
                 service.createNewVertex(event);
                 break;
             case ADD_AN_EDGE:
-                service.createNewEdge(event);
+                service.createNewEdge(event);               // todo - one undo for edge
                 break;
             case REMOVE_A_VERTEX:
                 service.removeVertex(event);
@@ -33,19 +48,17 @@ public class MouseHandler extends MouseAdapter {
                 break;
             case NONE:
                 if (service.getAlgorithmMode() != AlgMode.NONE) service.startAlgorithm(event);
+                break;                                    // todo resetting undo manager after each algorithm
         }
+        stateEdit.end();
+        service.getUndoableEditSupport().postEdit(stateEdit);
     }
 
-    public void mousePressed(MouseEvent event) {
-        source = event.getComponent();
-        pressed = event.getLocationOnScreen();
-        location = source.getLocation();
-    }
-
+    @Override
     public void mouseDragged(MouseEvent event) {
         if (source instanceof Graph) return;
+        var drag = event.getLocationOnScreen();
         if (source instanceof Vertex) {
-            var drag = event.getLocationOnScreen();
             int x = (int) (location.x + drag.getX() - pressed.getX());
             int y = (int) (location.y + drag.getY() - pressed.getY());
             if (x < source.getParent().getWidth() - 10
@@ -54,6 +67,14 @@ public class MouseHandler extends MouseAdapter {
                 source.setLocation(x, y);
             }
             source.getParent().repaint();
+        }
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent event) {
+        if (!source.getLocation().equals(location)) {
+            moveStateEdit.end();
+            service.getUndoableEditSupport().postEdit(moveStateEdit);
         }
     }
 }

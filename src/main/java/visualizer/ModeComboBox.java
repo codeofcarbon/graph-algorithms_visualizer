@@ -2,7 +2,12 @@ package visualizer;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Arrays;
 
 public class ModeComboBox<T> extends JComboBox<String> {
@@ -10,9 +15,9 @@ public class ModeComboBox<T> extends JComboBox<String> {
     public ModeComboBox(T[] array) {
         Arrays.stream(array)
                 .forEach(mode -> {
-            if (mode instanceof AlgMode) addItem(((AlgMode) mode).current.toUpperCase());
-            if (mode instanceof GraphMode) addItem(((GraphMode) mode).current.toUpperCase());
-        });
+                    if (mode instanceof AlgMode) addItem(((AlgMode) mode).current.toUpperCase());
+                    if (mode instanceof GraphMode) addItem(((GraphMode) mode).current.toUpperCase());
+                });
         setUI(new BasicComboBoxUI() {
             @Override
             protected JButton createArrowButton() {
@@ -33,7 +38,7 @@ public class ModeComboBox<T> extends JComboBox<String> {
                 array[0] instanceof GraphMode ? SwingConstants.RIGHT : SwingConstants.LEFT);
         setOpaque(true);
         setFocusable(false);
-        setVisible(true);                                        // todo in progress
+        setVisible(false);
     }
 }
 

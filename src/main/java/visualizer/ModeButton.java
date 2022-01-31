@@ -7,30 +7,29 @@ import java.awt.event.*;
 
 public class ModeButton extends JButton {
 
-    public ModeButton(JComboBox<String> comboBox, String iconFilename, String toolTipText) {
+    public ModeButton(String iconFilename, String toolTipText, JComboBox<String> comboBox) {
         setUI(new BasicButtonUI());
-        setPreferredSize(new Dimension(50, 50));
+        setPreferredSize(new Dimension(80, 80));
         setSize(getPreferredSize());
         setBackground(Color.BLACK);
         setForeground(Color.BLACK);
         setToolTipText(String.format("<html><font color=gray>%s", toolTipText));
         setIcon(new ImageIcon(new ImageIcon(
                 String.format("src/main/resources/icons/buttons/%s.png", iconFilename))
-                .getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
+                .getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH)));
         setRolloverEnabled(true);
         setRolloverIcon(new ImageIcon(new ImageIcon(
                 String.format("src/main/resources/icons/buttons/%s blue.png", iconFilename))
-                .getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
+                .getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH)));
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-//                comboBox.setLocation();                                                       // todo in progress
                 comboBox.setVisible(!comboBox.isVisible());
-                if (comboBox.isVisible()) {
-                    comboBox.requestFocusInWindow();
-                    comboBox.showPopup();
-//                    comboBox.setPopupVisible(true);                           // todo debugging
-                }
+//                if (comboBox.isVisible()) {                           // todo debugging
+//                    comboBox.requestFocusInWindow();
+//                    comboBox.showPopup();
+////                    comboBox.setPopupVisible(true);
+//                }
             }
 
 //            @Override
@@ -42,6 +41,8 @@ public class ModeButton extends JButton {
 //                }
 //            }
         });
+
+
     }
 
     @Override

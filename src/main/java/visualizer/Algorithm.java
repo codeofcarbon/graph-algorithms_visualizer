@@ -19,16 +19,16 @@ public class Algorithm {
     protected void dfsAlgorithm() {
         if (!queue.isEmpty()) {
             queue.peekLast().connectedEdges.stream()
-                    .filter(edge -> !edge.target.visited)
+                    .filter(edge -> !edge.getTarget().visited)
                     .min(Comparator.comparingInt(edge -> edge.weight))
                     .ifPresentOrElse(edge -> {
                         List.of(edge, edge.mirrorEdge).forEach(e -> {
                             e.visited = true;
                             edgeSet.add(e);
                         });
-                        edge.target.visited = true;
-                        queue.addLast(edge.target);
-                        nodeList.add(edge.target);
+                        edge.getTarget().visited = true;
+                        queue.addLast(edge.getTarget());
+                        nodeList.add(edge.getTarget());
                     }, () -> queue.pollLast());
         }
     }
@@ -36,16 +36,16 @@ public class Algorithm {
     protected void bfsAlgorithm() {
         if (!queue.isEmpty()) {
             queue.peekFirst().connectedEdges.stream()
-                    .filter(edge -> !edge.target.visited)
+                    .filter(edge -> !edge.getTarget().visited)
                     .min(Comparator.comparingInt(edge -> edge.weight))
                     .ifPresentOrElse(edge -> {
                         List.of(edge, edge.mirrorEdge).forEach(e -> {
                             e.visited = true;
                             edgeSet.add(e);
                         });
-                        edge.target.visited = true;
-                        queue.addLast(edge.target);
-                        nodeList.add(edge.target);
+                        edge.getTarget().visited = true;
+                        queue.addLast(edge.getTarget());
+                        nodeList.add(edge.getTarget());
                     }, () -> queue.pollFirst());
         }
     }
@@ -54,13 +54,13 @@ public class Algorithm {
         if (!queue.isEmpty()) {
             var current = queue.pollFirst();
             current.connectedEdges.stream()
-                    .filter(edge -> !edge.target.visited)
+                    .filter(edge -> !edge.getTarget().visited)
                     .forEach(edge -> {
-                        if (edge.target.distance > edge.source.distance + edge.weight) {
-                            edge.target.distance = edge.source.distance + edge.weight;
-                            paths.get(edge.target).clear();
-                            paths.get(edge.target).addAll(paths.get(current));
-                            paths.get(edge.target).add(edge);
+                        if (edge.getTarget().distance > edge.getSource().distance + edge.weight) {
+                            edge.getTarget().distance = edge.getSource().distance + edge.weight;
+                            paths.get(edge.getTarget()).clear();
+                            paths.get(edge.getTarget()).addAll(paths.get(current));
+                            paths.get(edge.getTarget()).add(edge);
                         }
                     });
             current.visited = true;
@@ -73,12 +73,13 @@ public class Algorithm {
 
     protected void primAlgorithm() {
         service.getEdges().stream()
-                .filter(edge -> edge.source.visited && !edge.target.visited)
+//        service.getNodes().stream().flatMap(v -> v.connectedEdges.stream())                   // todo debugging
+                .filter(edge -> edge.getSource().visited && !edge.getTarget().visited)
                 .min(Comparator.comparingInt(edge -> edge.weight))
                 .ifPresent(edge -> {
                     edge.visited = true;
                     edge.mirrorEdge.visited = true;
-                    edge.target.visited = true;
+                    edge.getTarget().visited = true;
                     edgeSet.add(edge);
                 });
     }
@@ -99,8 +100,8 @@ public class Algorithm {
                 rootNode.distance = 0;
                 service.getNodes().forEach(vertex -> paths.put(vertex, new ArrayList<>()));
                 root.connectedEdges.forEach(edge -> {
-                    edge.target.distance = edge.weight;
-                    paths.get(edge.target).add(edge);
+                    edge.getTarget().distance = edge.weight;
+                    paths.get(edge.getTarget()).add(edge);
                 });
                 queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
         }
@@ -109,6 +110,10 @@ public class Algorithm {
     protected String getResultIfReady() {
         if (service.getNodes().stream().allMatch(vertex -> vertex.visited)) {
             service.getEdges().forEach(edge -> edge.hidden = true);
+                                                                                       // todo debugging
+//            service.getNodes().stream()
+//                    .flatMap(v -> v.connectedEdges.stream())
+//                    .forEach(edge -> edge.hidden = true);
             edgeSet.forEach(edge -> edge.visited = true);
             switch (service.getAlgorithmMode()) {
                 case DEPTH_FIRST_SEARCH:
@@ -147,10 +152,10 @@ public class Algorithm {
                 case PRIM_ALGORITHM:
                     algorithmResult = "<html><font size=+1 color=gray>minimum spanning tree:" +
                                       edgeSet.stream()
-                                              .sorted(Comparator.comparing(edge -> edge.source.id))
+                                              .sorted(Comparator.comparing(edge -> edge.getSource().id))
                                               .map(edge -> String.format(
                                                       "<font size=+1 color=#0062ff><b> %s &#8644 %s</b>",
-                                                      edge.source.id, edge.target.id))
+                                                      edge.getSource().id, edge.getTarget().id))
                                               .collect(Collectors.joining("<font color=gray>,"));
             }
         }
@@ -168,15 +173,15 @@ public class Algorithm {
         }
         paths.get(target).forEach(edge -> {
             edge.path = true;
-            if (edge.source != root) edge.source.path = true;
-            if (edge.target != root) edge.target.path = true;
+            if (edge.getSource() != root) edge.getSource().path = true;
+            if (edge.getTarget() != root) edge.getTarget().path = true;
         });
         return String.format("<html><font size=+1 color=gray>shortest path from " +
                              "<b><font size=+2 color=#5afa46>%s</b><font size=+1 color=gray> to " +
                              "<b><font size=+2 color=#5afa46>%s</b><font size=+1 color=gray>:   ", root.id, target.id) +
                paths.get(target).stream()
                        .map(edge -> String.format("<font size=+1 color=0062ff> %s &#8644 %s",
-                               edge.source.id, edge.target.id))
+                               edge.getSource().id, edge.getTarget().id))
                        .collect(Collectors.joining("<font color=gray> &rarr ")) +
                String.format("<font size=+2 color=#eb4034>   &#8680 %d", target.distance);
     }
