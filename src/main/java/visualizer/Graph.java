@@ -1,7 +1,6 @@
 package visualizer;
 
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.undo.UndoManager;
 import java.awt.*;
 
@@ -11,7 +10,7 @@ public class Graph extends JPanel {
 
     public Graph() {
         setName("Graph");
-        setPreferredSize(new Dimension(960, 600));
+        setPreferredSize(new Dimension(1000, 720));
         setSize(getPreferredSize());
         createFrame();
         setOpaque(true);
@@ -21,7 +20,7 @@ public class Graph extends JPanel {
     private void createFrame() {
         JFrame mainFrame = new JFrame("Graph-Algorithms Visualizer");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setPreferredSize(new Dimension(1000, 700));
+        mainFrame.setPreferredSize(new Dimension(1000, 720));
         mainFrame.setSize(mainFrame.getPreferredSize());
         mainFrame.setBackground(Color.BLACK);
         mainFrame.setLocationRelativeTo(null);
@@ -33,7 +32,7 @@ public class Graph extends JPanel {
         }
         ToolTipManager.sharedInstance().setInitialDelay(500);
         ToolTipManager.sharedInstance().setDismissDelay(2000);
-        UndoManager manager = new UndoManager();                        // todo does it need to be here?
+        UndoManager manager = new UndoManager();
         Toolbar toolbar = new Toolbar(manager);
         service = new GraphService(this, toolbar, manager);
 

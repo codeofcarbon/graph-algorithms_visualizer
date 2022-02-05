@@ -1,13 +1,7 @@
 package visualizer;
 
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicComboBoxUI;
-import javax.swing.plaf.basic.BasicComboPopup;
-import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Arrays;
 
 public class ModeComboBox<T> extends JComboBox<String> {
@@ -18,36 +12,41 @@ public class ModeComboBox<T> extends JComboBox<String> {
                     if (mode instanceof AlgMode) addItem(((AlgMode) mode).current.toUpperCase());
                     if (mode instanceof GraphMode) addItem(((GraphMode) mode).current.toUpperCase());
                 });
-        setUI(new BasicComboBoxUI() {
-            @Override
-            protected JButton createArrowButton() {
-                return new JButton() {
-                    @Override
-                    public int getWidth() {
-                        return 0;
-                    }
-                };
-            }
-        });
-        remove(getComponent(0));                                        // removing an arrowButton
-        setBackground(Color.BLACK);
-        setForeground(new Color(40, 162, 212, 255));
-        setFont(new Font("Tahoma", Font.PLAIN, 15));
+//        setUI(new BasicComboBoxUI() {
+//            @Override
+//            protected JButton createArrowButton() {
+//                return new JButton() {
+//                    @Override
+//                    public int getWidth() {
+//                        return 0;
+//                    }
+//                };
+//            }
+//        });
         setRenderer(new CellRenderer<>());
-        ((CellRenderer<?>) getRenderer()).setHorizontalAlignment(
-                array[0] instanceof GraphMode ? SwingConstants.RIGHT : SwingConstants.LEFT);
-        setOpaque(true);
         setFocusable(false);
-        setVisible(false);
+        setVisible(true);
+    }
+
+    @Override
+    public JPopupMenu getComponentPopupMenu() {
+        var popup = (JPopupMenu) getAccessibleContext().getAccessibleChild(0);
+        popup.setBorder(BorderFactory.createEmptyBorder());
+        popup.setPopupSize(180, getItemCount() * 20);
+        return popup;
     }
 }
 
 class CellRenderer<T> extends JLabel implements ListCellRenderer<T> {
+
     @Override
     public Component getListCellRendererComponent(JList<? extends T> list, T value, int index,
                                                   boolean isSelected, boolean cellHasFocus) {
+//        System.err.println(Arrays.toString(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()));
+        setFont(new Font("Tahoma", Font.PLAIN, 15));
         setText(value.toString());
         setPreferredSize(new Dimension(180, 20));
+        setHorizontalAlignment(SwingConstants.RIGHT);
         setSize(getPreferredSize());
         setBackground(Color.BLACK);
         setForeground(isSelected ? new Color(40, 162, 212, 255) : Color.LIGHT_GRAY.darker());

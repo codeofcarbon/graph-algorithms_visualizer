@@ -10,7 +10,6 @@ import java.awt.geom.Line2D;
 import java.io.Serializable;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class GraphService implements Serializable, StateEditable {
@@ -25,8 +24,6 @@ public class GraphService implements Serializable, StateEditable {
     private AlgMode algorithmMode = AlgMode.NONE;
     private Vertex edgeSource, edgeTarget;
     private Timer timer;
-    UndoManager manager;
-    Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
 
     public GraphService(Graph graph, Toolbar toolbar, UndoManager manager) {
         this.graph = graph;
@@ -34,37 +31,30 @@ public class GraphService implements Serializable, StateEditable {
         this.toolbar.setService(this);
         this.mouseHandler.addComponent(graph);
         this.algorithm = new Algorithm(this);
-        this.manager = manager;
         this.undoableEditSupport.addUndoableEditListener(manager);
     }
 
     public void storeState(Hashtable<Object, Object> state) {
-//        state.put("GraphData", nodes.stream()
-//                .collect(Collectors.toConcurrentMap(Function.identity(), v -> v.connectedEdges)));
-//        state.put("Components", graph.getComponents().clone());                           // todo debugging
         state.put("Edges", new ArrayList<>(edges));
         state.put("Nodes", new ArrayList<>(nodes));
-        System.err.println("++++++++++++++++++++Store+++++++++++++++++");
-        System.err.println("nodes: " + nodes.size() + " edges: " +
-                           edges.size() + " comps: " + graph.getComponents().length);
     }
 
     @SuppressWarnings("unchecked")
     public void restoreState(Hashtable<?, ?> state) {
         var edgesState = (List<Edge>) state.get("Edges");
         edges = edgesState != null ? edgesState : edges;
-
         var nodesState = (List<Vertex>) state.get("Nodes");
-        nodes = nodesState != null ? nodesState : nodes;                            // todo refactor that
-        edges.forEach(edge -> {
-                    if (!edge.getTarget().connectedEdges.contains(edge.mirrorEdge)) {
-                        edge.getTarget().connectedEdges.add(edge.mirrorEdge);
-                    }
-                    if (!edge.getSource().connectedEdges.contains(edge)) {
-                        edge.getSource().connectedEdges.add(edge);
-                    }
-                });
+        nodes = nodesState != null ? nodesState : nodes;
 
+        // todo refactor that ======================
+        edges.forEach(edge -> {
+            if (!edge.getTarget().connectedEdges.contains(edge.mirrorEdge)) {
+                edge.getTarget().connectedEdges.add(edge.mirrorEdge);
+            }
+            if (!edge.getSource().connectedEdges.contains(edge)) {
+                edge.getSource().connectedEdges.add(edge);
+            }
+        });
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
         nodes.forEach(graph::add);
         edges.forEach(graph::add);
@@ -76,12 +66,12 @@ public class GraphService implements Serializable, StateEditable {
                 .ifPresent(selectedNode -> {
                     if (Algorithm.root != null && algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
                         var shortestPath = algorithm.getShortestPath(selectedNode);
-                        toolbar.getInfoLabel().setText(shortestPath);
+                        toolbar.getInfoLabelTwo().setText(shortestPath);
                         graph.repaint();
                     }
                     if (Algorithm.root == null) {
                         algorithm.initAlgorithm(selectedNode);
-                        toolbar.getInfoLabel().setText("Please wait...");
+                        toolbar.getInfoLabelTwo().setText("Please wait...");
                         timer = new Timer(500, event -> {
                             switch (algorithmMode) {
                                 case DEPTH_FIRST_SEARCH:
@@ -99,7 +89,7 @@ public class GraphService implements Serializable, StateEditable {
                             }
                             var algorithmResult = algorithm.getResultIfReady();
                             if (!algorithmResult.isBlank()) {
-                                toolbar.getInfoLabel().setText(algorithmResult);
+                                toolbar.getInfoLabelTwo().setText(algorithmResult);
                                 timer.stop();
                             }
                             graph.repaint();
@@ -146,7 +136,7 @@ public class GraphService implements Serializable, StateEditable {
                 edgeTarget.marked = true;
                 graph.repaint();
                 if (edgeSource.equals(edgeTarget) || edges.stream().anyMatch(edge ->
-//                    nodes.stream().flatMap(v -> v.connectedEdges.stream()).anyMatch(edge -> // todo debugging
+//                    nodes.stream().flatMap(v -> v.connectedEdges.stream()).anyMatch(edge -> // todo all nodes?
                         edge.getSource().equals(edgeTarget) && edge.getTarget().equals(edgeSource)
                         || edge.getSource().equals(edgeSource) && edge.getTarget().equals(edgeTarget))) {
                     resetMarkedNodes();
@@ -192,20 +182,8 @@ public class GraphService implements Serializable, StateEditable {
                 graph.remove(e);
                 edges.remove(e);
             }));
-//            vertex.connectedEdges.forEach(edge -> {
-//                System.err.println(edge.mirrorEdge.getName());
-////                edge.getTarget().connectedEdges.remove(edge.mirrorEdge);            // todo do i need that?
-//                edge.getTarget().connectedEdges.remove(edge);            // todo do i need that?
-//                graph.remove(edge);
-//                edges.remove(edge);
-//            });
-//            vertex.removing = true;                                               // todo fading
-//            vertex.connectedEdges.clear();
             nodes.remove(vertex);
             graph.remove(vertex);
-            // todo debugging
-//            manager.undoableEditHappened(new UndoableEditEvent(this, new RemoveVertexCommand(this, vertex)));
-
             graph.repaint();
         });
     }
@@ -213,15 +191,10 @@ public class GraphService implements Serializable, StateEditable {
     void removeEdge(MouseEvent point) {
         checkIfEdge(point).ifPresent(edge -> {
             List.of(edge, edge.mirrorEdge).forEach(e -> {
-
                 edge.getSource().connectedEdges.remove(edge);
                 edge.getTarget().connectedEdges.remove(edge.mirrorEdge);
                 graph.remove(e);
                 edges.remove(e);
-                // todo debugging
-//                manager.undoableEditHappened(new UndoableEditEvent(this,
-//                        new RemoveEdgeCommand(this, edge, edge.mirrorEdge)));
-
             });
             graph.repaint();
         });
@@ -230,7 +203,7 @@ public class GraphService implements Serializable, StateEditable {
     void clearGraph() {
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
         setCurrentModes(AlgMode.NONE, GraphMode.ADD_A_VERTEX);
-        toolbar.getInfoLabel().setText("");
+        toolbar.getInfoLabelTwo().setText("");
         algorithm.resetAlgorithmData();
         nodes.clear();
         edges.clear();
@@ -242,6 +215,8 @@ public class GraphService implements Serializable, StateEditable {
         toolbar.getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
         this.graphMode = graphMode;
         this.algorithmMode = algorithmMode;
+        if (algorithmMode == AlgMode.NONE) toolbar.getInfoLabelTwo().setVisible(false);
+        if (graphMode == GraphMode.NONE) toolbar.getInfoLabelTwo().setVisible(true);
         graph.setToolTipText(null);
         algorithm.resetAlgorithmData();
         resetComponentLists();
@@ -254,7 +229,7 @@ public class GraphService implements Serializable, StateEditable {
             vertex.visited = false;
             vertex.path = false;
         });
-//        nodes.stream()                                                       // todo debugging
+//        nodes.stream()                                                       // todo nodes all?
 //                .flatMap(v -> v.connectedEdges.stream())
 //                .forEach(edge -> {
 //                    edge.hidden = false;
@@ -286,8 +261,7 @@ public class GraphService implements Serializable, StateEditable {
 
     private Optional<Edge> checkIfEdge(MouseEvent event) {
         return edges.stream()
-//        return nodes.stream()                                                            // todo debugging
-//                .flatMap(v -> v.connectedEdges.stream())
+//        return nodes.stream().flatMap(v -> v.connectedEdges.stream())                 // todo nodes all?
                 .filter(edge -> {
                     var source = edge.getSource();
                     var target = edge.getTarget();
