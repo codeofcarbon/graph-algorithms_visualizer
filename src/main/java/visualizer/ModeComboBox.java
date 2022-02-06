@@ -1,6 +1,7 @@
 package visualizer;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicComboBoxUI;
 import java.awt.*;
 import java.util.Arrays;
 
@@ -12,20 +13,18 @@ public class ModeComboBox<T> extends JComboBox<String> {
                     if (mode instanceof AlgMode) addItem(((AlgMode) mode).current.toUpperCase());
                     if (mode instanceof GraphMode) addItem(((GraphMode) mode).current.toUpperCase());
                 });
-//        setUI(new BasicComboBoxUI() {
-//            @Override
-//            protected JButton createArrowButton() {
-//                return new JButton() {
-//                    @Override
-//                    public int getWidth() {
-//                        return 0;
-//                    }
-//                };
-//            }
-//        });
         setRenderer(new CellRenderer<>());
-        setFocusable(false);
-        setVisible(true);
+        setUI(new BasicComboBoxUI() {                  // todo try to get transparent background in pop up
+            @Override
+            protected JButton createArrowButton() {
+                return new JButton() {
+                    @Override
+                    public int getWidth() {
+                        return 0;
+                    }
+                };
+            }
+        });
     }
 
     @Override
@@ -42,7 +41,6 @@ class CellRenderer<T> extends JLabel implements ListCellRenderer<T> {
     @Override
     public Component getListCellRendererComponent(JList<? extends T> list, T value, int index,
                                                   boolean isSelected, boolean cellHasFocus) {
-//        System.err.println(Arrays.toString(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()));
         setFont(new Font("Tahoma", Font.PLAIN, 15));
         setText(value.toString());
         setPreferredSize(new Dimension(180, 20));

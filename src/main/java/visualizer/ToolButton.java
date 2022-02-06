@@ -14,7 +14,6 @@
 //    private static final JLabel pressedLabel = new JLabel(
 //            new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/layered.png")
 //                    .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
-//    // todo debugging - to remove?
 //    static final List<ToolButton> buttons = new ArrayList<>();
 //
 //    public ToolButton(String iconFilename, String toolTipText, JPanel buttonsPanel) {
@@ -45,7 +44,6 @@
 //            }
 //        });
 //
-//        // todo debugging - to remove?
 ////        setPressedIcon(new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/layered.png")
 ////                .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
 ////        if (iconFilename.equals("github")) this.setVerticalAlignment(TOP);

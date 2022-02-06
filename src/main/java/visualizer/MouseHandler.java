@@ -8,7 +8,6 @@ public class MouseHandler extends MouseAdapter {
     private final GraphService service;
     private Point location, pressed;
     private Component source;
-    private StateEdit stateEdit;
     private StateEdit moveStateEdit;
 
     public MouseHandler(GraphService service) {
@@ -32,13 +31,13 @@ public class MouseHandler extends MouseAdapter {
 
     @Override
     public void mouseClicked(MouseEvent event) {
-        stateEdit = new StateEdit(service);
+        StateEdit stateEdit = new StateEdit(service);
         switch (service.getGraphMode()) {
             case ADD_A_VERTEX:
                 service.createNewVertex(event);
                 break;
             case ADD_AN_EDGE:
-                service.createNewEdge(event);               // todo - one undo for edge
+                service.createNewEdge(event);
                 break;
             case REMOVE_A_VERTEX:
                 service.removeVertex(event);
@@ -48,7 +47,7 @@ public class MouseHandler extends MouseAdapter {
                 break;
             case NONE:
                 if (service.getAlgorithmMode() != AlgMode.NONE) service.startAlgorithm(event);
-                break;                                    // todo resetting undo manager after each algorithm
+                break;
         }
         stateEdit.end();
         service.getUndoableEditSupport().postEdit(stateEdit);

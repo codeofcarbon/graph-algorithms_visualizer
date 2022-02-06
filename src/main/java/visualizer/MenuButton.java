@@ -2,14 +2,10 @@ package visualizer;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
-import javax.swing.plaf.basic.BasicComboPopup;
 import java.awt.*;
 import java.awt.event.*;
 
 public class MenuButton extends JButton {
-    //    private final JLabel pressedLabel = new JLabel(loadIcon("layered", 30, false));   // todo fix it
-    private static boolean popping = false;
-    private static Popup popup;
     private static JPopupMenu pop;
 
     public MenuButton(String iconFilename, String toolTipText, JComponent container, JComponent target) {
@@ -21,66 +17,20 @@ public class MenuButton extends JButton {
         setPreferredSize(new Dimension(size, size));
         setSize(getPreferredSize());
         container.add(this);
-
-//        add(pressedLabel);                              // todo fix it
-//        pressedLabel.setVisible(false);
-
         setOpaque(false);
         setVisible(true);
-
-//        if (target != null) {
-//            addActionListener(e -> {
-//                if (target instanceof JComboBox) {
-//                    if (popping) popup.hide();
-//                    else {
-//                        var root = container.getRootPane();
-////                        var pop = target.getComponentPopupMenu();
-////                        System.err.println(pop);
-////                        pop.setVisible(true);
-//
-//                        PopupFactory factory = PopupFactory.getSharedInstance();
-//                        var point = container.getLocationOnScreen();
-//                        popup = factory.getPopup(root, target.getComponentPopupMenu(),
-//                                point.x + /*container.getLocation().x */+container.getWidth() - 182, //- comboBox.getWidth(),
-//                                point.y + container.getHeight());
-////                        PopupFactory factory = PopupFactory.getSharedInstance();
-////                        Point point = container.getLocationOnScreen();
-////                        popup.setLocation(point.x + container.getWidth() - 182, point.y + container.getHeight());
-////                        popup = factory.getPopup(tField, panel, point.x, point.y + tField.getHeight());
-//                        popup.show();
-//                    }
-//                    popping = !popping;
-//                } else target.setVisible(!target.isVisible());
-//            });
-//        }
         if (target != null) {
-            addMouseListener(new MouseAdapter() {
+            addMouseListener(new MouseAdapter() {                               // todo change to action listener?
                 @Override
                 public void mousePressed(MouseEvent e) {
                     super.mousePressed(e);
                     if (target instanceof JComboBox) {
                         pop = target.getComponentPopupMenu();
-                        var invoker = e.getComponent();
+                        var invoker = e.getComponent().getParent();
                         pop.setVisible(!pop.isVisible());
-                        pop.show(invoker, invoker.getWidth(), invoker.getHeight());
+                        pop.show(invoker, 5, invoker.getHeight());
                     } else target.setVisible(!target.isVisible());
-                    System.err.println(container.getSize());
                 }
-                // todo sometimes null here - catch when and fix that
-//            @Override
-//            public void mousePressed(MouseEvent e) {                                 // todo fix it
-//                super.mousePressed(e);
-//                if (target == null) {
-//                    pressedLabel.setLocation(MenuButton.this.getLocation());
-//                    pressedLabel.setVisible(true);
-//                }
-//            }
-//
-//            @Override
-//            public void mouseReleased(MouseEvent e) {                                   // todo fix it
-//                super.mouseReleased(e);
-//                if (target == null) pressedLabel.setVisible(false);
-//            }
             });
         }
     }

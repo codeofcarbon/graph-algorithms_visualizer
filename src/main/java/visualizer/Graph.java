@@ -22,7 +22,6 @@ public class Graph extends JPanel {
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setPreferredSize(new Dimension(1000, 720));
         mainFrame.setSize(mainFrame.getPreferredSize());
-        mainFrame.setBackground(Color.BLACK);
         mainFrame.setLocationRelativeTo(null);
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -32,14 +31,13 @@ public class Graph extends JPanel {
         }
         ToolTipManager.sharedInstance().setInitialDelay(500);
         ToolTipManager.sharedInstance().setDismissDelay(2000);
-        UndoManager manager = new UndoManager();
-        Toolbar toolbar = new Toolbar(manager);
-        service = new GraphService(this, toolbar, manager);
 
+        UndoManager manager = new UndoManager();
+        Toolbar toolbar = new Toolbar();
+        service = new GraphService(this, toolbar, manager);
         mainFrame.add(toolbar, BorderLayout.NORTH);
         mainFrame.setJMenuBar(new MenuBar(toolbar));
         mainFrame.add(this);
-
         mainFrame.setVisible(true);
     }
 

@@ -73,7 +73,6 @@ public class Algorithm {
 
     protected void primAlgorithm() {
         service.getEdges().stream()
-//        service.getNodes().stream().flatMap(v -> v.connectedEdges.stream())                   // todo debugging
                 .filter(edge -> edge.getSource().visited && !edge.getTarget().visited)
                 .min(Comparator.comparingInt(edge -> edge.weight))
                 .ifPresent(edge -> {
@@ -110,10 +109,6 @@ public class Algorithm {
     protected String getResultIfReady() {
         if (service.getNodes().stream().allMatch(vertex -> vertex.visited)) {
             service.getEdges().forEach(edge -> edge.hidden = true);
-                                                                                       // todo debugging
-//            service.getNodes().stream()
-//                    .flatMap(v -> v.connectedEdges.stream())
-//                    .forEach(edge -> edge.hidden = true);
             edgeSet.forEach(edge -> edge.visited = true);
             switch (service.getAlgorithmMode()) {
                 case DEPTH_FIRST_SEARCH:

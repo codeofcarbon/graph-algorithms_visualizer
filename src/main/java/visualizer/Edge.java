@@ -3,19 +3,16 @@ package visualizer;
 import lombok.Getter;
 
 import javax.swing.*;
-import javax.swing.undo.StateEditable;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.io.Serializable;
-import java.util.Hashtable;
 
 @Getter
-public class Edge extends JLabel implements Serializable {//, StateEditable {
+public class Edge extends JLabel implements Serializable {
     private static final long serialVersionUID = 123L;
-//    private Vertex source, target;
-    private final Vertex source;
-    private final Vertex target;
+    private final Vertex source, target;
     final int weight;
+
     boolean visited, hidden, path;
     Edge mirrorEdge;
 
@@ -39,20 +36,6 @@ public class Edge extends JLabel implements Serializable {//, StateEditable {
                 : this.hidden ? EdgeState.HIDDEN
                 : EdgeState.RAW;
     }
-
-//    @Override
-//    public void storeState(Hashtable<Object, Object> state) {               // todo do i need that??
-//        state.put("SourceNode", source);
-//        state.put("TargetNode", target);
-//    }
-//
-//    @Override
-//    public void restoreState(Hashtable<?, ?> state) {
-//        var sourceNode = (Vertex) state.get("SourceNode");
-//        if (sourceNode != null) this.source = sourceNode;
-//        var targetNode = (Vertex) state.get("TargetNode");
-//        if (targetNode != null) this.target = targetNode;
-//    }
 }
 
 enum EdgeState {
