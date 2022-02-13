@@ -18,19 +18,17 @@ public class GraphService implements Serializable, StateEditable {
     private List<Vertex> nodes = new ArrayList<>();
     private List<Edge> edges = new ArrayList<>();
     private final Algorithm algorithm;
-    private final Toolbar toolbar;
     private final Graph graph;
+    private Toolbar toolbar;
     private GraphMode graphMode = GraphMode.ADD_A_VERTEX;
     private AlgMode algorithmMode = AlgMode.NONE;
     private Vertex edgeSource, edgeTarget;
     private UndoManager manager;
     private Timer timer;
 
-    public GraphService(Graph graph, Toolbar toolbar, UndoManager manager) {
+    public GraphService(Graph graph) {
         this.graph = graph;
-        this.manager = manager;
-        this.toolbar = toolbar;
-        this.toolbar.setService(this);
+        this.manager = new UndoManager();
         this.mouseHandler.addComponent(graph);
         this.algorithm = new Algorithm(this);
         this.undoableEditSupport.addUndoableEditListener(manager);
@@ -66,12 +64,12 @@ public class GraphService implements Serializable, StateEditable {
                 .ifPresent(selectedNode -> {
                     if (Algorithm.root != null && algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
                         var shortestPath = algorithm.getShortestPath(selectedNode);
-                        toolbar.getInfoLabel().setText(shortestPath);
+                        toolbar.getLeftInfoLabel().setText(shortestPath);
                         graph.repaint();
                     }
                     if (Algorithm.root == null) {
                         algorithm.initAlgorithm(selectedNode);
-                        toolbar.getInfoLabel().setText("Please wait...");
+                        toolbar.getLeftInfoLabel().setText("Please wait...");
                         timer = new Timer(500, event -> {
                             switch (algorithmMode) {
                                 case DEPTH_FIRST_SEARCH:
@@ -89,7 +87,7 @@ public class GraphService implements Serializable, StateEditable {
                             }
                             var algorithmResult = algorithm.getResultIfReady();
                             if (!algorithmResult.isBlank()) {
-                                toolbar.getInfoLabel().setText(algorithmResult);
+                                toolbar.getLeftInfoLabel().setText(algorithmResult);
                                 timer.stop();
                             }
                             graph.repaint();
@@ -202,7 +200,7 @@ public class GraphService implements Serializable, StateEditable {
         undoableEditSupport.removeUndoableEditListener(manager);
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
         setCurrentModes(AlgMode.NONE, GraphMode.ADD_A_VERTEX);
-        toolbar.getInfoLabel().setText("");
+        toolbar.getLeftInfoLabel().setText("");
         algorithm.resetAlgorithmData();
         nodes.clear();
         edges.clear();
@@ -211,12 +209,12 @@ public class GraphService implements Serializable, StateEditable {
     }
 
     void setCurrentModes(AlgMode algorithmMode, GraphMode graphMode) {
+        if (toolbar == null) toolbar = graph.getToolbar();
         toolbar.getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algorithmMode));
         toolbar.getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
         this.graphMode = graphMode;
         this.algorithmMode = algorithmMode;
-        if (algorithmMode == AlgMode.NONE) toolbar.getInfoLabel().setVisible(false);
-        if (graphMode == GraphMode.NONE) toolbar.getInfoLabel().setVisible(true);
+        toolbar.getLeftInfoLabel().setText(graphMode == GraphMode.NONE ? "Please choose a starting vertex" : "");
         graph.setToolTipText(null);
         algorithm.resetAlgorithmData();
         resetComponentLists();

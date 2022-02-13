@@ -1,38 +1,47 @@
 package visualizer;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
 import java.awt.event.*;
 
 public class MenuButton extends JButton {
-    private static JPopupMenu pop;
+    private static JPopupMenu popup;
+    private final JComponent target;
+//    @Getter @Setter private
+    float alpha = 0.5f;
 
-    public MenuButton(String iconFilename, String toolTipText, JComponent container, JComponent target) {
+    public MenuButton(String iconFilename, String toolTipText, JComponent container,
+                      JComponent target, MouseHandler handler) {
+        this.target = target;
         setUI(new BasicButtonUI());
         setToolTipText(String.format("<html><font color=gray>%s", toolTipText));
         var size = target == null ? 30 : 70;
+//        alpha = target == null ? 0.4f : 0.5f;
         setIcon(loadIcon(iconFilename, size, false));
         setRolloverIcon(loadIcon(iconFilename, size, true));
         setPreferredSize(new Dimension(size, size));
-        setSize(getPreferredSize());
         container.add(this);
         setOpaque(false);
         setVisible(true);
-        if (target != null) {
-            addMouseListener(new MouseAdapter() {                               // todo change to action listener?
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    super.mousePressed(e);
-                    if (target instanceof JComboBox) {
-                        pop = target.getComponentPopupMenu();
-                        var invoker = e.getComponent().getParent();
-                        pop.setVisible(!pop.isVisible());
-                        pop.show(invoker, 5, invoker.getHeight());
-                    } else target.setVisible(!target.isVisible());
+        addMouseListener(handler);
+        if (target != null)
+            addActionListener(event -> {
+            popup = target.getComponentPopupMenu();
+            popup.setVisible(!popup.isVisible());
+            if (!(target instanceof JComboBox))
+                popup.show(this, this.getWidth() / 2 - popup.getWidth() / 2, this.getHeight() - 5);
+            else {
+                if (((ModeComboBox<?>) this.target).clazz.equals(GraphMode.class)) {
+                    popup.show(this, -popup.getWidth(), this.getY());
+                } else {
+                    popup.show(this, this.getWidth(), this.getY());
                 }
-            });
-        }
+            }
+        });
     }
 
     private static ImageIcon loadIcon(String iconFilename, int size, boolean rolloverIcon) {
@@ -55,5 +64,12 @@ public class MenuButton extends JButton {
         var point = e.getPoint();
         point.translate(-50, 20);
         return point;
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        super.paintComponent(g2D);
     }
 }

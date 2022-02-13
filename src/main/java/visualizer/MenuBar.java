@@ -19,7 +19,7 @@ public class MenuBar extends JMenuBar {
         JMenuItem exit = addMenuItem("Exit", KeyEvent.VK_E, fileMenu);
         exit.addActionListener(event -> toolbar.getCloseButton().doClick());
 
-        // ================================================================= graph.txt mode menu =====
+        // ================================================================= graph mode menu =====
         JMenu modeMenu = addMenu("Mode", KeyEvent.VK_M);
 
         JMenuItem addVertex = addMenuItem("Add a Vertex", KeyEvent.VK_A, modeMenu);

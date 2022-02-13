@@ -1,6 +1,6 @@
 package visualizer;
 
-import lombok.*;
+import lombok.Getter;
 
 import javax.swing.*;
 import javax.swing.undo.*;
@@ -10,98 +10,121 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Getter
+@Getter                    // todo 5-6 getters needed for: buttons(refresh and close), comboBoxes, and infoLabel(s)
 public class Toolbar extends JPanel {
     private static Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
-    private final JComboBox<String> algModeComboBox, graphModeComboBox, buttonsComboBox;
+    private final JComboBox<String> algModeComboBox, graphModeComboBox;
     private final MenuButton algModeButton, graphModeButton, menuButton;
     private final MenuButton openButton, saveButton, refreshButton, closeButton, undoButton, redoButton;
     private final MenuButton prevButton, nextButton, infoButton, messageButton, linkedButton, githubButton;
-    private final JPanel toolsPanel, mainPanel;
-    private final JLabel infoLabel;
-    @Setter
-    private GraphService service;
+    private final JPanel toolsPanel, buttonsPanel;
+    private final JLabel leftInfoLabel, rightInfoLabel;
+    private final GraphService service;
 
-    public Toolbar() {
+    public Toolbar(GraphService service) {
+        this.service = service;
         this.fileChooser = new JFileChooser(new File("src/main/java/visualizer/data"));
         setPreferredSize(new Dimension(1000, 70));
+        setMinimumSize(getPreferredSize());
         setSize(getPreferredSize());
         setBackground(Color.BLACK);
-        setLayout(new BorderLayout());
+        setLayout(new GridBagLayout());
 
-        mainPanel = new JPanel(new GridLayout(1, 3));
-        mainPanel.setPreferredSize(new Dimension(190, 70));
-        mainPanel.setBackground(Color.BLACK);
+        leftInfoLabel = addNewLabel("", SwingConstants.CENTER, new Dimension(260, 70),
+                new Font("Tempus Sans ITC", Font.PLAIN, 20));
+        var graphModeLabel = addNewLabel("<html><font size=4 color=rgb(40,162,212)>" +
+                                         "<b>GRAPH MODE</b></font><br>" +
+                                         "<font font-family=tahoma size=3 color=rgb(204,204,204)>" +
+                                         "REMOVE A VERTEX</font>",
+                SwingConstants.TRAILING, new Dimension(140, 70), null);
+//        graphModeLabel.setHorizontalTextPosition(SwingConstants.RIGHT);
+//        graphModeLabel.setAlignmentX(RIGHT_ALIGNMENT);
 
-        toolsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        toolsPanel.setPreferredSize(new Dimension(480, 40));
-        toolsPanel.setBackground(new Color(0, 0, 0, 0));
-        toolsPanel.setOpaque(false);
-        //        toolsPanel.setBackground(Color.BLACK);
-        //        toolsPanel.setOpaque(true);
+        buttonsPanel = new JPanel(new GridLayout(1, 0, 0, 0));
+        buttonsPanel.setPreferredSize(new Dimension(200, 70));
+        buttonsPanel.setMinimumSize(buttonsPanel.getPreferredSize());
+        buttonsPanel.setSize(buttonsPanel.getPreferredSize());
+        buttonsPanel.setOpaque(false);
 
-        infoLabel = new JLabel("", SwingConstants.CENTER);
-        infoLabel.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 20));
-        infoLabel.setPreferredSize(new Dimension(810, 30));
-        //        infoLabel.setSize(infoLabel.getPreferredSize());
-        //        infoLabel.setBackground(new Color(0, 0, 0, 0));
-        infoLabel.setBackground(Color.DARK_GRAY.darker());
-        infoLabel.setForeground(Color.WHITE);
-        infoLabel.setOpaque(true);
-        infoLabel.setVisible(false);
-        //        var infoPanel = new JPanel(new BorderLayout());
-        //        infoPanel.add(infoLabel, BorderLayout.CENTER);
+        rightInfoLabel = addNewLabel("", SwingConstants.CENTER, new Dimension(260, 70),
+                new Font("Tempus Sans ITC", Font.PLAIN, 20));
+        var algorithmModeLabel = addNewLabel("<html><font size=4 color=rgb(40,162,212)>" +
+                                             "<b>ALGORITHM MODE</b></font><br>" +
+                                             "<font font-family=tahoma size=3 color=rgb(204,204,204)>" +
+                                             "BREADTH-FIRST SEARCH</font>",
+                SwingConstants.LEADING, new Dimension(140, 70), null);
 
-        graphModeComboBox = new ModeComboBox<>(GraphMode.values());
-        algModeComboBox = new ModeComboBox<>(AlgMode.values());
-        buttonsComboBox = new ModeComboBox<>(toolsPanel.getComponents());
-        graphModeComboBox.setSelectedIndex(0);                          // graph mode: add a vertex
-        algModeComboBox.setSelectedIndex(4);                            // algorithm mode: none
+        var gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        add(leftInfoLabel, gbc);
+        gbc.weightx = 0.0;
+        add(graphModeLabel, gbc);
+        add(buttonsPanel, gbc);
+        add(algorithmModeLabel, gbc);
+        gbc.weightx = 1.0;
+        add(rightInfoLabel, gbc);
 
-        openButton = new MenuButton("open", "LOAD GRAPH", toolsPanel, null);
-        saveButton = new MenuButton("save", "SAVE GRAPH", toolsPanel, null);
-        closeButton = new MenuButton("exit", "EXIT AN APP", toolsPanel, null);
-        refreshButton = new MenuButton("new", "NEW GRAPH", toolsPanel, null);
-        undoButton = new MenuButton("undo", "UNDO", toolsPanel, null);
-        redoButton = new MenuButton("redo", "REDO", toolsPanel, null);
-        prevButton = new MenuButton("prev", "PREV STEP", toolsPanel, null);
-        nextButton = new MenuButton("next", "NEXT STEP", toolsPanel, null);
-        infoButton = new MenuButton("info", "INFO", toolsPanel, null);
-        messageButton = new MenuButton("message", "MESSAGE", toolsPanel, null);
-        linkedButton = new MenuButton("linked", "CONTACT ME", toolsPanel, null);
-        githubButton = new MenuButton("github", "CONTACT ME", toolsPanel, null);
 
-        menuButton = new MenuButton("menu", "TOOLS", mainPanel, buttonsComboBox);
-//        menuButton = new MenuButton("menu", "TOOLS", mainPanel, toolsPanel);
-        graphModeButton = new MenuButton("graph", "GRAPH MODE", mainPanel, graphModeComboBox);
-        algModeButton = new MenuButton("algorithm", "ALGORITHM MODE", mainPanel, algModeComboBox);
+        toolsPanel = new JPanel() {                                 // todo is any way to rid off of that JPanel?
+            final JPopupMenu popup = new JPopupMenu();
 
-        add(toolsPanel, BorderLayout.CENTER);
-        add(mainPanel, BorderLayout.EAST);
-        add(infoLabel, BorderLayout.LINE_START);
+            @Override
+            public JPopupMenu getComponentPopupMenu() {
+                popup.setUI(new javax.swing.plaf.basic.BasicPopupMenuUI());
+                popup.setPopupSize(420, 40);
+                Arrays.stream(toolsPanel.getComponents()).forEach(popup::add);
+                popup.setLayout(new FlowLayout(FlowLayout.CENTER));
+                popup.setBorder(BorderFactory.createEmptyBorder());
+                popup.setOpaque(false);
+                return popup;
+            }
+        };
+        toolsPanel.setPreferredSize(new Dimension(420, 40));        // todo setSize only? or do i need that at least?
+        toolsPanel.setSize(toolsPanel.getPreferredSize());
+
+        graphModeComboBox = new ModeComboBox<>(GraphMode.values(), service, SwingConstants.RIGHT);
+        algModeComboBox = new ModeComboBox<>(AlgMode.values(), service, SwingConstants.LEFT);
+
+        openButton = new MenuButton("open", "LOAD GRAPH", toolsPanel, null, service.getMouseHandler());
+        saveButton = new MenuButton("save", "SAVE GRAPH", toolsPanel, null, service.getMouseHandler());
+        closeButton = new MenuButton("exit", "EXIT AN APP", toolsPanel, null, service.getMouseHandler());
+        refreshButton = new MenuButton("new", "NEW GRAPH", toolsPanel, null, service.getMouseHandler());
+        undoButton = new MenuButton("undo", "UNDO", toolsPanel, null, service.getMouseHandler());
+        redoButton = new MenuButton("redo", "REDO", toolsPanel, null, service.getMouseHandler());
+        prevButton = new MenuButton("prev", "PREV STEP", toolsPanel, null, service.getMouseHandler());
+        nextButton = new MenuButton("next", "NEXT STEP", toolsPanel, null, service.getMouseHandler());
+        infoButton = new MenuButton("info", "INFO", toolsPanel, null, service.getMouseHandler());
+        messageButton = new MenuButton("message", "MESSAGE", toolsPanel, null, service.getMouseHandler());
+        linkedButton = new MenuButton("linked", "CONTACT ME", toolsPanel, null, service.getMouseHandler());
+        githubButton = new MenuButton("github", "CONTACT ME", toolsPanel, null, service.getMouseHandler());
+
+        graphModeButton = new MenuButton("graph", "GRAPH MODE", buttonsPanel, graphModeComboBox, service.getMouseHandler());
+        menuButton = new MenuButton("menu", "TOOLS", buttonsPanel, toolsPanel, service.getMouseHandler());
+        algModeButton = new MenuButton("algorithm", "ALGORITHM MODE", buttonsPanel, algModeComboBox, service.getMouseHandler());
 
         addListeners();
     }
 
+    private JLabel addNewLabel(String text, int alignment, Dimension dimension, Font font) {
+        var label = new JLabel(text, alignment);
+        label.setPreferredSize(dimension);
+        label.setMinimumSize(dimension);
+        label.setSize(label.getPreferredSize());
+        if (font != null) {
+            label.setFont(font);
+            label.setForeground(Color.WHITE);
+//            label.setBackground(Color.DARK_GRAY.darker());
+            label.setBackground(Color.BLACK);
+        } else label.setBackground(Color.BLACK);
+        label.setOpaque(true);
+//        label.setVisible(true);                      // todo check when needed and implement
+        return label;
+    }
+
     @SuppressWarnings("unchecked")
-    private void addListeners() {
-        algModeComboBox.addActionListener(event -> {
-            service.setCurrentModes(Arrays.stream(AlgMode.values())
-                    .filter(algMode -> algMode.current.equalsIgnoreCase((String) algModeComboBox.getSelectedItem()))
-                    .findFirst().orElse(AlgMode.NONE), GraphMode.NONE);
-            infoLabel.setText("Please choose a starting vertex");
-            algModeComboBox.setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(service.getAlgorithmMode()));
-        });
-
-        graphModeComboBox.addActionListener(event -> {
-            service.setCurrentModes(AlgMode.NONE, Arrays.stream(GraphMode.values())
-                    .filter(graphMode -> graphMode.current.equalsIgnoreCase((String) graphModeComboBox.getSelectedItem()))
-                    .findFirst().orElse(GraphMode.NONE));
-            infoLabel.setText("");
-            graphModeComboBox.setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(service.getGraphMode()));
-        });
-
+    private void addListeners() {            // todo action listenery wyslac do produkcji w klasie menu button?????
         openButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Select graph data file");
             if (fileChooser.showOpenDialog(service.getGraph()) == JFileChooser.APPROVE_OPTION) {
