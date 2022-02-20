@@ -13,6 +13,9 @@ public class MenuBar extends JMenuBar {
         // ======================================================================= file menu =====
         JMenu fileMenu = addMenu("File", KeyEvent.VK_F);
 
+        JMenuItem saveGraph = addMenuItem("Save", KeyEvent.VK_S, fileMenu);
+        saveGraph.addActionListener(event -> toolbar.getSaveButton().doClick());
+
         JMenuItem clearGraph = addMenuItem("New", KeyEvent.VK_N, fileMenu);
         clearGraph.addActionListener(event -> toolbar.getRefreshButton().doClick());
 
