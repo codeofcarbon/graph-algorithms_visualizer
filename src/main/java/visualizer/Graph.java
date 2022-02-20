@@ -4,7 +4,6 @@ import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
 
 @Getter
 public class Graph extends JPanel {

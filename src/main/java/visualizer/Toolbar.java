@@ -88,8 +88,9 @@ public class Toolbar extends JPanel {
     }
 
     private JLabel addNewLabel(int alignment, Dimension dimension, boolean htmlStyle) {
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();          // todo register font
         ge.registerFont(new Font("Tahoma", Font.PLAIN, 15));
+
         var label = new JLabel("", alignment);
         label.setFont(htmlStyle ? new Font("Tahoma", Font.PLAIN, 15)
                 : new Font("Tempus Sans ITC", Font.PLAIN, 20));
