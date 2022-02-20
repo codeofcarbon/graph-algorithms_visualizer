@@ -3,6 +3,7 @@ package visualizer;
 import lombok.Getter;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicPopupMenuUI;
 import javax.swing.undo.*;
 import java.awt.*;
 import java.io.*;
@@ -14,16 +15,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Toolbar extends JPanel {
     private static Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
-    private final JComboBox<String> algModeComboBox, graphModeComboBox;
-    private final MenuButton algModeButton, graphModeButton, menuButton;
-    private final MenuButton openButton, saveButton, refreshButton, closeButton, undoButton, redoButton;
-    private final MenuButton prevButton, nextButton, infoButton, messageButton, linkedButton, githubButton;
-    private final JPanel toolsPanel, buttonsPanel;
-    private final JLabel leftInfoLabel, rightInfoLabel;
+    private final ToolButton openButton, saveButton, refreshButton, closeButton, undoButton, redoButton;
+    private final ToolButton prevButton, nextButton, infoButton, messageButton, linkedButton, githubButton;
+    private final JLabel leftInfoLabel, rightInfoLabel, graphModeLabel, algorithmModeLabel;
+    private final ButtonPanel buttonPanel;
+    private final JPanel toolsPanel;
+//    private final MouseHandler handler; todo
     private final GraphService service;
+//    private RolloverAnimator animator; todo
 
     public Toolbar(GraphService service) {
         this.service = service;
+//        this.handler = service.getMouseHandler(); todo
         this.fileChooser = new JFileChooser(new File("src/main/java/visualizer/data"));
         setPreferredSize(new Dimension(1000, 70));
         setMinimumSize(getPreferredSize());
@@ -31,48 +34,12 @@ public class Toolbar extends JPanel {
         setBackground(Color.BLACK);
         setLayout(new GridBagLayout());
 
-        leftInfoLabel = addNewLabel("", SwingConstants.CENTER, new Dimension(260, 70),
-                new Font("Tempus Sans ITC", Font.PLAIN, 20));
-        var graphModeLabel = addNewLabel("<html><font size=4 color=rgb(40,162,212)>" +
-                                         "<b>GRAPH MODE</b></font><br>" +
-                                         "<font font-family=tahoma size=3 color=rgb(204,204,204)>" +
-                                         "REMOVE A VERTEX</font>",
-                SwingConstants.TRAILING, new Dimension(140, 70), null);
-//        graphModeLabel.setHorizontalTextPosition(SwingConstants.RIGHT);
-//        graphModeLabel.setAlignmentX(RIGHT_ALIGNMENT);
-
-        buttonsPanel = new JPanel(new GridLayout(1, 0, 0, 0));
-        buttonsPanel.setPreferredSize(new Dimension(200, 70));
-        buttonsPanel.setMinimumSize(buttonsPanel.getPreferredSize());
-        buttonsPanel.setSize(buttonsPanel.getPreferredSize());
-        buttonsPanel.setOpaque(false);
-
-        rightInfoLabel = addNewLabel("", SwingConstants.CENTER, new Dimension(260, 70),
-                new Font("Tempus Sans ITC", Font.PLAIN, 20));
-        var algorithmModeLabel = addNewLabel("<html><font size=4 color=rgb(40,162,212)>" +
-                                             "<b>ALGORITHM MODE</b></font><br>" +
-                                             "<font font-family=tahoma size=3 color=rgb(204,204,204)>" +
-                                             "BREADTH-FIRST SEARCH</font>",
-                SwingConstants.LEADING, new Dimension(140, 70), null);
-
-        var gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        add(leftInfoLabel, gbc);
-        gbc.weightx = 0.0;
-        add(graphModeLabel, gbc);
-        add(buttonsPanel, gbc);
-        add(algorithmModeLabel, gbc);
-        gbc.weightx = 1.0;
-        add(rightInfoLabel, gbc);
-
-
-        toolsPanel = new JPanel() {                                 // todo is any way to rid off of that JPanel?
+        toolsPanel = new JPanel() {
             final JPopupMenu popup = new JPopupMenu();
 
             @Override
             public JPopupMenu getComponentPopupMenu() {
-                popup.setUI(new javax.swing.plaf.basic.BasicPopupMenuUI());
+                popup.setUI(new BasicPopupMenuUI());
                 popup.setPopupSize(420, 40);
                 Arrays.stream(toolsPanel.getComponents()).forEach(popup::add);
                 popup.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -81,50 +48,62 @@ public class Toolbar extends JPanel {
                 return popup;
             }
         };
-        toolsPanel.setPreferredSize(new Dimension(420, 40));        // todo setSize only? or do i need that at least?
-        toolsPanel.setSize(toolsPanel.getPreferredSize());
+        openButton = new ToolButton("open", "LOAD GRAPH", toolsPanel);
+        saveButton = new ToolButton("save", "SAVE GRAPH", toolsPanel);
+        closeButton = new ToolButton("exit", "EXIT AN APP", toolsPanel);
+        refreshButton = new ToolButton("new", "NEW GRAPH", toolsPanel);
+        undoButton = new ToolButton("undo", "UNDO", toolsPanel);
+        redoButton = new ToolButton("redo", "REDO", toolsPanel);
+        prevButton = new ToolButton("prev", "PREV STEP", toolsPanel);
+        nextButton = new ToolButton("next", "NEXT STEP", toolsPanel);
+        infoButton = new ToolButton("info", "INFO", toolsPanel);
+        messageButton = new ToolButton("message", "MESSAGE", toolsPanel);
+        linkedButton = new ToolButton("linked", "CONTACT ME", toolsPanel);
+        githubButton = new ToolButton("github", "CONTACT ME", toolsPanel);
 
-        graphModeComboBox = new ModeComboBox<>(GraphMode.values(), service, SwingConstants.RIGHT);
-        algModeComboBox = new ModeComboBox<>(AlgMode.values(), service, SwingConstants.LEFT);
+        buttonPanel = new ButtonPanel(service, toolsPanel);
 
-        openButton = new MenuButton("open", "LOAD GRAPH", toolsPanel, null, service.getMouseHandler());
-        saveButton = new MenuButton("save", "SAVE GRAPH", toolsPanel, null, service.getMouseHandler());
-        closeButton = new MenuButton("exit", "EXIT AN APP", toolsPanel, null, service.getMouseHandler());
-        refreshButton = new MenuButton("new", "NEW GRAPH", toolsPanel, null, service.getMouseHandler());
-        undoButton = new MenuButton("undo", "UNDO", toolsPanel, null, service.getMouseHandler());
-        redoButton = new MenuButton("redo", "REDO", toolsPanel, null, service.getMouseHandler());
-        prevButton = new MenuButton("prev", "PREV STEP", toolsPanel, null, service.getMouseHandler());
-        nextButton = new MenuButton("next", "NEXT STEP", toolsPanel, null, service.getMouseHandler());
-        infoButton = new MenuButton("info", "INFO", toolsPanel, null, service.getMouseHandler());
-        messageButton = new MenuButton("message", "MESSAGE", toolsPanel, null, service.getMouseHandler());
-        linkedButton = new MenuButton("linked", "CONTACT ME", toolsPanel, null, service.getMouseHandler());
-        githubButton = new MenuButton("github", "CONTACT ME", toolsPanel, null, service.getMouseHandler());
+        leftInfoLabel = addNewLabel(SwingConstants.CENTER, new Dimension(260, 70), false);
+        rightInfoLabel = addNewLabel(SwingConstants.CENTER, new Dimension(260, 70), false);
+        graphModeLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(140, 70), true);
+        algorithmModeLabel = addNewLabel(SwingConstants.LEADING, new Dimension(140, 70), true);
+        updateModeLabels("ADD A VERTEX", "NONE");
 
-        graphModeButton = new MenuButton("graph", "GRAPH MODE", buttonsPanel, graphModeComboBox, service.getMouseHandler());
-        menuButton = new MenuButton("menu", "TOOLS", buttonsPanel, toolsPanel, service.getMouseHandler());
-        algModeButton = new MenuButton("algorithm", "ALGORITHM MODE", buttonsPanel, algModeComboBox, service.getMouseHandler());
+        var gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        add(leftInfoLabel, gbc);
+        gbc.weightx = 0.0;
+        add(graphModeLabel, gbc);
+        add(buttonPanel, gbc);
+        add(algorithmModeLabel, gbc);
+        gbc.weightx = 1.0;
+        add(rightInfoLabel, gbc);
 
         addListeners();
     }
 
-    private JLabel addNewLabel(String text, int alignment, Dimension dimension, Font font) {
-        var label = new JLabel(text, alignment);
+    void updateModeLabels(String graphMode, String algMode) {
+        var htmlStyle = "<html><style size=4 color=rgb(40,162,212)><b>%s MODE</b></font><br>" +
+                        "<font font-family=tahoma size=3 color=rgb(204,204,204)>%s</font>";
+        graphModeLabel.setText(String.format(htmlStyle, "GRAPH", graphMode));
+        algorithmModeLabel.setText(String.format(htmlStyle, "ALGORITHM", algMode));
+    }
+
+    private JLabel addNewLabel(int alignment, Dimension dimension, boolean htmlStyle) {
+        var label = new JLabel("", alignment);
+        if (!htmlStyle) label.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 20));
         label.setPreferredSize(dimension);
         label.setMinimumSize(dimension);
         label.setSize(label.getPreferredSize());
-        if (font != null) {
-            label.setFont(font);
-            label.setForeground(Color.WHITE);
-//            label.setBackground(Color.DARK_GRAY.darker());
-            label.setBackground(Color.BLACK);
-        } else label.setBackground(Color.BLACK);
+        label.setForeground(Color.WHITE);
+        label.setBackground(Color.BLACK);
         label.setOpaque(true);
-//        label.setVisible(true);                      // todo check when needed and implement
         return label;
     }
 
     @SuppressWarnings("unchecked")
-    private void addListeners() {            // todo action listenery wyslac do produkcji w klasie menu button?????
+    private void addListeners() {                                       // todo move listeners to some buttons class
         openButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Select graph data file");
             if (fileChooser.showOpenDialog(service.getGraph()) == JFileChooser.APPROVE_OPTION) {

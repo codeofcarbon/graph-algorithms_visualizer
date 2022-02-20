@@ -210,11 +210,24 @@ public class GraphService implements Serializable, StateEditable {
 
     void setCurrentModes(AlgMode algorithmMode, GraphMode graphMode) {
         if (toolbar == null) toolbar = graph.getToolbar();
-        toolbar.getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algorithmMode));
-        toolbar.getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
+        toolbar.getButtonPanel().getAlgModeComboBox()
+                .setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algorithmMode));
+        toolbar.getButtonPanel().getGraphModeComboBox()
+                .setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
+        toolbar.getLeftInfoLabel().setText(graphMode == GraphMode.NONE ? "Please choose a starting vertex" : "");
+        toolbar.updateModeLabels(graphMode.current.toUpperCase(), algorithmMode.current.toUpperCase());
+
+        toolbar.getButtonPanel().getButtonGroup().clearSelection();
+
+//        Arrays.stream(toolbar.getButtonPanel().getComponents())
+//                .forEach(c -> {
+//                    if (c instanceof AbstractButton) {
+//                     ((AbstractButton) c).setSelected(false);
+//                    }
+//        });
+
         this.graphMode = graphMode;
         this.algorithmMode = algorithmMode;
-        toolbar.getLeftInfoLabel().setText(graphMode == GraphMode.NONE ? "Please choose a starting vertex" : "");
         graph.setToolTipText(null);
         algorithm.resetAlgorithmData();
         resetComponentLists();

@@ -61,11 +61,11 @@ public class MenuBar extends JMenuBar {
     }
 
     private void setAlgorithmMode(AlgMode algMode) {
-        toolbar.getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algMode));
+        toolbar.getButtonPanel().getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algMode));
     }
 
     private void setGraphMode(GraphMode graphMode) {
-        toolbar.getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
+        toolbar.getButtonPanel().getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
     }
 
     private JMenu addMenu(String text, int mnemonic) {
