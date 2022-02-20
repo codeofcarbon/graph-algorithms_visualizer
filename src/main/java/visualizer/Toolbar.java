@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Getter                    // todo 5-6 getters needed for: buttons(refresh and close), comboBoxes, and infoLabel(s)
+@Getter
 public class Toolbar extends JPanel {
     private static Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
@@ -20,13 +20,10 @@ public class Toolbar extends JPanel {
     private final JLabel leftInfoLabel, rightInfoLabel, graphModeLabel, algorithmModeLabel;
     private final ButtonPanel buttonPanel;
     private final JPanel toolsPanel;
-//    private final MouseHandler handler; todo
     private final GraphService service;
-//    private RolloverAnimator animator; todo
 
     public Toolbar(GraphService service) {
         this.service = service;
-//        this.handler = service.getMouseHandler(); todo
         this.fileChooser = new JFileChooser(new File("src/main/java/visualizer/data"));
         setPreferredSize(new Dimension(1000, 70));
         setMinimumSize(getPreferredSize());
@@ -84,15 +81,18 @@ public class Toolbar extends JPanel {
     }
 
     void updateModeLabels(String graphMode, String algMode) {
-        var htmlStyle = "<html><style size=4 color=rgb(40,162,212)><b>%s MODE</b></font><br>" +
-                        "<font font-family=tahoma size=3 color=rgb(204,204,204)>%s</font>";
+        var htmlStyle = "<html><font size=4 color=rgb(40,162,212)><b>%s MODE</b></font><br>" +
+                        "<font size=3 color=rgb(204,204,204)>%s</font>";
         graphModeLabel.setText(String.format(htmlStyle, "GRAPH", graphMode));
         algorithmModeLabel.setText(String.format(htmlStyle, "ALGORITHM", algMode));
     }
 
     private JLabel addNewLabel(int alignment, Dimension dimension, boolean htmlStyle) {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        ge.registerFont(new Font("Tahoma", Font.PLAIN, 15));
         var label = new JLabel("", alignment);
-        if (!htmlStyle) label.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 20));
+        label.setFont(htmlStyle ? new Font("Tahoma", Font.PLAIN, 15)
+                : new Font("Tempus Sans ITC", Font.PLAIN, 20));
         label.setPreferredSize(dimension);
         label.setMinimumSize(dimension);
         label.setSize(label.getPreferredSize());

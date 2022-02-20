@@ -216,16 +216,7 @@ public class GraphService implements Serializable, StateEditable {
                 .setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
         toolbar.getLeftInfoLabel().setText(graphMode == GraphMode.NONE ? "Please choose a starting vertex" : "");
         toolbar.updateModeLabels(graphMode.current.toUpperCase(), algorithmMode.current.toUpperCase());
-
         toolbar.getButtonPanel().getButtonGroup().clearSelection();
-
-//        Arrays.stream(toolbar.getButtonPanel().getComponents())
-//                .forEach(c -> {
-//                    if (c instanceof AbstractButton) {
-//                     ((AbstractButton) c).setSelected(false);
-//                    }
-//        });
-
         this.graphMode = graphMode;
         this.algorithmMode = algorithmMode;
         graph.setToolTipText(null);

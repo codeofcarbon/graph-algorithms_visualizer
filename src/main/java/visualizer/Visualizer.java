@@ -5,16 +5,14 @@ import java.awt.*;
 
 public class Visualizer extends JFrame {
     public static void main(String[] args) {
-//        java.awt.EventQueue.invokeLater(Visualizer::new);
-        javax.swing.SwingUtilities.invokeLater(Visualizer::new);
+        java.awt.EventQueue.invokeLater(Visualizer::new);
     }
 
     public Visualizer() {
         super("Graph-Algorithms Visualizer");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         try {
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | UnsupportedLookAndFeelException
                 | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();

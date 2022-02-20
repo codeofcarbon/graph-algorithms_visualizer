@@ -39,20 +39,4 @@ public class Graph extends JPanel {
                     }
                 }).forEach(v -> v.getState().draw(g, g2d, v));
     }
-
-    @Override
-    public JToolTip createToolTip() {                                                   // todo fix that tool tip
-        var tip = new JToolTip();
-        tip.setBackground(new Color(0, 0, 0, 0));
-        tip.setBorder(null);
-        tip.setOpaque(false);
-        return tip;
-    }
-
-    @Override
-    public Point getToolTipLocation(MouseEvent e) {
-        var point = e.getPoint();
-        point.translate(-50, 20);
-        return point;
-    }
 }
