@@ -13,13 +13,16 @@ public class MenuBar extends JMenuBar {
         // ======================================================================= file menu =====
         JMenu fileMenu = addMenu("File", KeyEvent.VK_F);
 
+        JMenuItem saveGraph = addMenuItem("Save", KeyEvent.VK_S, fileMenu);
+        saveGraph.addActionListener(event -> toolbar.getSaveButton().doClick());
+
         JMenuItem clearGraph = addMenuItem("New", KeyEvent.VK_N, fileMenu);
         clearGraph.addActionListener(event -> toolbar.getRefreshButton().doClick());
 
         JMenuItem exit = addMenuItem("Exit", KeyEvent.VK_E, fileMenu);
         exit.addActionListener(event -> toolbar.getCloseButton().doClick());
 
-        // ================================================================= graph.txt mode menu =====
+        // ================================================================= graph mode menu =====
         JMenu modeMenu = addMenu("Mode", KeyEvent.VK_M);
 
         JMenuItem addVertex = addMenuItem("Add a Vertex", KeyEvent.VK_A, modeMenu);
@@ -61,11 +64,11 @@ public class MenuBar extends JMenuBar {
     }
 
     private void setAlgorithmMode(AlgMode algMode) {
-        toolbar.getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algMode));
+        toolbar.getButtonPanel().getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algMode));
     }
 
     private void setGraphMode(GraphMode graphMode) {
-        toolbar.getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
+        toolbar.getButtonPanel().getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
     }
 
     private JMenu addMenu(String text, int mnemonic) {

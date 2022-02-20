@@ -6,8 +6,7 @@ import javax.swing.*;
 import javax.swing.undo.StateEditable;
 import java.awt.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.*;
 import java.util.List;
 
 @Getter
@@ -45,21 +44,13 @@ public class Vertex extends JLabel implements Serializable, StateEditable {
     @Override
     public void storeState(Hashtable<Object, Object> state) {
         state.put("Location", getLocation());
-//        state.put("Edges", connectedEdges);
-//        System.err.println(getLocation());
-//        System.err.println(connectedEdges);
     }
 
     @Override
-//    @SuppressWarnings("unchecked")
     public void restoreState(Hashtable<?, ?> state) {
         var nodeLocation = (Point) state.get("Location");
         if (nodeLocation != null) setLocation(nodeLocation);
-//        var edges = (List<Edge>) state.get("Edges");
-//        if (edges != null) connectedEdges = edges;
-        getParent().repaint();                          // todo sth wrong after loading saved graph - check it
-//        System.err.println(getLocation());
-//        System.err.println(connectedEdges);
+        getParent().repaint();
     }
 }
 
