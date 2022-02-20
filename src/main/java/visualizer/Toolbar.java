@@ -1,11 +1,10 @@
 package visualizer;
 
-import lombok.*;
+import lombok.Getter;
 
 import javax.swing.*;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
-import javax.swing.undo.UndoManager;
+import javax.swing.plaf.basic.BasicPopupMenuUI;
+import javax.swing.undo.*;
 import java.awt.*;
 import java.io.*;
 import java.util.List;
@@ -16,144 +15,102 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Toolbar extends JPanel {
     private static Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
-    private final JComboBox<String> algModeComboBox, graphModeComboBox;
     private final ToolButton openButton, saveButton, refreshButton, closeButton, undoButton, redoButton;
-    private final ToolButton prevButton, nextButton, infoButton, messageButton;//, linkedButton, githubButton;
-    private final ModeButton algModeButton, graphModeButton;
-    private final JPanel buttonsPanel;
-    private final JPanel infoPanel;
-    private final JLabel infoLabel;
-    @Setter
-    private GraphService service;
+    private final ToolButton prevButton, nextButton, infoButton, messageButton, linkedButton, githubButton;
+    private final JLabel leftInfoLabel, rightInfoLabel, graphModeLabel, algorithmModeLabel;
+    private final ButtonPanel buttonPanel;
+    private final JPanel toolsPanel;
+    private final GraphService service;
 
-    private JPanel addNewPanel(LayoutManager layout, JComponent parent) {
-        var panel = new JPanel(layout);
-//        panel.setPreferredSize(new Dimension(this.getWidth(), 50));
-//        panel.setSize(panel.getPreferredSize());
-        panel.setBackground(Color.BLACK);
-        parent.add(panel);
-        return panel;
-    }
-
-    private JLabel addNewLabel(String text, int alignment, int width) {
-        var label = new JLabel(text, alignment);
-        label.setPreferredSize(new Dimension(width, 50));
-        label.setSize(label.getPreferredSize());
-//        label.setBackground(new Color(10, 10, 10, 255));
-        label.setBackground(Color.BLACK);
-        label.setForeground(Color.WHITE);
-        label.setOpaque(true);
-        label.setVisible(true);
-        return label;
-    }
-
-    public Toolbar(UndoManager manager) {
+    public Toolbar(GraphService service) {
+        this.service = service;
         this.fileChooser = new JFileChooser(new File("src/main/java/visualizer/data"));
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setPreferredSize(new Dimension(1000, 70));
+        setMinimumSize(getPreferredSize());
+        setSize(getPreferredSize());
         setBackground(Color.BLACK);
-        setOpaque(true);
+        setLayout(new GridBagLayout());
 
-        var modePanel = addNewPanel(new GridLayout(1, 2), this);
-        modePanel.setPreferredSize(new Dimension(984, 80));
-        modePanel.setSize(modePanel.getPreferredSize());
-        var graphModePanel = addNewPanel(new GridBagLayout(), modePanel);
-        graphModePanel.setPreferredSize(new Dimension(modePanel.getWidth() / 2, 80));
-        graphModePanel.setSize(graphModePanel.getPreferredSize());
-        var algModePanel = addNewPanel(new GridBagLayout(), modePanel);
-        algModePanel.setPreferredSize(new Dimension(modePanel.getWidth() / 2, 80));
-        algModePanel.setSize(algModePanel.getPreferredSize());
+        toolsPanel = new JPanel() {
+            final JPopupMenu popup = new JPopupMenu();
 
-        buttonsPanel = new JPanel(new GridLayout(1, 0));
-        buttonsPanel.setPreferredSize(new Dimension(984, 50));
-        buttonsPanel.setSize(buttonsPanel.getPreferredSize());
-        buttonsPanel.setBackground(Color.BLACK);
-        add(buttonsPanel);
+            @Override
+            public JPopupMenu getComponentPopupMenu() {
+                popup.setUI(new BasicPopupMenuUI());
+                popup.setPopupSize(420, 40);
+                Arrays.stream(toolsPanel.getComponents()).forEach(popup::add);
+                popup.setLayout(new FlowLayout(FlowLayout.CENTER));
+                popup.setBorder(BorderFactory.createEmptyBorder());
+                popup.setOpaque(false);
+                return popup;
+            }
+        };
+        openButton = new ToolButton("open", "LOAD GRAPH", toolsPanel);
+        saveButton = new ToolButton("save", "SAVE GRAPH", toolsPanel);
+        closeButton = new ToolButton("exit", "EXIT AN APP", toolsPanel);
+        refreshButton = new ToolButton("new", "NEW GRAPH", toolsPanel);
+        undoButton = new ToolButton("undo", "UNDO", toolsPanel);
+        redoButton = new ToolButton("redo", "REDO", toolsPanel);
+        prevButton = new ToolButton("prev", "PREV STEP", toolsPanel);
+        nextButton = new ToolButton("next", "NEXT STEP", toolsPanel);
+        infoButton = new ToolButton("info", "INFO", toolsPanel);
+        messageButton = new ToolButton("message", "MESSAGE", toolsPanel);
+        linkedButton = new ToolButton("linked", "CONTACT ME", toolsPanel);
+        githubButton = new ToolButton("github", "CONTACT ME", toolsPanel);
 
-        infoPanel = addNewPanel(new BorderLayout(), this);
-        infoLabel = addNewLabel("", SwingConstants.CENTER, this.getWidth());
-        infoPanel.add(infoLabel, BorderLayout.CENTER);
+        buttonPanel = new ButtonPanel(service, toolsPanel);
 
-        openButton = new ToolButton("open", "LOAD GRAPH", buttonsPanel);
-        saveButton = new ToolButton("save", "SAVE GRAPH", buttonsPanel);
-        closeButton = new ToolButton("exit", "EXIT AN APP", buttonsPanel);
-        refreshButton = new ToolButton("new", "NEW GRAPH", buttonsPanel);
-        undoButton = new ToolButton("undo", "UNDO", buttonsPanel);
-        redoButton = new ToolButton("redo", "REDO", buttonsPanel);
-        prevButton = new ToolButton("prev", "PREV STEP", buttonsPanel);
-        nextButton = new ToolButton("next", "NEXT STEP", buttonsPanel);
-        infoButton = new ToolButton("info", "INFO", buttonsPanel);
-        messageButton = new ToolButton("message", "MESSAGE", buttonsPanel);
-//        linkedButton = new ToolButton("linked", "CONTACT ME", buttonsPanel);
-//        githubButton = new ToolButton("github", "CONTACT ME", buttonsPanel);
+        leftInfoLabel = addNewLabel(SwingConstants.CENTER, new Dimension(260, 70), false);
+        rightInfoLabel = addNewLabel(SwingConstants.CENTER, new Dimension(260, 70), false);
+        graphModeLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(140, 70), true);
+        algorithmModeLabel = addNewLabel(SwingConstants.LEADING, new Dimension(140, 70), true);
+        updateModeLabels("ADD A VERTEX", "NONE");
 
         var gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        add(leftInfoLabel, gbc);
+        gbc.weightx = 0.0;
+        add(graphModeLabel, gbc);
+        add(buttonPanel, gbc);
+        add(algorithmModeLabel, gbc);
+        gbc.weightx = 1.0;
+        add(rightInfoLabel, gbc);
 
-        var graphFillLabel = addNewLabel("temp label", SwingConstants.RIGHT, this.getWidth() / 2);
-        var algFillLabel = addNewLabel("temp label2", SwingConstants.LEFT, this.getWidth() / 2);
-        graphModeComboBox = new ModeComboBox<>(GraphMode.values());
-        graphModeButton = new ModeButton("graph", "GRAPH MODE", graphModeComboBox);
-        algModeComboBox = new ModeComboBox<>(AlgMode.values());
-        algModeButton = new ModeButton("algorithm", "ALGORITHM MODE", algModeComboBox);
-        graphModeComboBox.setSelectedIndex(0);                          // graph mode: add a vertex
-        algModeComboBox.setSelectedIndex(4);                            // algorithm mode: none
+        addListeners();
+    }
 
-        gbc.weightx = 1;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        graphModePanel.add(graphFillLabel, gbc);
-        gbc.weightx = 0;
-        gbc.anchor = GridBagConstraints.LINE_END;
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        graphModePanel.add(graphModeComboBox, gbc);
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        graphModePanel.add(graphModeButton, gbc);
+    void updateModeLabels(String graphMode, String algMode) {
+        var htmlStyle = "<html><font size=4 color=rgb(40,162,212)><b>%s MODE</b></font><br>" +
+                        "<font size=3 color=rgb(204,204,204)>%s</font>";
+        graphModeLabel.setText(String.format(htmlStyle, "GRAPH", graphMode));
+        algorithmModeLabel.setText(String.format(htmlStyle, "ALGORITHM", algMode));
+    }
 
-        gbc.weightx = 0;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        algModePanel.add(algModeButton, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        algModePanel.add(algModeComboBox, gbc);
-        gbc.weightx = 1;
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        algModePanel.add(algFillLabel, gbc);
+    private JLabel addNewLabel(int alignment, Dimension dimension, boolean htmlStyle) {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();          // todo register font
+        ge.registerFont(new Font("Tahoma", Font.PLAIN, 15));
 
-        addListeners(manager);
+        var label = new JLabel("", alignment);
+        label.setFont(htmlStyle ? new Font("Tahoma", Font.PLAIN, 15)
+                : new Font("Tempus Sans ITC", Font.PLAIN, 20));
+        label.setPreferredSize(dimension);
+        label.setMinimumSize(dimension);
+        label.setSize(label.getPreferredSize());
+        label.setForeground(Color.WHITE);
+        label.setBackground(Color.BLACK);
+        label.setOpaque(true);
+        return label;
     }
 
     @SuppressWarnings("unchecked")
-    private void addListeners(UndoManager manager) {
-        algModeComboBox.addActionListener(event -> {
-            service.setCurrentModes(Arrays.stream(AlgMode.values())
-                    .filter(algMode -> algMode.current.equalsIgnoreCase((String) algModeComboBox.getSelectedItem()))
-                    .findFirst().orElse(AlgMode.NONE), GraphMode.NONE);
-            infoLabel.setText("Please choose a starting vertex");
-            algModeComboBox.setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(service.getAlgorithmMode()));
-        });
-
-        graphModeComboBox.addActionListener(event -> {
-            service.setCurrentModes(AlgMode.NONE, Arrays.stream(GraphMode.values())
-                    .filter(graphMode -> graphMode.current.equalsIgnoreCase((String) graphModeComboBox.getSelectedItem()))
-                    .findFirst().orElse(GraphMode.NONE));
-            infoLabel.setText("");
-            graphModeComboBox.setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(service.getGraphMode()));
-        });
-
+    private void addListeners() {                                       // todo move listeners to some buttons class
         openButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Select graph data file");
             if (fileChooser.showOpenDialog(service.getGraph()) == JFileChooser.APPROVE_OPTION) {
                 try (var inStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(
                         String.valueOf(fileChooser.getSelectedFile()))))) {
                     graphData = (ConcurrentHashMap<Vertex, List<Edge>>) inStream.readObject();
-
-                    // todo resetting undo manager
-
                     service.clearGraph();
                     graphData.forEach((key, value) -> {
                         service.getMouseHandler().addComponent(key);
@@ -201,7 +158,7 @@ public class Toolbar extends JPanel {
             clearDialogButton.setFocusable(false);
             var confirm = JOptionPane.showOptionDialog(service.getGraph(), "Clear the board and start new graph?",
                     "Reset a graph", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
-                    new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/reload_dialog.png").getImage().
+                    new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/new_dialog.png").getImage().
                             getScaledInstance(30, 30, Image.SCALE_SMOOTH)),
                     new Object[]{clearDialogButton.getText(), "Cancel"}, clearDialogButton);
             if (confirm == JFileChooser.APPROVE_OPTION) {
@@ -211,7 +168,7 @@ public class Toolbar extends JPanel {
 
         undoButton.addActionListener(event -> {
             try {
-                manager.undo();
+                service.getManager().undo();
             } catch (CannotUndoException e) {
                 JOptionPane.showMessageDialog(
                         service.getGraph(), "Nothing else to undo", "Info", JOptionPane.WARNING_MESSAGE,
@@ -222,7 +179,7 @@ public class Toolbar extends JPanel {
 
         redoButton.addActionListener(event -> {
             try {
-                manager.redo();
+                service.getManager().redo();
             } catch (CannotRedoException e) {
                 JOptionPane.showMessageDialog(
                         service.getGraph(), "Nothing else to redo", "Info", JOptionPane.WARNING_MESSAGE,
