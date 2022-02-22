@@ -1,6 +1,7 @@
 package visualizer;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
@@ -10,65 +11,51 @@ public class MenuBar extends JMenuBar {
     public MenuBar(Toolbar toolbar) {
         this.toolbar = toolbar;
 
-        // ======================================================================= file menu =====
+        // ==================================================================================== file menu =====
         JMenu fileMenu = addMenu("File", KeyEvent.VK_F);
+        addMenuItem("Save", KeyEvent.VK_S, fileMenu, e -> toolbar.getSaveButton().doClick());
+        addMenuItem("New", KeyEvent.VK_N, fileMenu, e -> toolbar.getRefreshButton().doClick());
+        addMenuItem("Exit", KeyEvent.VK_E, fileMenu, e -> toolbar.getCloseButton().doClick());
 
-        JMenuItem saveGraph = addMenuItem("Save", KeyEvent.VK_S, fileMenu);
-        saveGraph.addActionListener(event -> toolbar.getSaveButton().doClick());
+        // ============================================================================== graph mode menu =====
+        JMenu graphMenu = addMenu("Mode", KeyEvent.VK_M);
+        addMenuItem("Add a Vertex", KeyEvent.VK_A, graphMenu, e -> setGraphMode(GraphMode.ADD_A_VERTEX));
+        addMenuItem("Add an Edge", KeyEvent.VK_E, graphMenu, e -> setGraphMode(GraphMode.ADD_AN_EDGE));
+        addMenuItem("Remove a Vertex", KeyEvent.VK_X, graphMenu, e -> setGraphMode(GraphMode.REMOVE_A_VERTEX));
+        addMenuItem("Remove an Edge", KeyEvent.VK_R, graphMenu, e -> setGraphMode(GraphMode.REMOVE_AN_EDGE));
+        graphMenu.addSeparator();
+        addMenuItem("None", KeyEvent.VK_N, graphMenu, e -> setGraphMode(GraphMode.NONE));
 
-        JMenuItem clearGraph = addMenuItem("New", KeyEvent.VK_N, fileMenu);
-        clearGraph.addActionListener(event -> toolbar.getRefreshButton().doClick());
+        // ========================================================================== algorithm mode menu =====
+        JMenu algMenu = addMenu("Algorithms", KeyEvent.VK_A);
+        addMenuItem("Depth-First Search", KeyEvent.VK_F, algMenu, e -> setAlgorithmMode(AlgMode.DEPTH_FIRST_SEARCH));
+        addMenuItem("Breadth-First Search", KeyEvent.VK_B, algMenu, e -> setAlgorithmMode(AlgMode.BREADTH_FIRST_SEARCH));
+        addMenuItem("Dijkstra's Algorithm", KeyEvent.VK_D, algMenu, e -> setAlgorithmMode(AlgMode.DIJKSTRA_ALGORITHM));
+        addMenuItem("Prim's Algorithm", KeyEvent.VK_P, algMenu, e -> setAlgorithmMode(AlgMode.PRIM_ALGORITHM));
+        algMenu.addSeparator();
+        addMenuItem("None", KeyEvent.VK_N, algMenu, e -> setAlgorithmMode(AlgMode.NONE));
 
-        JMenuItem exit = addMenuItem("Exit", KeyEvent.VK_E, fileMenu);
-        exit.addActionListener(event -> toolbar.getCloseButton().doClick());
+        // =================================================================================== tools menu =====
+        JMenu toolsMenu = addMenu("Tools", KeyEvent.VK_T);
+        addMenuItem("Undo", KeyEvent.VK_U, toolsMenu, e -> toolbar.getUndoButton().doClick());
+        addMenuItem("Redo", KeyEvent.VK_R, toolsMenu, e -> toolbar.getRedoButton().doClick());
+        addMenuItem("Prev step (soon)", KeyEvent.VK_P, toolsMenu, e -> toolbar.getPrevButton().doClick());
+        addMenuItem("Next step (soon)", KeyEvent.VK_N, toolsMenu, e -> toolbar.getNextButton().doClick());
 
-        // ================================================================= graph mode menu =====
-        JMenu modeMenu = addMenu("Mode", KeyEvent.VK_M);
-
-        JMenuItem addVertex = addMenuItem("Add a Vertex", KeyEvent.VK_A, modeMenu);
-        addVertex.addActionListener(event -> setGraphMode(GraphMode.ADD_A_VERTEX));
-
-        JMenuItem addEdge = addMenuItem("Add an Edge", KeyEvent.VK_E, modeMenu);
-        addEdge.addActionListener(event -> setGraphMode(GraphMode.ADD_AN_EDGE));
-
-        JMenuItem removeVertex = addMenuItem("Remove a Vertex", KeyEvent.VK_X, modeMenu);
-        removeVertex.addActionListener(event -> setGraphMode(GraphMode.REMOVE_A_VERTEX));
-
-        JMenuItem removeEdge = addMenuItem("Remove an Edge", KeyEvent.VK_R, modeMenu);
-        removeEdge.addActionListener(event -> setGraphMode(GraphMode.REMOVE_AN_EDGE));
-
-        modeMenu.addSeparator();
-
-        JMenuItem graphNoneMode = addMenuItem("None", KeyEvent.VK_N, modeMenu);
-        graphNoneMode.addActionListener(event -> setGraphMode(GraphMode.NONE));
-
-        // ============================================================= algorithm mode menu =====
-        JMenu algorithmMenu = addMenu("Algorithms", KeyEvent.VK_A);
-
-        JMenuItem dfsAlgorithm = addMenuItem("Depth-First Search", KeyEvent.VK_F, algorithmMenu);
-        dfsAlgorithm.addActionListener(event -> setAlgorithmMode(AlgMode.DEPTH_FIRST_SEARCH));
-
-        JMenuItem bfsAlgorithm = addMenuItem("Breadth-First Search", KeyEvent.VK_B, algorithmMenu);
-        bfsAlgorithm.addActionListener(event -> setAlgorithmMode(AlgMode.BREADTH_FIRST_SEARCH));
-
-        JMenuItem dijkstraAlgorithm = addMenuItem("Dijkstra's Algorithm", KeyEvent.VK_D, algorithmMenu);
-        dijkstraAlgorithm.addActionListener(event -> setAlgorithmMode(AlgMode.DIJKSTRA_ALGORITHM));
-
-        JMenuItem primAlgorithm = addMenuItem("Prim's Algorithm", KeyEvent.VK_P, algorithmMenu);
-        primAlgorithm.addActionListener(event -> setAlgorithmMode(AlgMode.PRIM_ALGORITHM));
-
-        algorithmMenu.addSeparator();
-
-        JMenuItem algNoneMode = addMenuItem("None", KeyEvent.VK_N, algorithmMenu);
-        algNoneMode.addActionListener(event -> setAlgorithmMode(AlgMode.NONE));
+        // ================================================================================= contact menu =====
+        JMenu contactMenu = addMenu("Contact", KeyEvent.VK_C);
+        addMenuItem("Github", KeyEvent.VK_G, contactMenu, e -> toolbar.getGithubButton().doClick());
+        addMenuItem("LinkedIn", KeyEvent.VK_L, contactMenu, e -> toolbar.getLinkedButton().doClick());
     }
 
     private void setAlgorithmMode(AlgMode algMode) {
-        toolbar.getButtonPanel().getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algMode));
+        toolbar.getButtonPanel().getAlgModeComboBox()
+                .setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algMode));
     }
 
     private void setGraphMode(GraphMode graphMode) {
-        toolbar.getButtonPanel().getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
+        toolbar.getButtonPanel().getGraphModeComboBox()
+                .setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
     }
 
     private JMenu addMenu(String text, int mnemonic) {
@@ -79,11 +66,11 @@ public class MenuBar extends JMenuBar {
         return menu;
     }
 
-    private JMenuItem addMenuItem(String text, int mnemonic, JMenu menu) {
+    private void addMenuItem(String text, int mnemonic, JMenu menu, ActionListener listener) {
         var menuItem = new JMenuItem(text);
         menuItem.setName(text);
         menuItem.setMnemonic(mnemonic);
+        menuItem.addActionListener(listener);
         menu.add(menuItem);
-        return menuItem;
     }
 }

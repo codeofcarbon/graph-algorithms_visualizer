@@ -7,8 +7,7 @@ import javax.swing.plaf.basic.BasicPopupMenuUI;
 import javax.swing.undo.*;
 import java.awt.*;
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +17,7 @@ public class Toolbar extends JPanel {
     private static Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
     private final ToolButton openButton, saveButton, refreshButton, closeButton, undoButton, redoButton;
-    private final ToolButton prevButton, nextButton, linkedButton, githubButton;//, infoButton, messageButton
+    private final ToolButton prevButton, nextButton;// linkedButton, githubButton;//, infoButton, messageButton
     private final JLabel leftInfoLabel, rightInfoLabel, graphModeLabel, algorithmModeLabel;
     private final ButtonPanel buttonPanel;
     private final JPanel toolsPanel;
@@ -39,8 +38,7 @@ public class Toolbar extends JPanel {
             @Override
             public JPopupMenu getComponentPopupMenu() {
                 popup.setUI(new BasicPopupMenuUI());
-//                popup.setPopupSize(280, 40);
-                popup.setPopupSize(340, 40);
+                popup.setPopupSize(280, 40);
                 Arrays.stream(toolsPanel.getComponents()).forEach(popup::add);
                 popup.setLayout(new GridLayout(1, 0));
                 popup.setBorder(BorderFactory.createEmptyBorder());
@@ -57,8 +55,8 @@ public class Toolbar extends JPanel {
         refreshButton = new ToolButton("new", "NEW GRAPH", toolsPanel);
         closeButton = new ToolButton("exit", "EXIT AN APP", toolsPanel);
 
-        linkedButton = new ToolButton("linked", "CONTACT ME", toolsPanel);
-        githubButton = new ToolButton("github", "CONTACT ME", toolsPanel);
+//        linkedButton = new ToolButton("linked", "CONTACT ME", toolsPanel);
+//        githubButton = new ToolButton("github", "CONTACT ME", toolsPanel);
 //        infoButton = new ToolButton("info", "INFO", toolsPanel);
 //        messageButton = new ToolButton("message", "MESSAGE", toolsPanel);
 
@@ -107,6 +105,7 @@ public class Toolbar extends JPanel {
     @SuppressWarnings("unchecked")
     private void addListeners() {                                       // todo move listeners to some buttons class
         openButton.addActionListener(event -> {
+            toolsPanel.getComponentPopupMenu().setVisible(false);
             fileChooser.setDialogTitle("Select graph data file");
             if (fileChooser.showOpenDialog(service.getGraph()) == JFileChooser.APPROVE_OPTION) {
                 try (var inStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(
@@ -128,6 +127,7 @@ public class Toolbar extends JPanel {
             }
         });
         saveButton.addActionListener(event -> {
+            toolsPanel.getComponentPopupMenu().setVisible(false);
             fileChooser.setDialogTitle("Save graph data file");
             if (fileChooser.showSaveDialog(service.getGraph()) == JFileChooser.APPROVE_OPTION) {
                 try (var outStream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(
@@ -140,8 +140,8 @@ public class Toolbar extends JPanel {
             }
         });
         closeButton.addActionListener(event -> {
+            toolsPanel.getComponentPopupMenu().setVisible(false);
             var exitDialogButton = new JButton("Exit");
-            exitDialogButton.setFocusPainted(false);
             var confirm = JOptionPane.showOptionDialog(service.getGraph(), "Are you sure you want to exit?",
                     "Exit an app", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
                     new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/exit_dialog.png").getImage().
@@ -152,8 +152,8 @@ public class Toolbar extends JPanel {
             }
         });
         refreshButton.addActionListener(event -> {
+            toolsPanel.getComponentPopupMenu().setVisible(false);
             var clearDialogButton = new JButton("Start new graph");
-            clearDialogButton.setFocusable(false);
             var confirm = JOptionPane.showOptionDialog(service.getGraph(), "Clear the board and start new graph?",
                     "Reset a graph", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
                     new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/new_dialog.png").getImage().
@@ -167,6 +167,7 @@ public class Toolbar extends JPanel {
             try {
                 service.getManager().undo();
             } catch (CannotUndoException e) {
+                toolsPanel.getComponentPopupMenu().setVisible(false);
                 JOptionPane.showMessageDialog(                                                  // todo refactor
                         service.getGraph(), "Nothing else to undo", "Info", JOptionPane.WARNING_MESSAGE,
                         new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/warn_dialog.png").getImage().
@@ -177,25 +178,26 @@ public class Toolbar extends JPanel {
             try {
                 service.getManager().redo();
             } catch (CannotRedoException e) {
+                toolsPanel.getComponentPopupMenu().setVisible(false);
                 JOptionPane.showMessageDialog(                                                  // todo refactor
                         service.getGraph(), "Nothing else to redo", "Info", JOptionPane.WARNING_MESSAGE,
                         new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/warn_dialog.png").getImage().
                                 getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
             }
         });
-        linkedButton.addActionListener(event -> {
-            try {
-                Desktop.getDesktop().browse(new URI("https://www.linkedin.com/in/krzysztof-karbownik"));
-            } catch (URISyntaxException | IOException ex) {
-                // todo error message or dialog
-            }
-        });
-        githubButton.addActionListener(event -> {
-            try {
-                Desktop.getDesktop().browse(new URI("https://github.com/codeofcarbon"));
-            } catch (URISyntaxException | IOException ex) {
-                // todo error message or dialog
-            }
-        });
+//        linkedButton.addActionListener(event -> {
+//            try {
+//                Desktop.getDesktop().browse(new URI("https://www.linkedin.com/in/krzysztof-karbownik"));
+//            } catch (URISyntaxException | IOException ex) {
+//                // todo error message or dialog
+//            }
+//        });
+//        githubButton.addActionListener(event -> {
+//            try {
+//                Desktop.getDesktop().browse(new URI("https://github.com/codeofcarbon"));
+//            } catch (URISyntaxException | IOException ex) {
+//                // todo error message or dialog
+//            }
+//        });
     }
 }
