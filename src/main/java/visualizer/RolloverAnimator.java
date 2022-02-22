@@ -18,23 +18,23 @@ public class RolloverAnimator {
         var model = button.getModel();
 
         model.addChangeListener(e -> {
-            if (!model.isArmed()) {
+            if (!model.isSelected()) {
                 wasRolledOver = model.isRollover() && !wasRolledOver;
                 prepare();
             }
         });
 
-        timer = new Timer(30, e -> {
-            if (startedAt == null) {
-                startedAt = System.currentTimeMillis();
-            }
+        timer = new Timer(5, e -> {
+            if (startedAt == null) startedAt = System.currentTimeMillis();
             long duration = System.currentTimeMillis() - startedAt;
+
             progress = Math.min((double) duration / animationTime, 1.0);
             if (progress == 1.0) {
                 startedAt = null;
                 timer.stop();
             }
-            var target = transition(icon, rolloverIcon, progress);
+
+            var target = transitionImage(icon, rolloverIcon, progress);
             button.setIcon(new ImageIcon(target));
 
             if (!timer.isRunning()) {
@@ -56,7 +56,7 @@ public class RolloverAnimator {
         timer.start();
     }
 
-    private BufferedImage transition(ImageIcon icon, ImageIcon rolloverIcon, double progress) {
+    private BufferedImage transitionImage(ImageIcon icon, ImageIcon rolloverIcon, double progress) {
         var image = toBufferedImage(icon.getImage());
         var rolloverImage = toBufferedImage(rolloverIcon.getImage());
         int width = Math.max(image.getWidth(), rolloverImage.getWidth());
@@ -67,7 +67,7 @@ public class RolloverAnimator {
         var rollOverAlpha = (float) (wasRolledOver ? progress : 1.0f - progress);
 
         g2D.setComposite(AlphaComposite.SrcOver.derive(mainImageAlpha));
-        g2D.drawImage(image, 0, 0, button);
+        g2D.drawImage(image, 2, 2, button);
         g2D.setComposite(AlphaComposite.SrcOver.derive(rollOverAlpha));
         g2D.drawImage(rolloverImage, 0, 0, button);
         g2D.dispose();

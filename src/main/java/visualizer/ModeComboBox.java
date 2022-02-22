@@ -6,7 +6,7 @@ import java.awt.*;
 import java.util.Arrays;
 
 public class ModeComboBox<T> extends JComboBox<String> {
-    Class<?> clazz;                                              // todo refactor that somehow
+    Class<?> clazz;                                                                     // todo refactor
 
     public ModeComboBox(T[] array, GraphService service, int alignment) {
         clazz = array[0] instanceof GraphMode ? GraphMode.class : AlgMode.class;

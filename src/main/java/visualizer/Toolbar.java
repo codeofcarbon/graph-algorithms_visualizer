@@ -7,6 +7,8 @@ import javax.swing.plaf.basic.BasicPopupMenuUI;
 import javax.swing.undo.*;
 import java.awt.*;
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,7 +18,7 @@ public class Toolbar extends JPanel {
     private static Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
     private final ToolButton openButton, saveButton, refreshButton, closeButton, undoButton, redoButton;
-    private final ToolButton prevButton, nextButton, infoButton, messageButton, linkedButton, githubButton;
+    private final ToolButton prevButton, nextButton, linkedButton, githubButton;//, infoButton, messageButton
     private final JLabel leftInfoLabel, rightInfoLabel, graphModeLabel, algorithmModeLabel;
     private final ButtonPanel buttonPanel;
     private final JPanel toolsPanel;
@@ -37,9 +39,10 @@ public class Toolbar extends JPanel {
             @Override
             public JPopupMenu getComponentPopupMenu() {
                 popup.setUI(new BasicPopupMenuUI());
-                popup.setPopupSize(420, 40);
+//                popup.setPopupSize(280, 40);
+                popup.setPopupSize(340, 40);
                 Arrays.stream(toolsPanel.getComponents()).forEach(popup::add);
-                popup.setLayout(new FlowLayout(FlowLayout.CENTER));
+                popup.setLayout(new GridLayout(1, 0));
                 popup.setBorder(BorderFactory.createEmptyBorder());
                 popup.setOpaque(false);
                 return popup;
@@ -47,16 +50,17 @@ public class Toolbar extends JPanel {
         };
         openButton = new ToolButton("open", "LOAD GRAPH", toolsPanel);
         saveButton = new ToolButton("save", "SAVE GRAPH", toolsPanel);
-        closeButton = new ToolButton("exit", "EXIT AN APP", toolsPanel);
-        refreshButton = new ToolButton("new", "NEW GRAPH", toolsPanel);
         undoButton = new ToolButton("undo", "UNDO", toolsPanel);
         redoButton = new ToolButton("redo", "REDO", toolsPanel);
-        prevButton = new ToolButton("prev", "PREV STEP", toolsPanel);
-        nextButton = new ToolButton("next", "NEXT STEP", toolsPanel);
-        infoButton = new ToolButton("info", "INFO", toolsPanel);
-        messageButton = new ToolButton("message", "MESSAGE", toolsPanel);
+        prevButton = new ToolButton("prev", "PREV STEP (soon)", toolsPanel);
+        nextButton = new ToolButton("next", "NEXT STEP (soon)", toolsPanel);
+        refreshButton = new ToolButton("new", "NEW GRAPH", toolsPanel);
+        closeButton = new ToolButton("exit", "EXIT AN APP", toolsPanel);
+
         linkedButton = new ToolButton("linked", "CONTACT ME", toolsPanel);
         githubButton = new ToolButton("github", "CONTACT ME", toolsPanel);
+//        infoButton = new ToolButton("info", "INFO", toolsPanel);
+//        messageButton = new ToolButton("message", "MESSAGE", toolsPanel);
 
         buttonPanel = new ButtonPanel(service, toolsPanel);
 
@@ -88,11 +92,8 @@ public class Toolbar extends JPanel {
     }
 
     private JLabel addNewLabel(int alignment, Dimension dimension, boolean htmlStyle) {
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();          // todo register font
-        ge.registerFont(new Font("Tahoma", Font.PLAIN, 15));
-
         var label = new JLabel("", alignment);
-        label.setFont(htmlStyle ? new Font("Tahoma", Font.PLAIN, 15)
+        label.setFont(htmlStyle ? new Font("Tempus Sans ITC", Font.PLAIN, 15)
                 : new Font("Tempus Sans ITC", Font.PLAIN, 20));
         label.setPreferredSize(dimension);
         label.setMinimumSize(dimension);
@@ -114,9 +115,9 @@ public class Toolbar extends JPanel {
                     service.clearGraph();
                     graphData.forEach((key, value) -> {
                         service.getMouseHandler().addComponent(key);
+                        service.getGraph().add(key);
                         service.getNodes().add(key);
                         service.getEdges().addAll(value);
-                        service.getGraph().add(key);
                         value.forEach(edge -> service.getGraph().add(edge));
                     });
                     graphData.clear();
@@ -126,7 +127,6 @@ public class Toolbar extends JPanel {
                 }
             }
         });
-
         saveButton.addActionListener(event -> {
             fileChooser.setDialogTitle("Save graph data file");
             if (fileChooser.showSaveDialog(service.getGraph()) == JFileChooser.APPROVE_OPTION) {
@@ -139,7 +139,6 @@ public class Toolbar extends JPanel {
                 }
             }
         });
-
         closeButton.addActionListener(event -> {
             var exitDialogButton = new JButton("Exit");
             exitDialogButton.setFocusPainted(false);
@@ -152,7 +151,6 @@ public class Toolbar extends JPanel {
                 System.exit(0);
             }
         });
-
         refreshButton.addActionListener(event -> {
             var clearDialogButton = new JButton("Start new graph");
             clearDialogButton.setFocusable(false);
@@ -165,26 +163,38 @@ public class Toolbar extends JPanel {
                 service.clearGraph();
             }
         });
-
         undoButton.addActionListener(event -> {
             try {
                 service.getManager().undo();
             } catch (CannotUndoException e) {
-                JOptionPane.showMessageDialog(
+                JOptionPane.showMessageDialog(                                                  // todo refactor
                         service.getGraph(), "Nothing else to undo", "Info", JOptionPane.WARNING_MESSAGE,
                         new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/warn_dialog.png").getImage().
                                 getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
             }
         });
-
         redoButton.addActionListener(event -> {
             try {
                 service.getManager().redo();
             } catch (CannotRedoException e) {
-                JOptionPane.showMessageDialog(
+                JOptionPane.showMessageDialog(                                                  // todo refactor
                         service.getGraph(), "Nothing else to redo", "Info", JOptionPane.WARNING_MESSAGE,
                         new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/warn_dialog.png").getImage().
                                 getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
+            }
+        });
+        linkedButton.addActionListener(event -> {
+            try {
+                Desktop.getDesktop().browse(new URI("https://www.linkedin.com/in/krzysztof-karbownik"));
+            } catch (URISyntaxException | IOException ex) {
+                // todo error message or dialog
+            }
+        });
+        githubButton.addActionListener(event -> {
+            try {
+                Desktop.getDesktop().browse(new URI("https://github.com/codeofcarbon"));
+            } catch (URISyntaxException | IOException ex) {
+                // todo error message or dialog
             }
         });
     }

@@ -13,10 +13,11 @@ public class ToolButton extends JButton {
         int size = 30;
         setPreferredSize(new Dimension(size, size));
         var icon = loadIcon(iconFilename, size, false);
-        var rolloverIcon = loadIcon(iconFilename, size, true);
+        var rolloverIcon = loadIcon(iconFilename, size + 4, true);
         setIcon(icon);
         setRolloverEnabled(true);
-        new RolloverAnimator(this, icon, rolloverIcon);             // todo refactor
+        setSelectedIcon(rolloverIcon);
+        new RolloverAnimator(this, icon, rolloverIcon);             // todo refactor?
         container.add(this);
         setOpaque(false);
         setVisible(true);

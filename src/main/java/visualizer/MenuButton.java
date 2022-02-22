@@ -14,13 +14,15 @@ public class MenuButton extends JToggleButton {
         int size = 70;
         setPreferredSize(new Dimension(size, size));
         var icon = loadIcon(iconFilename, size, false);
-        var rolloverIcon = loadIcon(iconFilename, size, true);
+        var rolloverIcon = loadIcon(iconFilename, size + 4, true);
         setIcon(icon);
-        setBorder(BorderFactory.createEmptyBorder());
+        setRolloverEnabled(true);
         setSelectedIcon(rolloverIcon);
+        new RolloverAnimator(this, icon, rolloverIcon);             // todo refactor?
         panel.add(this);
         setOpaque(false);
         setVisible(true);
+        setBorder(BorderFactory.createEmptyBorder());
         popup = target.getComponentPopupMenu();
         popup.setInvoker(this);
 
@@ -34,20 +36,15 @@ public class MenuButton extends JToggleButton {
                 } else popup.show(MenuButton.this, getWidth() / 2 - popup.getWidth() / 2, getHeight() - 5);
             }
         });
+
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
-                if (!isSelected() && isFocusOwner()) {
+                if (!isSelected() && getModel().isRollover()) {
                     panel.getButtonGroup().clearSelection();
                     doClick();
                 }
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                super.mouseEntered(e);
-                requestFocusInWindow();
             }
         });
     }
