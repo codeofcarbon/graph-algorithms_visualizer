@@ -24,25 +24,7 @@ public class ButtonPanel extends JPanel {
         toolsButton = new MenuButton("menu", "TOOLS", this, toolsPanel);
         algModeButton = new MenuButton("algorithm", "ALGORITHM MODE", this, algModeComboBox);
 
-        buttonGroup = new ButtonGroup() {
-            private ButtonModel prevModel;
-            private boolean isAdjusting;
-
-            @Override
-            public void setSelected(ButtonModel m, boolean b) {
-                if (isAdjusting) {
-                    return;
-                }
-                if (m.equals(prevModel)) {
-                    isAdjusting = true;
-                    clearSelection();
-                    isAdjusting = false;
-                } else {
-                    super.setSelected(m, b);
-                }
-                prevModel = getSelection();
-            }
-        };
+        buttonGroup = new ButtonGroup();
         List.of(graphModeButton, toolsButton, algModeButton).forEach(buttonGroup::add);
     }
 }
