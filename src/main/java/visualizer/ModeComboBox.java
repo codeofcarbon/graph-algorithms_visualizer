@@ -9,22 +9,22 @@ public class ModeComboBox<T> extends JComboBox<String> {
     Class<?> clazz;                                                                     // todo refactor
 
     public ModeComboBox(T[] array, GraphService service, int alignment) {
-        clazz = array[0] instanceof GraphMode ? GraphMode.class : AlgMode.class;
-        Arrays.stream(array)
-                .forEach(mode -> addItem(clazz.equals(GraphMode.class)
-                        ? ((GraphMode) mode).current.toUpperCase()
-                        : ((AlgMode) mode).current.toUpperCase()));
         setRenderer(new CellRenderer<>());
         ((CellRenderer<?>) getRenderer()).setHorizontalAlignment(alignment);
-        setSelectedIndex(clazz.equals(GraphMode.class) ? 0 : 4);    // modes: graph - add a vertex, algorithm - none
+        clazz = array[0] instanceof GraphMode ? GraphMode.class : AlgMode.class;
+        Arrays.stream(array).forEach(mode -> addItem(clazz.equals(GraphMode.class)
+                ? ((GraphMode) mode).current.toUpperCase()
+                : ((AlgMode) mode).current.toUpperCase()));
+        setSelectedIndex(clazz.equals(GraphMode.class) ? 0 /* add new node */ : 4 /* algorithm - none */);
+
         addActionListener(event -> {
-            service.setCurrentModes(
-                    clazz.equals(GraphMode.class) ? AlgMode.NONE : Arrays.stream(AlgMode.values())
-                            .filter(algMode -> algMode.current.equalsIgnoreCase((String) getSelectedItem()))
-                            .findFirst().orElse(AlgMode.NONE),
-                    clazz.equals(GraphMode.class) ? Arrays.stream(GraphMode.values())
-                            .filter(graphMode -> graphMode.current.equalsIgnoreCase((String) getSelectedItem()))
-                            .findFirst().orElse(GraphMode.NONE) : GraphMode.NONE);
+            var algorithmMode = clazz.equals(GraphMode.class) ? AlgMode.NONE : Arrays.stream(AlgMode.values())
+                    .filter(algMode -> algMode.current.equalsIgnoreCase((String) getSelectedItem()))
+                    .findFirst().orElse(AlgMode.NONE);
+            var graphMode = clazz.equals(GraphMode.class) ? Arrays.stream(GraphMode.values())
+                    .filter(gMode -> gMode.current.equalsIgnoreCase((String) getSelectedItem()))
+                    .findFirst().orElse(GraphMode.NONE) : GraphMode.NONE;
+            service.setCurrentModes(algorithmMode, graphMode);
             setSelectedIndex(clazz.equals(GraphMode.class)
                     ? Arrays.asList(GraphMode.values()).indexOf(service.getGraphMode())
                     : Arrays.asList(AlgMode.values()).indexOf(service.getAlgorithmMode()));

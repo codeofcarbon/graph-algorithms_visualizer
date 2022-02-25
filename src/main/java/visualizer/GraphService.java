@@ -214,7 +214,8 @@ public class GraphService implements Serializable, StateEditable {
                 .setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algorithmMode));
         toolbar.getButtonPanel().getGraphModeComboBox()
                 .setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
-        toolbar.getLeftInfoLabel().setText(graphMode == GraphMode.NONE ? "Please choose a starting vertex" : "");
+        toolbar.getLeftInfoLabel().setText(graphMode == GraphMode.NONE
+                                           && algorithmMode != AlgMode.NONE ? "Please choose a starting vertex" : "");
         toolbar.updateModeLabels(graphMode.current.toUpperCase(), algorithmMode.current.toUpperCase());
         toolbar.getButtonPanel().getButtonGroup().clearSelection();
         this.graphMode = graphMode;
