@@ -6,7 +6,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class MenuButton extends JToggleButton {
-    private final JPopupMenu popup;
 
     public MenuButton(String iconFilename, String toolTipText, ButtonPanel panel, JComponent target) {
         setUI(new BasicToggleButtonUI());
@@ -23,17 +22,16 @@ public class MenuButton extends JToggleButton {
         setOpaque(false);
         setVisible(true);
         setBorder(BorderFactory.createEmptyBorder());
-        popup = target.getComponentPopupMenu();
-        popup.setInvoker(this);
 
         addActionListener(e -> {
             if (isSelected()) {
+                var popup = target.getComponentPopupMenu();
                 popup.setVisible(true);
                 if (target instanceof JComboBox) {
                     if (((ModeComboBox<?>) target).clazz.equals(AlgMode.class))
-                        popup.show(MenuButton.this, getWidth(), getY());
-                    else popup.show(MenuButton.this, -popup.getWidth(), getY());
-                } else popup.show(MenuButton.this, getWidth() / 2 - popup.getWidth() / 2, getHeight() - 5);
+                        popup.show(this, getWidth(), getY());
+                    else popup.show(this, -popup.getWidth(), getY());
+                } else popup.show(this, getWidth() / 2 - popup.getWidth() / 2, getHeight() - 5);
             }
         });
 

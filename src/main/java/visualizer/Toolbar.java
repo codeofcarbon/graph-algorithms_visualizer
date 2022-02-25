@@ -1,6 +1,7 @@
 package visualizer;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicPopupMenuUI;
@@ -17,11 +18,15 @@ public class Toolbar extends JPanel {
     private static Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
     private final ToolButton openButton, saveButton, refreshButton, closeButton, undoButton, redoButton;
-    private final ToolButton prevButton, nextButton;// linkedButton, githubButton;//, infoButton, messageButton
+    private final ToolButton prevButton, nextButton;//, infoButton, messageButton
     private final JLabel leftInfoLabel, rightInfoLabel, graphModeLabel, algorithmModeLabel;
     private final ButtonPanel buttonPanel;
     private final JPanel toolsPanel;
+//    private final JToolBar toolsPanel;
     private final GraphService service;
+
+    @Setter
+    MenuBar menuBar;
 
     public Toolbar(GraphService service) {
         this.service = service;
@@ -32,6 +37,7 @@ public class Toolbar extends JPanel {
         setBackground(Color.BLACK);
         setLayout(new GridBagLayout());
 
+//        toolsPanel = new JToolBar() {
         toolsPanel = new JPanel() {
             final JPopupMenu popup = new JPopupMenu();
 
@@ -46,6 +52,7 @@ public class Toolbar extends JPanel {
                 return popup;
             }
         };
+
         openButton = new ToolButton("open", "LOAD GRAPH", toolsPanel);
         saveButton = new ToolButton("save", "SAVE GRAPH", toolsPanel);
         undoButton = new ToolButton("undo", "UNDO", toolsPanel);
@@ -55,8 +62,6 @@ public class Toolbar extends JPanel {
         refreshButton = new ToolButton("new", "NEW GRAPH", toolsPanel);
         closeButton = new ToolButton("exit", "EXIT AN APP", toolsPanel);
 
-//        linkedButton = new ToolButton("linked", "CONTACT ME", toolsPanel);
-//        githubButton = new ToolButton("github", "CONTACT ME", toolsPanel);
 //        infoButton = new ToolButton("info", "INFO", toolsPanel);
 //        messageButton = new ToolButton("message", "MESSAGE", toolsPanel);
 
@@ -185,19 +190,5 @@ public class Toolbar extends JPanel {
                                 getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
             }
         });
-//        linkedButton.addActionListener(event -> {
-//            try {
-//                Desktop.getDesktop().browse(new URI("https://www.linkedin.com/in/krzysztof-karbownik"));
-//            } catch (URISyntaxException | IOException ex) {
-//                // todo error message or dialog
-//            }
-//        });
-//        githubButton.addActionListener(event -> {
-//            try {
-//                Desktop.getDesktop().browse(new URI("https://github.com/codeofcarbon"));
-//            } catch (URISyntaxException | IOException ex) {
-//                // todo error message or dialog
-//            }
-//        });
     }
 }

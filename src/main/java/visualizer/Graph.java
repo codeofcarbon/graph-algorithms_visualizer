@@ -26,7 +26,7 @@ public class Graph extends JPanel {
         super.paintComponent(g);
         g.drawImage(backImage, 0, 0, Color.BLACK, null);
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setStroke(new BasicStroke(3f));
+        g2d.setStroke(new BasicStroke(2f));
         service.getEdges()
                 .forEach(e -> e.getState().draw(g, g2d, e));
         g2d.setStroke(new BasicStroke(0f));
