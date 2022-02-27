@@ -1,7 +1,5 @@
 package visualizer;
 
-import visualizer.temp.transPop.TranslucentPopupMenu;
-
 import javax.swing.*;
 import javax.swing.plaf.basic.*;
 import java.awt.*;
@@ -14,6 +12,7 @@ public class MenuBar extends JMenuBar {
     private final Toolbar toolbar;
 
     public MenuBar(Toolbar toolbar) {
+        setBackground(Color.BLACK);
         this.toolbar = toolbar;
 
         // ==================================================================================== file menu =====
@@ -138,23 +137,5 @@ public class MenuBar extends JMenuBar {
             comp.setForeground(Color.WHITE);
             menuParent.add(comp);
         } else add(comp);
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        Arrays.stream(getComponents()).filter(c -> c instanceof JPopupMenu).forEach(popup -> {
-//            if (g instanceof Graphics2D) {
-                final int R = 240;
-                final int G = 240;
-                final int B = 240;
-                var point = popup.getLocation();
-                Paint p =
-                        new GradientPaint(point.x,point.y, new Color(R, G, B, 0),
-                                point.x, point.y + popup.getHeight(), new Color(R, G, B, 255), true);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setPaint(p);
-                g2d.fillRect(point.x, point.y, point.x + popup.getWidth(), point.y +  popup.getHeight());
-//            }
-        });
     }
 }
