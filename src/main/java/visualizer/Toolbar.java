@@ -1,14 +1,12 @@
 package visualizer;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicPopupMenuUI;
 import javax.swing.undo.*;
 import java.awt.*;
 import java.io.*;
-import java.net.*;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,15 +16,11 @@ public class Toolbar extends JPanel {
     private static Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
     private final ToolButton openButton, saveButton, refreshButton, closeButton, undoButton, redoButton;
-    private final ToolButton prevButton, nextButton;//, infoButton, messageButton
+    private final ToolButton prevButton, nextButton;
     private final JLabel leftInfoLabel, rightInfoLabel, graphModeLabel, algorithmModeLabel;
     private final ButtonPanel buttonPanel;
     private final JPanel toolsPanel;
-//    private final JToolBar toolsPanel;
     private final GraphService service;
-
-    @Setter
-    MenuBar menuBar;
 
     public Toolbar(GraphService service) {
         this.service = service;
@@ -37,7 +31,6 @@ public class Toolbar extends JPanel {
         setBackground(Color.BLACK);
         setLayout(new GridBagLayout());
 
-//        toolsPanel = new JToolBar() {
         toolsPanel = new JPanel() {
             final JPopupMenu popup = new JPopupMenu();
 
@@ -61,9 +54,6 @@ public class Toolbar extends JPanel {
         nextButton = new ToolButton("next", "NEXT STEP (soon)", toolsPanel);
         refreshButton = new ToolButton("new", "NEW GRAPH", toolsPanel);
         closeButton = new ToolButton("exit", "EXIT AN APP", toolsPanel);
-
-//        infoButton = new ToolButton("info", "INFO", toolsPanel);
-//        messageButton = new ToolButton("message", "MESSAGE", toolsPanel);
 
         buttonPanel = new ButtonPanel(service, toolsPanel);
 
@@ -108,7 +98,7 @@ public class Toolbar extends JPanel {
     }
 
     @SuppressWarnings("unchecked")
-    private void addListeners() {                                       // todo move listeners to some buttons class
+    private void addListeners() {                                      
         openButton.addActionListener(event -> {
             toolsPanel.getComponentPopupMenu().setVisible(false);
             fileChooser.setDialogTitle("Select graph data file");
@@ -123,6 +113,8 @@ public class Toolbar extends JPanel {
                         service.getNodes().add(key);
                         service.getEdges().addAll(value);
                         value.forEach(edge -> service.getGraph().add(edge));
+
+                        service.getConnects().put(key, value);
                     });
                     graphData.clear();
                     service.getGraph().repaint();
@@ -171,9 +163,10 @@ public class Toolbar extends JPanel {
         undoButton.addActionListener(event -> {
             try {
                 service.getManager().undo();
+                service.resetComponentLists();
             } catch (CannotUndoException e) {
                 toolsPanel.getComponentPopupMenu().setVisible(false);
-                JOptionPane.showMessageDialog(                                                  // todo refactor
+                JOptionPane.showMessageDialog(                                         
                         service.getGraph(), "Nothing else to undo", "Info", JOptionPane.WARNING_MESSAGE,
                         new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/warn_dialog.png").getImage().
                                 getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
@@ -182,9 +175,10 @@ public class Toolbar extends JPanel {
         redoButton.addActionListener(event -> {
             try {
                 service.getManager().redo();
+                service.resetComponentLists();
             } catch (CannotRedoException e) {
                 toolsPanel.getComponentPopupMenu().setVisible(false);
-                JOptionPane.showMessageDialog(                                                  // todo refactor
+                JOptionPane.showMessageDialog(                                   
                         service.getGraph(), "Nothing else to redo", "Info", JOptionPane.WARNING_MESSAGE,
                         new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/warn_dialog.png").getImage().
                                 getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
