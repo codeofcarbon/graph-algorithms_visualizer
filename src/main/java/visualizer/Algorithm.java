@@ -138,7 +138,8 @@ public class Algorithm {
                                               .sorted(Comparator.comparing(vertex -> vertex.id))
                                               .map(vertex -> String.format(
                                                       "<font size=+1 color=#0062ff> %s<font color=#eb4034> &#8680 %s",
-                                                      vertex.id, vertex.distance == Integer.MAX_VALUE ?
+                                                      vertex.id, vertex.distance == Integer.MAX_VALUE ||
+                                                                 vertex.distance == Integer.MIN_VALUE ?
                                                               "inf" : String.valueOf(vertex.distance)))
                                               .collect(Collectors.joining("<font color=gray>,"));
 
@@ -178,7 +179,9 @@ public class Algorithm {
                        .map(edge -> String.format("<font size=+1 color=0062ff> %s &#8644 %s",
                                edge.getSource().id, edge.getTarget().id))
                        .collect(Collectors.joining("<font color=gray> &rarr ")) +
-               String.format("<font size=+2 color=#eb4034>   &#8680 %d", target.distance);
+               String.format("<font size=+2 color=#eb4034>   &#8680 %s",
+                       target.distance == Integer.MAX_VALUE || target.distance == Integer.MIN_VALUE ?
+                               "inf" : String.valueOf(target.distance));
     }
 
     protected void resetAlgorithmData() {

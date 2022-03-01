@@ -17,7 +17,7 @@ public class ToolButton extends JButton {
         setIcon(icon);
         setRolloverEnabled(true);
         setSelectedIcon(rolloverIcon);
-        new RolloverAnimator(this, icon, rolloverIcon);             // todo refactor?
+        new RolloverAnimator(this, icon, rolloverIcon);        
         container.add(this);
         setOpaque(false);
         setVisible(true);

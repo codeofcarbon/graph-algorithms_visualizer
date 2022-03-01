@@ -24,9 +24,8 @@ public class MouseHandler extends MouseAdapter {
         source = event.getComponent();
         pressed = event.getLocationOnScreen();
         location = source.getLocation();
-        if (source instanceof Vertex) {
+        if (source instanceof Vertex)
             moveStateEdit = new StateEdit((Vertex) source);
-        }
     }
 
     @Override
@@ -57,7 +56,6 @@ public class MouseHandler extends MouseAdapter {
 
     @Override
     public void mouseDragged(MouseEvent event) {
-        if (source instanceof Graph) return;
         var drag = event.getLocationOnScreen();
         if (source instanceof Vertex) {
             int x = (int) (location.x + drag.getX() - pressed.getX());

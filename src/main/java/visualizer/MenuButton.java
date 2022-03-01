@@ -17,7 +17,7 @@ public class MenuButton extends JToggleButton {
         setIcon(icon);
         setRolloverEnabled(true);
         setSelectedIcon(rolloverIcon);
-        new RolloverAnimator(this, icon, rolloverIcon);             // todo refactor?
+        new RolloverAnimator(this, icon, rolloverIcon);   
         panel.add(this);
         setOpaque(false);
         setVisible(true);
