@@ -111,10 +111,7 @@ public class Toolbar extends JPanel {
                         service.getMouseHandler().addComponent(key);
                         service.getGraph().add(key);
                         service.getNodes().add(key);
-                        service.getEdges().addAll(value);
                         value.forEach(edge -> service.getGraph().add(edge));
-
-                        service.getConnects().put(key, value);
                     });
                     graphData.clear();
                     service.getGraph().repaint();

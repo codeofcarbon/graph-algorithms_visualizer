@@ -47,7 +47,7 @@ public class MouseHandler extends MouseAdapter {
                     break;
                 case NONE:
                     if (service.getAlgorithmMode() != AlgMode.NONE) service.startAlgorithm(event);
-                    break;
+                    return;
             }
             stateEdit.end();
             service.getUndoableEditSupport().postEdit(stateEdit);
@@ -56,6 +56,7 @@ public class MouseHandler extends MouseAdapter {
 
     @Override
     public void mouseDragged(MouseEvent event) {
+        if (source instanceof Graph) return;
         var drag = event.getLocationOnScreen();
         if (source instanceof Vertex) {
             int x = (int) (location.x + drag.getX() - pressed.getX());
