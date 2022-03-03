@@ -28,10 +28,11 @@ public class Graph extends JPanel {
         Graphics2D g2D = (Graphics2D) g;
         g2D.setStroke(new BasicStroke(2f));
         service.getNodes().stream()
-                .flatMap(v -> v.connectedEdges.stream())
-                .forEach(e -> e.getState().draw(g, g2D, e));
-        service.getNodes().forEach(v -> v.getState().draw(g2D, v));
-        if (service.getNodes().stream().anyMatch(v -> v.getY() < 0)) {
+                .flatMap(node -> node.connectedEdges.stream())
+                .forEach(edge -> edge.getState().draw(g, g2D, edge));
+        service.getNodes()
+                .forEach(node -> node.getState().draw(g2D, node));
+        if (service.getNodes().stream().anyMatch(node -> node.getY() < 0)) {
             g2D.setColor(Color.DARK_GRAY.darker());
             g2D.drawLine(0, 0, getWidth(), 0);
         }

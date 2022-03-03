@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.List;
 
 @Getter
-public class Vertex extends JLabel implements Serializable, StateEditable {
+public class Node extends JLabel implements Serializable, StateEditable {
     private static final long serialVersionUID = 12345L;
     private final String imageName;
     private final Graph graph;
@@ -21,7 +21,7 @@ public class Vertex extends JLabel implements Serializable, StateEditable {
     boolean visited, marked, connected, path;
     int distance;
 
-    public Vertex(String id, Point center, Graph graph, List<Edge> connectedEdges) {
+    public Node(String id, Point center, Graph graph, List<Edge> connectedEdges) {
         setName("Vertex " + id);
         this.id = id;
         this.graph = graph;
@@ -34,13 +34,13 @@ public class Vertex extends JLabel implements Serializable, StateEditable {
         setOpaque(false);
     }
 
-    protected VertexState getState() {
-        return Algorithm.root == this ? VertexState.ROOT
-                : Algorithm.target == this ? VertexState.TARGET
-                : this.path ? VertexState.PATH
-                : this.visited ? VertexState.VISITED
-                : this.connected ? VertexState.CONNECTED
-                : VertexState.RAW;
+    protected NodeState getState() {
+        return Algorithm.root == this ? NodeState.ROOT
+                : Algorithm.target == this ? NodeState.TARGET
+                : this.path ? NodeState.PATH
+                : this.visited ? NodeState.VISITED
+                : this.connected ? NodeState.CONNECTED
+                : NodeState.RAW;
     }
 
     @Override
@@ -52,47 +52,46 @@ public class Vertex extends JLabel implements Serializable, StateEditable {
     public void restoreState(Hashtable<?, ?> state) {
         var nodeLocation = (Point) state.get("Location");
         if (nodeLocation != null) setLocation(nodeLocation);
-        getParent().repaint();
     }
 }
 
-enum VertexState {
+enum NodeState {
     RAW() {
-        public void draw(Graphics2D g2D, Vertex v) {
-            g2D.drawImage(getNodeImage(v.getImageName(), "raw", 40, 40), v.getX() + 5, v.getY() + 5, null);
-            if (v.marked) g2D.drawImage(dashedMark, v.getX() - 5, v.getY() - 5, null);
-            else g2D.drawImage(raw, v.getX() - 5, v.getY() - 5, null);
+        public void draw(Graphics2D g2D, Node node) {
+            g2D.drawImage(getNodeImage(node.getImageName(), "raw", 40, 40), node.getX() + 5, node.getY() + 5, null);
+            if (node.marked) g2D.drawImage(dashedMark, node.getX() - 5, node.getY() - 5, null);
+            else g2D.drawImage(raw, node.getX() - 5, node.getY() - 5, null);
         }
     },
     CONNECTED() {
-        public void draw(Graphics2D g2D, Vertex v) {
-            g2D.drawImage(getNodeImage(v.getImageName(), "connected", 40, 40), v.getX() + 5, v.getY() + 5, null);
-            if (v.marked) g2D.drawImage(dashedMark, v.getX() - 5, v.getY() - 5, null);
-            else g2D.drawImage(connected, v.getX() - 5, v.getY() - 5, null);
+        public void draw(Graphics2D g2D, Node node) {
+            g2D.drawImage(getNodeImage(node.getImageName(), "connected", 40, 40), node.getX() + 5, node.getY() + 5, null);
+            if (node.marked) g2D.drawImage(dashedMark, node.getX() - 5, node.getY() - 5, null);
+            else g2D.drawImage(connected, node.getX() - 5, node.getY() - 5, null);
         }
     },
     VISITED() {
-        public void draw(Graphics2D g2D, Vertex v) {
-            g2D.drawImage(getNodeImage(v.getImageName(), "visited", 40, 40), v.getX() + 5, v.getY() + 5, null);
-            g2D.drawImage(visited, v.getX() - 5, v.getY() - 5, null);
+        public void draw(Graphics2D g2D, Node node) {
+            g2D.drawImage(getNodeImage(node.getImageName(), "visited", 40, 40), node.getX() + 5, node.getY() + 5, null);
+            g2D.drawImage(visited, node.getX() - 5, node.getY() - 5, null);
         }
     },
     PATH() {
-        public void draw(Graphics2D g2D, Vertex v) {
-            g2D.drawImage(getNodeImage(v.getImageName(), "path", 50, 50), v.getX(), v.getY(), null);
-            g2D.drawImage(path, v.getX() - 10, v.getY() - 10, null);
+        public void draw(Graphics2D g2D, Node node) {
+            g2D.drawImage(getNodeImage(node.getImageName(), "path", 50, 50), node.getX(), node.getY(), null);
+            g2D.drawImage(path, node.getX() - 10, node.getY() - 10, null);
         }
     },
     ROOT() {
-        public void draw(Graphics2D g2D, Vertex v) {
-            g2D.drawImage(rootNode, v.getX() - 21, v.getY() - 21, null);
-            g2D.drawImage(getNodeImage(v.getImageName(), "path", 50, 50), v.getX(), v.getY(), null);
+        public void draw(Graphics2D g2D, Node node) {
+            g2D.drawImage(rootNode, node.getX() - 21, node.getY() - 21, null);
+            g2D.drawImage(getNodeImage(node.getImageName(), "path", 50, 50), node.getX(), node.getY(), null);
         }
     },
     TARGET() {
-        public void draw(Graphics2D g2D, Vertex v) {
-            g2D.drawImage(getNodeImage(v.getImageName(), "path", 50, 50), v.getX(), v.getY(), null);
-            g2D.drawImage(targetMark, v.getX() - 15, v.getY() - 15, null);
+        public void draw(Graphics2D g2D, Node node) {
+            g2D.drawImage(getNodeImage(node.getImageName(), "path", 50, 50), node.getX(), node.getY(), null);
+            g2D.drawImage(targetMark, node.getX() - 15, node.getY() - 15, null);
         }
     };
 
@@ -104,7 +103,7 @@ enum VertexState {
     private static final Image targetMark = getSpecialImage("orange layered", 80, 80);
     private static final Image dashedMark = getSpecialImage("green dashed", 60, 60);
 
-    abstract void draw(Graphics2D g2D, Vertex v);
+    abstract void draw(Graphics2D g2D, Node node);
 
     private static Image getNodeImage(String imageName, String currentState, int width, int height) {
         return new ImageIcon(new ImageIcon(String.format("src/main/resources/icons/nodes/%s/%s.png",

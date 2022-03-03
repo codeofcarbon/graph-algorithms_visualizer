@@ -1,16 +1,16 @@
 package visualizer;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 
 public class Algorithm {
-    private static LinkedList<Vertex> queue;
+    private static LinkedList<Node> queue;
     private static Set<Edge> edgeSet;
-    private static LinkedList<Vertex> nodeList;
+    private static LinkedList<Node> nodeList;
     private static String algorithmResult;
-    private static Map<Vertex, List<Edge>> paths;
+    private static Map<Node, List<Edge>> paths;
     private final GraphService service;
-    static Vertex root, target;
+    static Node root, target;
 
     public Algorithm(GraphService service) {
         this.service = service;
@@ -22,10 +22,9 @@ public class Algorithm {
                     .filter(edge -> !edge.getTarget().visited)
                     .min(Comparator.comparingInt(edge -> edge.weight))
                     .ifPresentOrElse(edge -> {
-                        List.of(edge, edge.mirrorEdge).forEach(e -> {
-                            e.visited = true;
-                            edgeSet.add(e);
-                        });
+                        Stream.of(edge, edge.mirrorEdge)
+                                .peek(e -> e.visited = true)
+                                .forEach(edgeSet::add);
                         edge.getTarget().visited = true;
                         queue.addLast(edge.getTarget());
                         nodeList.add(edge.getTarget());
@@ -39,10 +38,9 @@ public class Algorithm {
                     .filter(edge -> !edge.getTarget().visited)
                     .min(Comparator.comparingInt(edge -> edge.weight))
                     .ifPresentOrElse(edge -> {
-                        List.of(edge, edge.mirrorEdge).forEach(e -> {
-                            e.visited = true;
-                            edgeSet.add(e);
-                        });
+                        Stream.of(edge, edge.mirrorEdge)
+                                .peek(e -> e.visited = true)
+                                .forEach(edgeSet::add);
                         edge.getTarget().visited = true;
                         queue.addLast(edge.getTarget());
                         nodeList.add(edge.getTarget());
@@ -64,16 +62,16 @@ public class Algorithm {
                         }
                     });
             current.visited = true;
-            queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
+            queue.sort(Comparator.comparingInt(node -> node.distance));
         }
-        if (service.getNodes().stream().allMatch(vertex -> vertex.visited)) {
+        if (service.getNodes().stream().allMatch(node -> node.visited)) {
             paths.values().forEach(pathEdges -> edgeSet.addAll(pathEdges));
         }
     }
 
     protected void primAlgorithm() {
         service.getNodes().stream()
-                .flatMap(v -> v.connectedEdges.stream())
+                .flatMap(node -> node.connectedEdges.stream())
                 .filter(edge -> edge.getSource().visited && !edge.getTarget().visited)
                 .min(Comparator.comparingInt(edge -> edge.weight))
                 .ifPresent(edge -> {
@@ -84,7 +82,7 @@ public class Algorithm {
                 });
     }
 
-    protected void initAlgorithm(Vertex rootNode) {
+    protected void initAlgorithm(Node rootNode) {
         resetAlgorithmData();
         root = rootNode;
         rootNode.visited = true;
@@ -98,38 +96,36 @@ public class Algorithm {
             case PRIM_ALGORITHM:
                 queue.addAll(service.getNodes());
                 rootNode.distance = 0;
-                service.getNodes().forEach(vertex -> paths.put(vertex, new ArrayList<>()));
+                service.getNodes().forEach(node -> paths.put(node, new ArrayList<>()));
                 root.connectedEdges.forEach(edge -> {
                     edge.getTarget().distance = edge.weight;
                     paths.get(edge.getTarget()).add(edge);
                 });
-                queue.sort(Comparator.comparingInt(vertex -> vertex.distance));
+                queue.sort(Comparator.comparingInt(node -> node.distance));
         }
     }
 
     protected String getResultIfReady() {
-        if (service.getNodes().stream().allMatch(vertex -> vertex.visited)) {
+        if (service.getNodes().stream().allMatch(node -> node.visited)) {
             service.getNodes().stream()
-                            .flatMap(v -> v.connectedEdges.stream())
-                            .forEach(edge -> edge.hidden = true);
+                    .flatMap(node -> node.connectedEdges.stream())
+                    .forEach(edge -> edge.hidden = true);
             edgeSet.forEach(edge -> edge.visited = true);
             switch (service.getAlgorithmMode()) {
                 case DEPTH_FIRST_SEARCH:
                     algorithmResult = String.format("<html><font size=+1 color=gray>DFS for " +
                                                     "<font size=+2 color=#5afa46><b>%s</b>" +
                                                     "<font size=+1 color=gray>:   ", root.id) +
-                                      nodeList.stream()
-                                              .map(vertex -> String.format(
-                                                      "<font size=+1 color=#0062ff><b>%s</b>", vertex.id))
+                                      nodeList.stream().map(node -> String.format(
+                                                      "<font size=+1 color=#0062ff><b>%s</b>", node.id))
                                               .collect(Collectors.joining(" &rarr "));
                     break;
                 case BREADTH_FIRST_SEARCH:
                     algorithmResult = String.format("<html><font size=+1 color=gray>BFS for " +
                                                     "<font size=+2 color=#5afa46><b>%s</b>" +
                                                     "<font size=+1 color=gray>:   ", root.id) +
-                                      nodeList.stream()
-                                              .map(vertex -> String.format(
-                                                      "<font size=+1 color=#0062ff><b>%s</b>", vertex.id))
+                                      nodeList.stream().map(node -> String.format(
+                                                      "<font size=+1 color=#0062ff><b>%s</b>", node.id))
                                               .collect(Collectors.joining(" &rarr "));
                     break;
                 case DIJKSTRA_ALGORITHM:
@@ -137,13 +133,13 @@ public class Algorithm {
                                                     "<font size=+2 color=#5afa46><b>%s</b>" +
                                                     "<font size=+1 color=gray>:   ", root.id) +
                                       service.getNodes().stream()
-                                              .filter(vertex -> !vertex.equals(root))
-                                              .sorted(Comparator.comparing(vertex -> vertex.id))
-                                              .map(vertex -> String.format(
+                                              .filter(node -> !node.equals(root))
+                                              .sorted(Comparator.comparing(node -> node.id))
+                                              .map(node -> String.format(
                                                       "<font size=+1 color=#0062ff> %s<font color=#eb4034> &#8680 %s",
-                                                      vertex.id, vertex.distance == Integer.MAX_VALUE ||
-                                                                 vertex.distance == Integer.MIN_VALUE ?
-                                                              "inf" : String.valueOf(vertex.distance)))
+                                                      node.id, node.distance == Integer.MAX_VALUE ||
+                                                               node.distance == Integer.MIN_VALUE ?
+                                                              "inf" : String.valueOf(node.distance)))
                                               .collect(Collectors.joining("<font color=gray>,"));
 
                     service.getGraph().setToolTipText("<html><font size=+1>click on a node to see the shortest path");
@@ -161,9 +157,9 @@ public class Algorithm {
         return algorithmResult;
     }
 
-    String getShortestPath(Vertex targetNode) {
+    String getShortestPath(Node targetNode) {
         edgeSet.forEach(edge -> edge.path = false);
-        paths.keySet().forEach(vertex -> vertex.path = false);
+        paths.keySet().forEach(node -> node.path = false);
 
         if ((target = targetNode).equals(root)) {
             target.path = false;

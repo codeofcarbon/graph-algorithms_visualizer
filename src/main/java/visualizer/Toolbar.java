@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class Toolbar extends JPanel {
-    private static Map<Vertex, List<Edge>> graphData = new ConcurrentHashMap<>();
+    private static Map<Node, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
     private final ToolButton openButton, saveButton, refreshButton, closeButton, undoButton, redoButton;
     private final ToolButton prevButton, nextButton;
@@ -105,13 +105,13 @@ public class Toolbar extends JPanel {
             if (fileChooser.showOpenDialog(service.getGraph()) == JFileChooser.APPROVE_OPTION) {
                 try (var inStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(
                         String.valueOf(fileChooser.getSelectedFile()))))) {
-                    graphData = (ConcurrentHashMap<Vertex, List<Edge>>) inStream.readObject();
+                    graphData = (ConcurrentHashMap<Node, List<Edge>>) inStream.readObject();
                     service.clearGraph();
-                    graphData.forEach((key, value) -> {
-                        service.getMouseHandler().addComponent(key);
-                        service.getGraph().add(key);
-                        service.getNodes().add(key);
-                        value.forEach(edge -> service.getGraph().add(edge));
+                    graphData.forEach((node, nodeEdges) -> {
+                        service.getMouseHandler().addComponent(node);
+                        service.getGraph().add(node);
+                        service.getNodes().add(node);
+                        nodeEdges.forEach(edge -> service.getGraph().add(edge));
                     });
                     graphData.clear();
                     service.getGraph().repaint();
@@ -126,7 +126,7 @@ public class Toolbar extends JPanel {
             if (fileChooser.showSaveDialog(service.getGraph()) == JFileChooser.APPROVE_OPTION) {
                 try (var outStream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(
                         String.valueOf(fileChooser.getSelectedFile()))))) {
-                    service.getNodes().forEach(vertex -> graphData.put(vertex, vertex.connectedEdges));
+                    service.getNodes().forEach(node -> graphData.put(node, node.connectedEdges));
                     outStream.writeObject(graphData);
                 } catch (IOException e) {
                     System.err.println("Graph saving error: " + e.getMessage());

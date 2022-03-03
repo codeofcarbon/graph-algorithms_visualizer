@@ -25,14 +25,14 @@ public class MouseHandler extends MouseAdapter {
         pressed = event.getLocationOnScreen();
         location = source.getLocation();
         service.graphEdit = null;
-        if (source instanceof Vertex) {
-            nodeMoveEdit = new StateEdit((Vertex) source);
+        if (source instanceof Node) {
+            nodeMoveEdit = new StateEdit((Node) source);
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent event) {
-        if (source instanceof Vertex && !source.getLocation().equals(location)) {
+        if (source instanceof Node && !source.getLocation().equals(location)) {
             if (service.graphEdit == null && pressed != null && nodeMoveEdit != null) {
                 nodeMoveEdit.end();
                 service.getUndoableEditSupport().postEdit(nodeMoveEdit);
@@ -44,7 +44,7 @@ public class MouseHandler extends MouseAdapter {
 
     @Override
     public void mouseClicked(MouseEvent event) {
-        if (source instanceof Vertex || source instanceof Graph) {
+        if (source instanceof Node || source instanceof Graph) {
             switch (service.getGraphMode()) {
                 case ADD_A_VERTEX:
                     service.createNewVertex(event);
@@ -73,15 +73,15 @@ public class MouseHandler extends MouseAdapter {
     public void mouseDragged(MouseEvent event) {
         if (source instanceof Graph || pressed == null) return;
         var drag = event.getLocationOnScreen();
-        if (source instanceof Vertex) {
+        if (source instanceof Node) {
             int x = (int) (location.x + drag.getX() - pressed.getX());
             int y = (int) (location.y + drag.getY() - pressed.getY());
-            if (x < service.getGraph().getWidth() - 10
-                && y < service.getGraph().getHeight() - 10
+            if (x < source.getParent().getWidth() - 10
+                && y < source.getParent().getHeight() - 10
                 && x > -40 && y > -40) {
                 source.setLocation(x, y);
             }
-            service.getGraph().repaint();
+            source.getParent().repaint();
         }
     }
 }

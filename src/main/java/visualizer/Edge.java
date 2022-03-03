@@ -10,13 +10,13 @@ import java.io.Serializable;
 @Getter
 public class Edge extends JLabel implements Serializable {
     private static final long serialVersionUID = 123L;
-    private final Vertex source, target;
+    private final Node source, target;
     final int weight;
 
     boolean visited, hidden, path;
     Edge mirrorEdge;
 
-    public Edge(Vertex source, Vertex target, int weight) {
+    public Edge(Node source, Node target, int weight) {
         super(String.valueOf(weight), JLabel.CENTER);
         setName(String.format("Edge <%s -> %s>", source.id, target.id));
         this.source = source;
@@ -40,27 +40,27 @@ public class Edge extends JLabel implements Serializable {
 
 enum EdgeState {
     RAW() {
-        public void draw(Graphics g, Graphics2D g2d, Edge edge) {
+        public void draw(Graphics g, Graphics2D g2D, Edge edge) {
             g.setColor(new Color(60, 60, 60, 255));
-            drawEdge(g, g2d, edge);
+            drawEdge(g, g2D, edge);
         }
     },
     VISITED() {
-        public void draw(Graphics g, Graphics2D g2d, Edge edge) {
+        public void draw(Graphics g, Graphics2D g2D, Edge edge) {
             g.setColor(new Color(20, 80, 230, 255));
-            drawEdge(g, g2d, edge);
+            drawEdge(g, g2D, edge);
         }
     },
     HIDDEN() {
-        public void draw(Graphics g, Graphics2D g2d, Edge edge) {
+        public void draw(Graphics g, Graphics2D g2D, Edge edge) {
             g.setColor(new Color(0, 0, 0, 0));
             edge.setForeground(new Color(0, 0, 0, 0));
         }
     },
     PATH() {
-        public void draw(Graphics g, Graphics2D g2d, Edge edge) {
+        public void draw(Graphics g, Graphics2D g2D, Edge edge) {
             g.setColor(new Color(255, 87, 34, 255));
-            drawEdge(g, g2d, edge);
+            drawEdge(g, g2D, edge);
         }
     };
 
@@ -68,11 +68,11 @@ enum EdgeState {
             new ImageIcon("src/main/resources/icons/special/label circle.png")
             .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)).getImage();
 
-    abstract void draw(Graphics g, Graphics2D g2d, Edge edge);
+    abstract void draw(Graphics g, Graphics2D g2D, Edge edge);
 
-    private static void drawEdge(Graphics g, Graphics2D g2d, Edge edge) {
+    private static void drawEdge(Graphics g, Graphics2D g2D, Edge edge) {
         var line = getLine(edge);
-        g2d.drawLine((int) line.getX1(), (int) line.getY1(), (int) line.getX2(), (int) line.getY2());
+        g2D.drawLine((int) line.x1, (int) line.y1, (int) line.x2, (int) line.y2);
         var midpoint = getMidpoint(line);
         g.drawImage(labelCircle, midpoint.x - 15, midpoint.y - 15, null);
         edge.setForeground(Color.CYAN);
