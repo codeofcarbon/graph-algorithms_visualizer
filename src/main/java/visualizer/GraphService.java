@@ -26,6 +26,8 @@ public class GraphService implements Serializable, StateEditable {
     private Vertex edgeSource, edgeTarget;
     private UndoManager manager;
     private Timer timer;
+    StateEdit graphEdit;
+    boolean updateEdit;
 
     public GraphService(Graph graph) {
         this.graph = graph;
@@ -106,10 +108,12 @@ public class GraphService implements Serializable, StateEditable {
                 Vertex vertex;
                 String id = input.toString();
                 if (!id.isBlank() && id.length() == 1) {
-                    vertex = new Vertex(id, point.getPoint());
+                    graphEdit = new StateEdit(this);
+                    vertex = new Vertex(id, point.getPoint(), graph, new ArrayList<>());
                     mouseHandler.addComponent(vertex);
                     nodes.add(vertex);
                     graph.add(vertex);
+                    graphEdit.end();
                     graph.repaint();
                 } else {
                     JOptionPane.showMessageDialog(graph,
@@ -134,10 +138,11 @@ public class GraphService implements Serializable, StateEditable {
                 edgeTarget = target;
                 edgeTarget.marked = true;
                 graph.repaint();
-                if (edgeSource.equals(edgeTarget) ||
-                    nodes.stream().flatMap(v -> v.connectedEdges.stream()).anyMatch(edge ->
-                            edge.getSource().equals(edgeTarget) && edge.getTarget().equals(edgeSource)
-                            || edge.getSource().equals(edgeSource) && edge.getTarget().equals(edgeTarget))) {
+                if (nodes.stream().flatMap(v -> v.connectedEdges.stream())
+                            .anyMatch(edge ->
+                                    edge.getSource().equals(edgeTarget) && edge.getTarget().equals(edgeSource)
+                                    || edge.getSource().equals(edgeSource) && edge.getTarget().equals(edgeTarget))
+                    || edgeSource.equals(edgeTarget)) {
                     resetMarkedNodes();
                     return;
                 }
@@ -150,14 +155,14 @@ public class GraphService implements Serializable, StateEditable {
                     }
                     try {
                         int weight = Integer.parseInt(input.toString());
+                        graphEdit = new StateEdit(this);
                         Edge edge = new Edge(edgeSource, edgeTarget, weight);
                         Edge reversedEdge = new Edge(edgeTarget, edgeSource, weight);
                         Stream.of(edge, reversedEdge).forEach(graph::add);
                         Stream.of(edgeSource, edgeTarget).forEach(v -> v.connected = true);
-                        nodes.get(nodes.indexOf(edge.getSource())).connectedEdges.add(edge);
-                        nodes.get(nodes.indexOf(edge.getTarget())).connectedEdges.add(reversedEdge);
                         edge.mirrorEdge = reversedEdge;
                         reversedEdge.mirrorEdge = edge;
+                        graphEdit.end();
                         resetMarkedNodes();
                         return;
                     } catch (NumberFormatException ex) {
@@ -170,22 +175,28 @@ public class GraphService implements Serializable, StateEditable {
     }
 
     void removeVertex(MouseEvent point) {
-        checkIfVertex(point).ifPresent(vertex -> {
-            vertex.connectedEdges.forEach(edge -> {
+        checkIfVertex(point).ifPresent(node -> {
+            graphEdit = new StateEdit(this);
+            node.connectedEdges.forEach(edge -> {
                 Stream.of(edge, edge.mirrorEdge).forEach(graph::remove);
                 nodes.get(nodes.indexOf(edge.getTarget())).connectedEdges.remove(edge.mirrorEdge);
             });
-            nodes.remove(vertex);
-            graph.remove(vertex);
+            nodes.remove(node);
+            graph.remove(node);
             graph.repaint();
+            graphEdit.end();
         });
     }
 
     void removeEdge(MouseEvent point) {
-        checkIfEdge(point).ifPresent(edge -> Stream.of(edge, edge.mirrorEdge)
-                .peek(e -> nodes.get(nodes.indexOf(e.getSource())).connectedEdges.remove(e))
-                .forEach(graph::remove));
-        graph.repaint();
+        checkIfEdge(point).ifPresent(edge -> {
+            graphEdit = new StateEdit(this);
+            Stream.of(edge, edge.mirrorEdge)
+                    .peek(e -> nodes.get(nodes.indexOf(e.getSource())).connectedEdges.remove(e))
+                    .forEach(graph::remove);
+            graph.repaint();
+            graphEdit.end();
+        });
     }
 
     void clearGraph() {

@@ -8,7 +8,7 @@ public class MouseHandler extends MouseAdapter {
     private final GraphService service;
     private Point location, pressed;
     private Component source;
-    private StateEdit moveStateEdit;
+    private StateEdit nodeMoveEdit;
 
     public MouseHandler(GraphService service) {
         this.service = service;
@@ -24,14 +24,27 @@ public class MouseHandler extends MouseAdapter {
         source = event.getComponent();
         pressed = event.getLocationOnScreen();
         location = source.getLocation();
-        if (source instanceof Vertex)
-            moveStateEdit = new StateEdit((Vertex) source);
+        service.graphEdit = null;
+        if (source instanceof Vertex) {
+            nodeMoveEdit = new StateEdit((Vertex) source);
+        }
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent event) {
+        if (source instanceof Vertex && !source.getLocation().equals(location)) {
+            if (service.graphEdit == null && pressed != null && nodeMoveEdit != null) {
+                nodeMoveEdit.end();
+                service.getUndoableEditSupport().postEdit(nodeMoveEdit);
+                pressed = null;
+            }
+        }
+        nodeMoveEdit = null;
     }
 
     @Override
     public void mouseClicked(MouseEvent event) {
         if (source instanceof Vertex || source instanceof Graph) {
-            StateEdit stateEdit = new StateEdit(service);
             switch (service.getGraphMode()) {
                 case ADD_A_VERTEX:
                     service.createNewVertex(event);
@@ -49,32 +62,26 @@ public class MouseHandler extends MouseAdapter {
                     if (service.getAlgorithmMode() != AlgMode.NONE) service.startAlgorithm(event);
                     return;
             }
-            stateEdit.end();
-            service.getUndoableEditSupport().postEdit(stateEdit);
+            pressed = null;
+            if (service.graphEdit != null) {
+                service.getUndoableEditSupport().postEdit(service.graphEdit);
+            }
         }
     }
 
     @Override
     public void mouseDragged(MouseEvent event) {
-        if (source instanceof Graph) return;
+        if (source instanceof Graph || pressed == null) return;
         var drag = event.getLocationOnScreen();
         if (source instanceof Vertex) {
             int x = (int) (location.x + drag.getX() - pressed.getX());
             int y = (int) (location.y + drag.getY() - pressed.getY());
-            if (x < source.getParent().getWidth() - 10
-                && y < source.getParent().getHeight() - 10
+            if (x < service.getGraph().getWidth() - 10
+                && y < service.getGraph().getHeight() - 10
                 && x > -40 && y > -40) {
                 source.setLocation(x, y);
             }
-            source.getParent().repaint();
-        }
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent event) {
-        if (source instanceof Vertex && !source.getLocation().equals(location)) {
-            moveStateEdit.end();
-            service.getUndoableEditSupport().postEdit(moveStateEdit);
+            service.getGraph().repaint();
         }
     }
 }

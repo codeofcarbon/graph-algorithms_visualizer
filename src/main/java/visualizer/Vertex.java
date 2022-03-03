@@ -13,6 +13,7 @@ import java.util.List;
 public class Vertex extends JLabel implements Serializable, StateEditable {
     private static final long serialVersionUID = 12345L;
     private final String imageName;
+    private final Graph graph;
     final List<Edge> connectedEdges;
     final int radius = 25;
     final String id;
@@ -20,12 +21,13 @@ public class Vertex extends JLabel implements Serializable, StateEditable {
     boolean visited, marked, connected, path;
     int distance;
 
-    public Vertex(String id, Point center) {
+    public Vertex(String id, Point center, Graph graph, List<Edge> connectedEdges) {
         setName("Vertex " + id);
         this.id = id;
+        this.graph = graph;
         this.imageName = id.matches("[a-z]") ? id.concat("_lower")
                 : id.matches("[A-Z]") ? id.concat("_upper") : id;
-        this.connectedEdges = new ArrayList<>();
+        this.connectedEdges = connectedEdges;
         setLocation(center.x - radius, center.y - radius);
         setPreferredSize(new Dimension(50, 50));
         setSize(getPreferredSize());
