@@ -5,10 +5,10 @@ import lombok.Getter;
 import javax.swing.*;
 import java.awt.*;
 
-@Getter
 public class Graph extends JPanel {
     private static final Image backImage = new ImageIcon("src/main/resources/icons/special/background.png").getImage();
     private final GraphService service;
+    @Getter
     private final Toolbar toolbar;
 
     public Graph() {
@@ -24,12 +24,12 @@ public class Graph extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(backImage, 0, 0, Color.BLACK, null);
         Graphics2D g2D = (Graphics2D) g;
+        g2D.drawImage(backImage, 0, 0, Color.BLACK, null);
         g2D.setStroke(new BasicStroke(2f));
         service.getNodes().stream()
                 .flatMap(node -> node.connectedEdges.stream())
-                .forEach(edge -> edge.getState().draw(g, g2D, edge));
+                .forEach(edge -> edge.getState().draw(g2D, edge));
         service.getNodes()
                 .forEach(node -> node.getState().draw(g2D, node));
         if (service.getNodes().stream().anyMatch(node -> node.getY() < 0)) {

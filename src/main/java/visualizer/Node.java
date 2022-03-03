@@ -13,18 +13,15 @@ import java.util.List;
 public class Node extends JLabel implements Serializable, StateEditable {
     private static final long serialVersionUID = 12345L;
     private final String imageName;
-    private final Graph graph;
     final List<Edge> connectedEdges;
     final int radius = 25;
     final String id;
-
     boolean visited, marked, connected, path;
     int distance;
 
-    public Node(String id, Point center, Graph graph, List<Edge> connectedEdges) {
+    public Node(String id, Point center, List<Edge> connectedEdges) {
         setName("Vertex " + id);
         this.id = id;
-        this.graph = graph;
         this.imageName = id.matches("[a-z]") ? id.concat("_lower")
                 : id.matches("[A-Z]") ? id.concat("_upper") : id;
         this.connectedEdges = connectedEdges;
@@ -52,6 +49,7 @@ public class Node extends JLabel implements Serializable, StateEditable {
     public void restoreState(Hashtable<?, ?> state) {
         var nodeLocation = (Point) state.get("Location");
         if (nodeLocation != null) setLocation(nodeLocation);
+        getParent().repaint();
     }
 }
 
@@ -95,10 +93,10 @@ enum NodeState {
         }
     };
 
-    private static final Image raw = getSpecialImage("white fancy slim", 60, 60);
-    private static final Image connected = getSpecialImage("green fancy slim", 60, 60);
-    private static final Image visited = getSpecialImage("blue fancy slim", 60, 60);
-    private static final Image path = getSpecialImage("orange fancy slim", 70, 70);
+    private static final Image raw = getSpecialImage("white slim", 60, 60);
+    private static final Image connected = getSpecialImage("green slim", 60, 60);
+    private static final Image visited = getSpecialImage("blue slim", 60, 60);
+    private static final Image path = getSpecialImage("orange slim", 70, 70);
     private static final Image rootNode = getSpecialImage("root node", 100, 100);
     private static final Image targetMark = getSpecialImage("orange layered", 80, 80);
     private static final Image dashedMark = getSpecialImage("green dashed", 60, 60);

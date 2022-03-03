@@ -12,7 +12,6 @@ public class MenuBar extends JMenuBar {
     private final Toolbar toolbar;
 
     public MenuBar(Toolbar toolbar) {
-        setBackground(Color.BLACK);
         this.toolbar = toolbar;
 
         // ==================================================================================== file menu =====
@@ -27,9 +26,9 @@ public class MenuBar extends JMenuBar {
 
         // =========================================================================== graph mode submenu =====
         JMenu graphMenu = addMenu("Graph", KeyEvent.VK_G, modeMenu);
-        addMenuItem("Add a Vertex", KeyEvent.VK_A, graphMenu, e -> setGraphMode(GraphMode.ADD_A_VERTEX), "");
+        addMenuItem("Add a Vertex", KeyEvent.VK_A, graphMenu, e -> setGraphMode(GraphMode.ADD_NODE), "");
         addMenuItem("Add an Edge", KeyEvent.VK_E, graphMenu, e -> setGraphMode(GraphMode.ADD_AN_EDGE), "");
-        addMenuItem("Remove a Vertex", KeyEvent.VK_X, graphMenu, e -> setGraphMode(GraphMode.REMOVE_A_VERTEX), "");
+        addMenuItem("Remove a Vertex", KeyEvent.VK_X, graphMenu, e -> setGraphMode(GraphMode.REMOVE_NODE), "");
         addMenuItem("Remove an Edge", KeyEvent.VK_R, graphMenu, e -> setGraphMode(GraphMode.REMOVE_AN_EDGE), "");
         graphMenu.addSeparator();
         addMenuItem("None", KeyEvent.VK_N, graphMenu, e -> setGraphMode(GraphMode.NONE), "");
