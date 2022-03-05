@@ -13,9 +13,9 @@ import java.util.List;
 public class Node extends JLabel implements Serializable, StateEditable {
     private static final long serialVersionUID = 12345L;
     private final String imageName;
-    final List<Edge> connectedEdges;
-    final int radius = 25;
-    final String id;
+    private final List<Edge> connectedEdges;
+    private final int radius = 25;
+    private final String id;
     boolean visited, marked, connected, path;
     int distance;
 
