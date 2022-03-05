@@ -33,7 +33,7 @@ public class GraphService implements Serializable, StateEditable {
     }
 
     public void storeState(Hashtable<Object, Object> state) {
-        var edges = nodes.stream().flatMap(v -> v.connectedEdges.stream()).collect(Collectors.toList());
+        var edges = nodes.stream().flatMap(node -> node.getConnectedEdges().stream()).collect(Collectors.toList());
         state.put("nodes", new ArrayList<>(nodes));
         state.put("edges", new ArrayList<>(edges));
     }
@@ -44,26 +44,26 @@ public class GraphService implements Serializable, StateEditable {
         nodes = nodesState != null ? nodesState : nodes;
         var edgesState = (List<Edge>) state.get("edges");
         if (edgesState != null) {
-            nodes.forEach(v -> {
-                v.connectedEdges.clear();
-                v.connectedEdges.addAll(edgesState.stream()
-                        .filter(e -> e.getSource().equals(v))
+            nodes.forEach(node -> {
+                node.getConnectedEdges().clear();
+                node.getConnectedEdges().addAll(edgesState.stream()
+                        .filter(e -> e.getSource().equals(node))
                         .collect(Collectors.toList()));
             });
         }
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
-        nodes.stream().peek(v -> v.connectedEdges.forEach(graph::add)).forEach(graph::add);
+        nodes.stream().peek(v -> v.getConnectedEdges().forEach(graph::add)).forEach(graph::add);
         graph.repaint();
     }
 
-    void startAlgorithm(MouseEvent e) {
-        checkIfVertex(e).ifPresent(selectedNode -> {
+    void startAlgorithm(MouseEvent point) {
+        checkIfVertex(point).ifPresent(selectedNode -> {
             if (Algorithm.root != null && algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
                 var shortestPath = algorithm.getShortestPath(selectedNode);
                 toolbar.getLeftInfoLabel().setText(shortestPath);
                 graph.repaint();
             }
-            if (Algorithm.root == null) {
+            if (Algorithm.target == null) {
                 algorithm.initAlgorithm(selectedNode);
                 toolbar.getLeftInfoLabel().setText("Please wait...");
                 timer = new Timer(250, event -> {
@@ -131,7 +131,7 @@ public class GraphService implements Serializable, StateEditable {
                 edgeTarget = targetNode;
                 edgeTarget.marked = true;
                 graph.repaint();
-                if (nodes.stream().flatMap(node -> node.connectedEdges.stream()).anyMatch(edge ->
+                if (nodes.stream().flatMap(node -> node.getConnectedEdges().stream()).anyMatch(edge ->
                         edge.getSource().equals(edgeTarget) && edge.getTarget().equals(edgeSource)
                         || edge.getSource().equals(edgeSource) && edge.getTarget().equals(edgeTarget))
                     || edgeSource.equals(edgeTarget)) {
@@ -150,12 +150,12 @@ public class GraphService implements Serializable, StateEditable {
                         graphEdit = new StateEdit(this);
                         Edge edge = new Edge(edgeSource, edgeTarget, weight);
                         Edge reversedEdge = new Edge(edgeTarget, edgeSource, weight);
+                        edge.setMirrorEdge(reversedEdge);
+                        reversedEdge.setMirrorEdge(edge);
                         Stream.of(edge, reversedEdge).forEach(graph::add);
                         Stream.of(edgeSource, edgeTarget).forEach(node -> node.connected = true);
-                        edge.getSource().connectedEdges.add(edge);
-                        edge.getTarget().connectedEdges.add(reversedEdge);
-                        edge.mirrorEdge = reversedEdge;
-                        reversedEdge.mirrorEdge = edge;
+                        edge.getSource().getConnectedEdges().add(edge);
+                        edge.getTarget().getConnectedEdges().add(reversedEdge);
                         graphEdit.end();
                         resetMarkedNodes();
                         return;
@@ -171,9 +171,9 @@ public class GraphService implements Serializable, StateEditable {
     void removeVertex(MouseEvent point) {
         checkIfVertex(point).ifPresent(node -> {
             graphEdit = new StateEdit(this);
-            node.connectedEdges.forEach(edge -> {
-                Stream.of(edge, edge.mirrorEdge).forEach(graph::remove);
-                edge.getTarget().connectedEdges.remove(edge.mirrorEdge);
+            node.getConnectedEdges().forEach(edge -> {
+                Stream.of(edge, edge.getMirrorEdge()).forEach(graph::remove);
+                edge.getTarget().getConnectedEdges().remove(edge.getMirrorEdge());
             });
             nodes.remove(node);
             graph.remove(node);
@@ -185,8 +185,8 @@ public class GraphService implements Serializable, StateEditable {
     void removeEdge(MouseEvent point) {
         checkIfEdge(point).ifPresent(edge -> {
             graphEdit = new StateEdit(this);
-            Stream.of(edge, edge.mirrorEdge)
-                    .peek(e -> e.getSource().connectedEdges.remove(e))
+            Stream.of(edge, edge.getMirrorEdge())
+                    .peek(e -> e.getSource().getConnectedEdges().remove(e))
                     .forEach(graph::remove);
             graph.repaint();
             graphEdit.end();
@@ -227,7 +227,7 @@ public class GraphService implements Serializable, StateEditable {
             node.distance = Integer.MAX_VALUE;
             node.visited = false;
             node.path = false;
-            node.connectedEdges.forEach(edge -> {
+            node.getConnectedEdges().forEach(edge -> {
                 edge.hidden = false;
                 edge.visited = false;
                 edge.path = false;
@@ -254,7 +254,7 @@ public class GraphService implements Serializable, StateEditable {
     }
 
     private Optional<Edge> checkIfEdge(MouseEvent event) {
-        return nodes.stream().flatMap(node -> node.connectedEdges.stream())
+        return nodes.stream().flatMap(node -> node.getConnectedEdges().stream())
                 .filter(edge -> {
                     var line = edge.getLine();
                     var midpoint = edge.getMidpoint(line);

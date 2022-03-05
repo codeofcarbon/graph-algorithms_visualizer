@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class Visualizer extends JFrame {
     public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(Visualizer::new);
+        java.awt.EventQueue.invokeLater(Visualizer::new);
     }
 
     public Visualizer() {

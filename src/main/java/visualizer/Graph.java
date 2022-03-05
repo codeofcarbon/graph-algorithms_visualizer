@@ -28,7 +28,7 @@ public class Graph extends JPanel {
         g2D.drawImage(backImage, 0, 0, Color.BLACK, null);
         g2D.setStroke(new BasicStroke(2f));
         service.getNodes().stream()
-                .flatMap(node -> node.connectedEdges.stream())
+                .flatMap(node -> node.getConnectedEdges().stream())
                 .forEach(edge -> edge.getState().draw(g2D, edge));
         service.getNodes()
                 .forEach(node -> node.getState().draw(g2D, node));

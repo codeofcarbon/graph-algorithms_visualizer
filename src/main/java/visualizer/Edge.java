@@ -11,18 +11,18 @@ import java.io.Serializable;
 public class Edge extends JLabel implements Serializable {
     private static final long serialVersionUID = 123L;
     private final Node source, target;
-    final int weight;
+    private final int weight;
+    private Edge mirrorEdge;
     boolean visited, hidden, path;
-    Edge mirrorEdge;
 
     public Edge(Node source, Node target, int weight) {
         super(String.valueOf(weight), JLabel.CENTER);
-        setName(String.format("Edge <%s -> %s>", source.id, target.id));
+        setName(String.format("Edge <%s -> %s>", source.getId(), target.getId()));
         this.source = source;
         this.target = target;
         this.weight = weight;
-        var midpoint = new Point((source.getX() + source.radius + target.getX() + target.radius) / 2,
-                (source.getY() + source.radius + target.getY() + target.radius) / 2);
+        var midpoint = new Point((source.getX() + source.getRadius() + target.getX() + target.getRadius()) / 2,
+                (source.getY() + source.getRadius() + target.getY() + target.getRadius()) / 2);
         setLocation(midpoint.x - 15, midpoint.y - 15);
         setPreferredSize(new Dimension(30, 30));
         setSize(getPreferredSize());
@@ -45,6 +45,10 @@ public class Edge extends JLabel implements Serializable {
 
     protected Point getMidpoint(Line2D.Double line) {
         return new Point((int) ((line.x1 + line.x2) / 2), (int) ((line.y1 + line.y2) / 2));
+    }
+
+    protected void setMirrorEdge(Edge edge) {
+        this.mirrorEdge = edge;
     }
 }
 

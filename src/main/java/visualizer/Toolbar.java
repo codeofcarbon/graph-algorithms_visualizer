@@ -126,7 +126,7 @@ public class Toolbar extends JPanel {
             if (fileChooser.showSaveDialog(service.getGraph()) == JFileChooser.APPROVE_OPTION) {
                 try (var outStream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(
                         String.valueOf(fileChooser.getSelectedFile()))))) {
-                    service.getNodes().forEach(node -> graphData.put(node, node.connectedEdges));
+                    service.getNodes().forEach(node -> graphData.put(node, node.getConnectedEdges()));
                     outStream.writeObject(graphData);
                 } catch (IOException e) {
                     System.err.println("Graph saving error: " + e.getMessage());
