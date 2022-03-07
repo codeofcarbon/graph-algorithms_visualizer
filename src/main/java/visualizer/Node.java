@@ -17,7 +17,7 @@ public class Node extends JLabel implements Serializable, StateEditable {
     private final int radius = 25;
     private final String id;
     boolean visited, marked, connected, path;
-    int distance;
+    int distance = Integer.MAX_VALUE;
 
     public Node(String id, Point center, List<Edge> connectedEdges) {
         setName("Vertex " + id);
