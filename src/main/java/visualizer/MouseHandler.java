@@ -65,6 +65,7 @@ public class MouseHandler extends MouseAdapter {
             pressed = null;
             if (service.graphEdit != null) {
                 service.getUndoableEditSupport().postEdit(service.graphEdit);
+                service.graphEdit = null;
             }
         }
     }

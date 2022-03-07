@@ -78,10 +78,10 @@ public class Toolbar extends JPanel {
     }
 
     void updateModeLabels(String graphMode, String algMode) {
-        var htmlStyle = "<html><font size=4 color=rgb(40,162,212)><b>%s MODE</b></font><br>" +
+        var htmlStyle = "<html><div align=%s><font size=4 color=rgb(40,162,212)><b>%s MODE</b></font><br>" +
                         "<font size=3 color=rgb(204,204,204)>%s</font>";
-        graphModeLabel.setText(String.format(htmlStyle, "GRAPH", graphMode));
-        algorithmModeLabel.setText(String.format(htmlStyle, "ALGORITHM", algMode));
+        graphModeLabel.setText(String.format(htmlStyle, "right", "GRAPH", graphMode));
+        algorithmModeLabel.setText(String.format(htmlStyle, "left", "ALGORITHM", algMode));
     }
 
     private JLabel addNewLabel(int alignment, Dimension dimension, boolean htmlStyle) {
@@ -97,11 +97,16 @@ public class Toolbar extends JPanel {
         return label;
     }
 
+    private static ImageIcon loadIcon(String iconFilename) {
+        return new ImageIcon(new ImageIcon(String.format("src/main/resources/icons/buttons/%s.png", iconFilename))
+                .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
+    }
+
     @SuppressWarnings("unchecked")
-    private void addListeners() {                                      
+    private void addListeners() {
         openButton.addActionListener(event -> {
             toolsPanel.getComponentPopupMenu().setVisible(false);
-            fileChooser.setDialogTitle("Select graph data file");
+            fileChooser.setDialogTitle("Open graph data file");
             if (fileChooser.showOpenDialog(service.getGraph()) == JFileChooser.APPROVE_OPTION) {
                 try (var inStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(
                         String.valueOf(fileChooser.getSelectedFile()))))) {
@@ -120,6 +125,7 @@ public class Toolbar extends JPanel {
                 }
             }
         });
+
         saveButton.addActionListener(event -> {
             toolsPanel.getComponentPopupMenu().setVisible(false);
             fileChooser.setDialogTitle("Save graph data file");
@@ -133,52 +139,46 @@ public class Toolbar extends JPanel {
                 }
             }
         });
+
         closeButton.addActionListener(event -> {
             toolsPanel.getComponentPopupMenu().setVisible(false);
-            var exitDialogButton = new JButton("Exit");
             var confirm = JOptionPane.showOptionDialog(service.getGraph(), "Are you sure you want to exit?",
                     "Exit an app", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
-                    new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/exit_dialog.png").getImage().
-                            getScaledInstance(30, 30, Image.SCALE_SMOOTH)),
-                    new Object[]{exitDialogButton.getText(), "Cancel"}, exitDialogButton);
+                    loadIcon("exit_dialog"), new Object[]{"Exit", "Cancel"}, null);
             if (confirm == JFileChooser.APPROVE_OPTION) {
                 System.exit(0);
             }
         });
+
         refreshButton.addActionListener(event -> {
             toolsPanel.getComponentPopupMenu().setVisible(false);
-            var clearDialogButton = new JButton("Start new graph");
             var confirm = JOptionPane.showOptionDialog(service.getGraph(), "Clear the board and start new graph?",
                     "Reset a graph", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
-                    new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/new_dialog.png").getImage().
-                            getScaledInstance(30, 30, Image.SCALE_SMOOTH)),
-                    new Object[]{clearDialogButton.getText(), "Cancel"}, clearDialogButton);
+                    loadIcon("new_dialog"), new Object[]{"New graph", "Cancel"}, null);
             if (confirm == JFileChooser.APPROVE_OPTION) {
                 service.clearGraph();
             }
         });
+
         undoButton.addActionListener(event -> {
             try {
                 service.getManager().undo();
-                service.resetComponentLists();
+                service.resetComponentsLists();
             } catch (CannotUndoException e) {
                 toolsPanel.getComponentPopupMenu().setVisible(false);
-                JOptionPane.showMessageDialog(                                         
-                        service.getGraph(), "Nothing else to undo", "Info", JOptionPane.WARNING_MESSAGE,
-                        new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/warn_dialog.png").getImage().
-                                getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
+                JOptionPane.showMessageDialog(service.getGraph(), "Nothing else to undo", "Info",
+                        JOptionPane.WARNING_MESSAGE, loadIcon("warn_dialog"));
             }
         });
+
         redoButton.addActionListener(event -> {
             try {
                 service.getManager().redo();
-                service.resetComponentLists();
+                service.resetComponentsLists();
             } catch (CannotRedoException e) {
                 toolsPanel.getComponentPopupMenu().setVisible(false);
-                JOptionPane.showMessageDialog(                                   
-                        service.getGraph(), "Nothing else to redo", "Info", JOptionPane.WARNING_MESSAGE,
-                        new ImageIcon(new ImageIcon("src/main/resources/icons/buttons/warn_dialog.png").getImage().
-                                getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
+                JOptionPane.showMessageDialog(service.getGraph(), "Nothing else to redo", "Info",
+                        JOptionPane.WARNING_MESSAGE, loadIcon("warn_dialog"));
             }
         });
     }

@@ -62,7 +62,7 @@ public class Algorithm {
                         }
                     });
             current.visited = true;
-            queue.sort(Comparator.comparingInt(node -> node.distance));
+            queue.sort(Comparator.comparingInt(Node::getDistance));
         }
         if (service.getNodes().stream().allMatch(Node::isVisited)) {
             paths.values().forEach(edgeResult::addAll);
@@ -83,6 +83,7 @@ public class Algorithm {
     }
 
     protected void initAlgorithm(Node rootNode) {
+        service.resetComponentsLists();
         resetAlgorithmData();
         root = rootNode;
         rootNode.visited = true;
@@ -127,8 +128,7 @@ public class Algorithm {
                             .filter(node -> !node.equals(root))
                             .sorted(Comparator.comparing(Node::getId))
                             .map(node -> "<font size=+1 color=#0062ff> " + node.getId() + "<font color=red> &#8680 " +
-                                         (List.of(Integer.MAX_VALUE, Integer.MIN_VALUE).contains(node.distance) ?
-                                                 "inf" : node.distance))
+                                         (node.distance == Integer.MAX_VALUE ? "inf" : node.distance))
                             .collect(Collectors.joining("<font color=gray>,"));
 
                     algorithmResult = "<html><font size=+1 color=gray>shortest distances from " +
@@ -170,7 +170,7 @@ public class Algorithm {
                "<b><font size=+2 color=#5afa46>" + root.getId() + "</b><font size=+1 color=gray> to " +
                "<b><font size=+2 color=#5afa46>" + target.getId() + "</b><font size=+1 color=gray>:   " +
                resultJoiner + "<font size=+2 color=#eb4034>   &#8680 " +
-               (target.distance == Integer.MAX_VALUE || target.distance == Integer.MIN_VALUE ? "inf" : target.distance);
+               (target.distance == Integer.MAX_VALUE ? "inf" : target.distance);
     }
 
     protected void resetAlgorithmData() {
@@ -179,5 +179,16 @@ public class Algorithm {
         algorithmResult = "";
         target = null;
         root = null;
+    }
+
+    boolean checkIfGraphIsConnected(Node rootNode) {
+        queue.addLast(rootNode);
+        while (!queue.isEmpty()) {
+            queue.peekLast().visited = true;
+            queue.peekLast().getConnectedEdges().stream()
+                    .filter(edge -> !edge.getTarget().visited)
+                    .findAny().ifPresentOrElse(edge -> queue.addLast(edge.getTarget()), queue::pollLast);
+        }
+        return service.getNodes().stream().allMatch(Node::isVisited);
     }
 }
