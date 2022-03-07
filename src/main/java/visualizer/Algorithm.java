@@ -170,7 +170,7 @@ public class Algorithm {
                "<b><font size=+2 color=#5afa46>" + root.getId() + "</b><font size=+1 color=gray> to " +
                "<b><font size=+2 color=#5afa46>" + target.getId() + "</b><font size=+1 color=gray>:   " +
                resultJoiner + "<font size=+2 color=#eb4034>   &#8680 " +
-               (target.distance == Integer.MAX_VALUE ? "inf" : target.distance);
+               (target.distance == Integer.MAX_VALUE || target.distance == Integer.MIN_VALUE ? "inf" : target.distance);
     }
 
     protected void resetAlgorithmData() {
