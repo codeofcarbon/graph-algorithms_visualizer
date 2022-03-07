@@ -58,12 +58,19 @@ public class GraphService implements Serializable, StateEditable {
 
     void startAlgorithm(MouseEvent point) {
         checkIfVertex(point).ifPresent(selectedNode -> {
+            if (!algorithm.checkIfGraphIsConnected(selectedNode)) {
+                var messageLabel = new JLabel("<html><div align='center'>Unfortunately, this version of the program " +
+                                              "supports connected graphs only.<br>Check back soon for updates");
+                JOptionPane.showMessageDialog(graph, messageLabel, "Disconnected graph", JOptionPane.PLAIN_MESSAGE);
+                resetComponentsLists();
+                return;
+            }
             if (Algorithm.root != null && algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
                 var shortestPath = algorithm.getShortestPath(selectedNode);
                 toolbar.getLeftInfoLabel().setText(shortestPath);
                 graph.repaint();
             }
-            if (Algorithm.target == null) {
+            if (Algorithm.root == null) {
                 algorithm.initAlgorithm(selectedNode);
                 toolbar.getLeftInfoLabel().setText("Please wait...");
                 timer = new Timer(250, event -> {
@@ -95,12 +102,12 @@ public class GraphService implements Serializable, StateEditable {
 
     void createNewVertex(MouseEvent point) {
         if (checkIfVertex(point).isEmpty()) {
-            var input = JOptionPane.showInputDialog(graph, "Set vertex ID (alphanumeric char):",
-                    "Vertex ID", JOptionPane.INFORMATION_MESSAGE, null, null, null);
+            var input = JOptionPane.showInputDialog(graph, "Set node ID (alphanumeric char):",
+                    "Node ID", JOptionPane.INFORMATION_MESSAGE, null, null, null);
             if (input != null) {
                 Node node;
                 String id = input.toString();
-                if (!id.isBlank() && id.length() == 1) {
+                if (id.matches("[^_\\W]")) {
                     graphEdit = new StateEdit(this);
                     node = new Node(id, point.getPoint(), new ArrayList<>());
                     mouseHandler.addComponent(node);
@@ -109,8 +116,8 @@ public class GraphService implements Serializable, StateEditable {
                     graphEdit.end();
                     graph.repaint();
                 } else {
-                    JOptionPane.showMessageDialog(graph,
-                            "Id must be one character long", "Error. Try again", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(graph, "Id must be one upper or lower case letter or digit. " +
+                                                         "Try again", "Error", JOptionPane.ERROR_MESSAGE);
                     createNewVertex(point);
                 }
             }
@@ -160,8 +167,8 @@ public class GraphService implements Serializable, StateEditable {
                         resetMarkedNodes();
                         return;
                     } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(graph,
-                                "Edge weight must be a number", "Error. Try again", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(graph, "Edge weight must be a number. Try again",
+                                "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             });
@@ -218,11 +225,11 @@ public class GraphService implements Serializable, StateEditable {
         this.algorithmMode = algorithmMode;
         graph.setToolTipText(null);
         algorithm.resetAlgorithmData();
-        resetComponentLists();
+        resetComponentsLists();
         resetMarkedNodes();
     }
 
-    void resetComponentLists() {
+    void resetComponentsLists() {
         nodes.forEach(node -> {
             node.distance = Integer.MAX_VALUE;
             node.visited = false;
