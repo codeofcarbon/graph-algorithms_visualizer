@@ -47,13 +47,13 @@ public class MouseHandler extends MouseAdapter {
         if (source instanceof Node || source instanceof Graph) {
             switch (service.getGraphMode()) {
                 case ADD_NODE:
-                    service.createNewVertex(event);
+                    service.createNewNode(event);
                     break;
                 case ADD_AN_EDGE:
                     service.createNewEdge(event);
                     break;
                 case REMOVE_NODE:
-                    service.removeVertex(event);
+                    service.removeNode(event);
                     break;
                 case REMOVE_AN_EDGE:
                     service.removeEdge(event);

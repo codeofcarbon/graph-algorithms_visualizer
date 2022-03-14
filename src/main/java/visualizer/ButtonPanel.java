@@ -18,8 +18,8 @@ public class ButtonPanel extends JPanel {
         setMinimumSize(getPreferredSize());
         setSize(getPreferredSize());
         setOpaque(false);
-        graphModeComboBox = new ModeComboBox<>(GraphMode.values(), service, SwingConstants.RIGHT);
-        algModeComboBox = new ModeComboBox<>(AlgMode.values(), service, SwingConstants.LEFT);
+        graphModeComboBox = new ModeList<>(GraphMode.values(), service, SwingConstants.RIGHT);
+        algModeComboBox = new ModeList<>(AlgMode.values(), service, SwingConstants.LEFT);
         graphModeButton = new MenuButton("graph", "GRAPH MODE", this, graphModeComboBox);
         toolsButton = new MenuButton("menu", "TOOLS", this, toolsPanel);
         algModeButton = new MenuButton("algorithm", "ALGORITHM MODE", this, algModeComboBox);

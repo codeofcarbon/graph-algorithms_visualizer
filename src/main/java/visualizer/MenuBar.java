@@ -10,9 +10,13 @@ import java.util.Arrays;
 
 public class MenuBar extends JMenuBar {
     private final Toolbar toolbar;
+    private final JFrame frame;
+    private boolean isFullScreen = false;
+    private Rectangle appWindow;
 
-    public MenuBar(Toolbar toolbar) {
+    public MenuBar(Toolbar toolbar, JFrame frame) {
         this.toolbar = toolbar;
+        this.frame = frame;
 
         // ==================================================================================== file menu =====
         JMenu fileMenu = addMenu("File", KeyEvent.VK_F, null);
@@ -26,9 +30,9 @@ public class MenuBar extends JMenuBar {
 
         // =========================================================================== graph mode submenu =====
         JMenu graphMenu = addMenu("Graph", KeyEvent.VK_G, modeMenu);
-        addMenuItem("Add a Vertex", KeyEvent.VK_A, graphMenu, e -> setGraphMode(GraphMode.ADD_NODE), "");
+        addMenuItem("Add Node", KeyEvent.VK_A, graphMenu, e -> setGraphMode(GraphMode.ADD_NODE), "");
         addMenuItem("Add an Edge", KeyEvent.VK_E, graphMenu, e -> setGraphMode(GraphMode.ADD_AN_EDGE), "");
-        addMenuItem("Remove a Vertex", KeyEvent.VK_X, graphMenu, e -> setGraphMode(GraphMode.REMOVE_NODE), "");
+        addMenuItem("Remove Node", KeyEvent.VK_X, graphMenu, e -> setGraphMode(GraphMode.REMOVE_NODE), "");
         addMenuItem("Remove an Edge", KeyEvent.VK_R, graphMenu, e -> setGraphMode(GraphMode.REMOVE_AN_EDGE), "");
         graphMenu.addSeparator();
         addMenuItem("None", KeyEvent.VK_N, graphMenu, e -> setGraphMode(GraphMode.NONE), "");
@@ -50,9 +54,11 @@ public class MenuBar extends JMenuBar {
         addMenuItem("Prev step (soon)", KeyEvent.VK_P, toolsMenu, e -> toolbar.getPrevButton().doClick(), "prev");
         addMenuItem("Next step (soon)", KeyEvent.VK_N, toolsMenu, e -> toolbar.getNextButton().doClick(), "next");
 
-        // ================================================================================= contact menu =====
+        // ========================================================================= fullscreen / contact =====
         add(Box.createHorizontalGlue());
-        addContactMeLabel();
+        addMenuLabel("Fullscreen");
+        addFullScreenOption();
+        addMenuLabel("Contact me:");
         addLinkMenu("github", "https://github.com/codeofcarbon");
         addLinkMenu("linked", "https://www.linkedin.com/in/krzysztof-karbownik");
     }
@@ -79,14 +85,14 @@ public class MenuBar extends JMenuBar {
                 return popup;
             }
         };
-        setMenuComponentDefaults(menu, text.toLowerCase(), 22, mnemonic, menuParent);
+        setMenuComponentDefaults(menu, text.toLowerCase(), 22, 22, mnemonic, menuParent);
         return menu;
     }
 
     private void addMenuItem(String text, int mnemonic, JMenu menuParent,
                              ActionListener listener, String iconFilename) {
         var menuItem = new JMenuItem(text);
-        setMenuComponentDefaults(menuItem, iconFilename, 18, mnemonic, menuParent);
+        setMenuComponentDefaults(menuItem, iconFilename, 18, 18, mnemonic, menuParent);
         menuItem.addActionListener(listener);
         if ("prev".equals(iconFilename) || "next".equals(iconFilename))      // todo - not yet implemented
             menuItem.setEnabled(false);
@@ -104,30 +110,54 @@ public class MenuBar extends JMenuBar {
             }
         });
         menu.setBorder(BorderFactory.createEmptyBorder());
-        menu.setIcon(loadIcon(String.format("%s blue", iconFilename), 18));
+        menu.setIcon(loadIcon(String.format("%s blue", iconFilename), 18, 18));
         add(menu);
     }
 
-    private void addContactMeLabel() {
-        var label = new JLabel("Contact me:");
+    private void addFullScreenOption() {
+        var menu = new JMenu();
+        menu.setBorder(BorderFactory.createEmptyBorder());
+        menu.setPreferredSize(new Dimension(40, 20));
+        var icon = loadIcon("toggle small", 32, 18);
+        var selectedIcon = loadIcon("toggle full", 32, 18);
+        menu.setIcon(icon);
+        menu.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!isFullScreen) {
+                    menu.setIcon(selectedIcon);
+                    appWindow = new Rectangle(frame.getBounds());
+                    frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                } else {
+                    frame.setBounds(appWindow);
+                    menu.setIcon(icon);
+                }
+                isFullScreen = !isFullScreen;
+            }
+        });
+        add(menu);
+    }
+
+    private void addMenuLabel(String text) {
+        var label = new JLabel(text);
         label.setFont(new Font("Segoe UI", Font.PLAIN, 10));
         label.setEnabled(false);
         add(label);
     }
 
-    private ImageIcon loadIcon(String iconFilename, int size) {
+    private ImageIcon loadIcon(String iconFilename, int width, int height) {
         return new ImageIcon(new ImageIcon(
                 String.format("src/main/resources/icons/buttons/%s.png", iconFilename))
-                .getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH));
+                .getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
     }
 
     private void setMenuComponentDefaults(JMenuItem comp, String iconFilename,
-                                          int iconSize, int mnemonic, JMenu menuParent) {
+                                          int iconWidth, int iconHeight, int mnemonic, JMenu menuParent) {
         comp.setBorder(BorderFactory.createEmptyBorder());
         comp.setMnemonic(mnemonic);
         if (menuParent != null) {
-            var icon = loadIcon(iconFilename + " blue", iconSize);
-            var rolloverIcon = loadIcon(iconFilename, iconSize);
+            var icon = loadIcon(iconFilename + " blue", iconWidth, iconHeight);
+            var rolloverIcon = loadIcon(iconFilename, iconWidth, iconHeight);
             comp.setIcon(icon);
             comp.addChangeListener(e -> {
                 comp.setIcon(comp.isSelected() || comp.isArmed() ? rolloverIcon : icon);

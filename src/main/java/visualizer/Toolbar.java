@@ -15,11 +15,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Toolbar extends JPanel {
     private static Map<Node, List<Edge>> graphData = new ConcurrentHashMap<>();
     private final JFileChooser fileChooser;
-    private final ToolButton openButton, saveButton, refreshButton, closeButton, undoButton, redoButton;
-    private final ToolButton prevButton, nextButton;
-    private final JLabel leftInfoLabel, rightInfoLabel, graphModeLabel, algorithmModeLabel;
+    private final ToolButton openButton, saveButton, refreshButton, closeButton;
+    private final ToolButton undoButton, redoButton, prevButton, nextButton;
+    private final JPanel toolsPanel, rightInfoPanel/*, leftInfoLabel*/;
+    private final JLabel leftInfoLabel, graphModeLabel, algorithmModeLabel;
     private final ButtonPanel buttonPanel;
-    private final JPanel toolsPanel;
     private final GraphService service;
 
     public Toolbar(GraphService service) {
@@ -57,37 +57,51 @@ public class Toolbar extends JPanel {
 
         buttonPanel = new ButtonPanel(service, toolsPanel);
 
-        leftInfoLabel = addNewLabel(SwingConstants.CENTER, new Dimension(260, 70), false);
-        rightInfoLabel = addNewLabel(SwingConstants.CENTER, new Dimension(260, 70), false);
-        graphModeLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(140, 70), true);
-        algorithmModeLabel = addNewLabel(SwingConstants.LEADING, new Dimension(140, 70), true);
-        updateModeLabels("ADD A VERTEX", "NONE");
+        var leftInfoPanel = addNewPanel(new Dimension(260, 70));
+        rightInfoPanel = addNewPanel(new Dimension(260, 70));
+        graphModeLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(120, 70));
+        algorithmModeLabel = addNewLabel(SwingConstants.LEADING, new Dimension(160, 70));
+        updateModeLabels("ADD A NODE", "NONE");
+
+        leftInfoLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(260, 70));
+        leftInfoPanel.add(leftInfoLabel, BorderLayout.NORTH);
 
         var gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        add(leftInfoLabel, gbc);
+        add(leftInfoPanel, gbc);
         gbc.weightx = 0.0;
         add(graphModeLabel, gbc);
         add(buttonPanel, gbc);
         add(algorithmModeLabel, gbc);
         gbc.weightx = 1.0;
-        add(rightInfoLabel, gbc);
+        add(rightInfoPanel, gbc);
 
         addListeners();
     }
 
     void updateModeLabels(String graphMode, String algMode) {
-        var htmlStyle = "<html><div align=%s><font size=4 color=rgb(40,162,212)><b>%s MODE</b></font><br>" +
-                        "<font size=3 color=rgb(204,204,204)>%s</font>";
+        var htmlStyle = "<html><div align=%s><font color=rgb(40,162,212)><b>%s MODE</b></font><br>" +
+                        "<font size=4 color=rgb(204,204,204)>%s</font>";
         graphModeLabel.setText(String.format(htmlStyle, "right", "GRAPH", graphMode));
         algorithmModeLabel.setText(String.format(htmlStyle, "left", "ALGORITHM", algMode));
     }
 
-    private JLabel addNewLabel(int alignment, Dimension dimension, boolean htmlStyle) {
+    private JPanel addNewPanel(Dimension dimension) {
+        var panel = new JPanel();
+        panel.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 20));
+        panel.setPreferredSize(dimension);
+        panel.setMinimumSize(dimension);
+        panel.setSize(panel.getPreferredSize());
+        panel.setForeground(Color.WHITE);
+        panel.setBackground(Color.BLACK);
+        panel.setOpaque(true);
+        return panel;
+    }
+
+    private JLabel addNewLabel(int alignment, Dimension dimension) {
         var label = new JLabel("", alignment);
-        label.setFont(htmlStyle ? new Font("Tempus Sans ITC", Font.PLAIN, 15)
-                : new Font("Tempus Sans ITC", Font.PLAIN, 20));
+        label.setFont(new Font("Stylus BT", Font.PLAIN, 15));
         label.setPreferredSize(dimension);
         label.setMinimumSize(dimension);
         label.setSize(label.getPreferredSize());

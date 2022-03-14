@@ -5,10 +5,10 @@ import javax.swing.plaf.basic.*;
 import java.awt.*;
 import java.util.Arrays;
 
-public class ModeComboBox<T> extends JComboBox<String> {
+public class ModeList<T> extends JComboBox<String> {
     Class<?> clazz;                                                                     // todo refactor
 
-    public ModeComboBox(T[] array, GraphService service, int alignment) {
+    public ModeList(T[] array, GraphService service, int alignment) {
         setRenderer(new CellRenderer<>());
         ((CellRenderer<?>) getRenderer()).setHorizontalAlignment(alignment);
         clazz = array[0] instanceof GraphMode ? GraphMode.class : AlgMode.class;
@@ -49,11 +49,39 @@ class CellRenderer<T> extends JLabel implements ListCellRenderer<T> {
         setText(value.toString());
         setPreferredSize(new Dimension(200, 14));
         setSize(getPreferredSize());
-        setForeground(isSelected ? new Color(40, 162, 212, 255) : Color.LIGHT_GRAY.darker());
-        setFont(new Font("Tahoma", Font.PLAIN, isSelected ? 17 : 15));
+        setForeground(isSelected ? new Color(40, 162, 212, 255) : new Color(204, 204, 204, 255));
+        setFont(new Font("Stylus BT", Font.PLAIN, isSelected ? 17 : 15));
         setBorder(BorderFactory.createEmptyBorder());
         setBackground(Color.BLACK);
         setOpaque(true);
         return this;
+    }
+}
+
+enum GraphMode {
+    ADD_NODE("Add Node"),
+    ADD_AN_EDGE("Add an Edge"),
+    REMOVE_NODE("Remove Node"),
+    REMOVE_AN_EDGE("Remove an Edge"),
+    NONE("None");
+
+    final String current;
+
+    GraphMode(String current) {
+        this.current = current;
+    }
+}
+
+enum AlgMode {
+    DEPTH_FIRST_SEARCH("Depth-First Search"),
+    BREADTH_FIRST_SEARCH("Breadth-First Search"),
+    DIJKSTRA_ALGORITHM("Dijkstra's Algorithm"),
+    PRIM_ALGORITHM("Prim's Algorithm"),
+    NONE("None");
+
+    final String current;
+
+    AlgMode(String current) {
+        this.current = current;
     }
 }

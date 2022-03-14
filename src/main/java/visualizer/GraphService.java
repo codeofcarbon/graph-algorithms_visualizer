@@ -100,7 +100,7 @@ public class GraphService implements Serializable, StateEditable {
         });
     }
 
-    void createNewVertex(MouseEvent point) {
+    void createNewNode(MouseEvent point) {
         if (checkIfVertex(point).isEmpty()) {
             var input = JOptionPane.showInputDialog(graph, "Set node ID (alphanumeric char):",
                     "Node ID", JOptionPane.INFORMATION_MESSAGE, null, null, null);
@@ -118,7 +118,7 @@ public class GraphService implements Serializable, StateEditable {
                 } else {
                     JOptionPane.showMessageDialog(graph, "Id must be one upper or lower case letter or digit. " +
                                                          "Try again", "Error", JOptionPane.ERROR_MESSAGE);
-                    createNewVertex(point);
+                    createNewNode(point);
                 }
             }
         }
@@ -175,7 +175,7 @@ public class GraphService implements Serializable, StateEditable {
         }
     }
 
-    void removeVertex(MouseEvent point) {
+    void removeNode(MouseEvent point) {
         checkIfVertex(point).ifPresent(node -> {
             graphEdit = new StateEdit(this);
             node.getConnectedEdges().forEach(edge -> {
@@ -220,7 +220,14 @@ public class GraphService implements Serializable, StateEditable {
         toolbar.getLeftInfoLabel().setText(graphMode == GraphMode.NONE && algorithmMode != AlgMode.NONE
                 ? "Please choose a starting vertex" : "");
         toolbar.updateModeLabels(graphMode.current.toUpperCase(), algorithmMode.current.toUpperCase());
+
+        var selected = toolbar.getButtonPanel().getButtonGroup().getSelection(); // todo refactor===============
         toolbar.getButtonPanel().getButtonGroup().clearSelection();
+        Arrays.stream(toolbar.getButtonPanel().getComponents())
+                .filter(c -> c instanceof MenuButton)
+                .map(c -> (MenuButton) c)
+                .forEach(b -> b.getModel().setSelected(selected.equals(b.getModel())));
+
         this.graphMode = graphMode;
         this.algorithmMode = algorithmMode;
         graph.setToolTipText(null);
@@ -267,33 +274,5 @@ public class GraphService implements Serializable, StateEditable {
                     var midpoint = edge.getMidpoint(line);
                     return line.ptSegDist(event.getPoint()) < 5 || midpoint.distance(event.getPoint()) < 12;
                 }).findAny();
-    }
-}
-
-enum GraphMode {
-    ADD_NODE("Add Node"),
-    ADD_AN_EDGE("Add an Edge"),
-    REMOVE_NODE("Remove Node"),
-    REMOVE_AN_EDGE("Remove an Edge"),
-    NONE("None");
-
-    final String current;
-
-    GraphMode(String current) {
-        this.current = current;
-    }
-}
-
-enum AlgMode {
-    DEPTH_FIRST_SEARCH("Depth-First Search"),
-    BREADTH_FIRST_SEARCH("Breadth-First Search"),
-    DIJKSTRA_ALGORITHM("Dijkstra's Algorithm"),
-    PRIM_ALGORITHM("Prim's Algorithm"),
-    NONE("None");
-
-    final String current;
-
-    AlgMode(String current) {
-        this.current = current;
     }
 }

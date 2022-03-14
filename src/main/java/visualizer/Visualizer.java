@@ -23,7 +23,7 @@ public class Visualizer extends JFrame {
         var graph = new Graph();
         add(graph, BorderLayout.CENTER);
         add(graph.getToolbar(), BorderLayout.NORTH);
-        setJMenuBar(new MenuBar(graph.getToolbar()));
+        setJMenuBar(new MenuBar(graph.getToolbar(), this));
         pack();
         setLocationRelativeTo(null);
         setVisible(true);

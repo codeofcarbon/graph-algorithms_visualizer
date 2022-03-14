@@ -20,7 +20,7 @@ public class Node extends JLabel implements Serializable, StateEditable {
     int distance = Integer.MAX_VALUE;
 
     public Node(String id, Point center, List<Edge> connectedEdges) {
-        setName("Vertex " + id);
+        setName("Node " + id);
         this.id = id;
         this.imageName = id.matches("[a-z]") ? id.concat("_lower")
                 : id.matches("[A-Z]") ? id.concat("_upper") : id;

@@ -28,7 +28,7 @@ public class MenuButton extends JToggleButton {
                 var popup = target.getComponentPopupMenu();
                 popup.setVisible(true);
                 if (target instanceof JComboBox) {
-                    if (((ModeComboBox<?>) target).clazz.equals(AlgMode.class))
+                    if (((ModeList<?>) target).clazz.equals(AlgMode.class))
                         popup.show(this, getWidth(), getY());
                     else popup.show(this, -popup.getWidth(), getY());
                 } else popup.show(this, getWidth() / 2 - popup.getWidth() / 2, getHeight() - 5);
@@ -50,7 +50,7 @@ public class MenuButton extends JToggleButton {
     private static ImageIcon loadIcon(String iconFilename, int size, boolean rolloverIcon) {
         return new ImageIcon(new ImageIcon(
                 String.format("src/main/resources/icons/buttons/%s.png",
-                        iconFilename + (rolloverIcon ? " blue" : "")))
+                        iconFilename + (rolloverIcon ? " blue" : " ring")))
                 .getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH));
     }
 

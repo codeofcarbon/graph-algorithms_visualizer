@@ -13,7 +13,7 @@ public class Graph extends JPanel {
 
     public Graph() {
         setName("Graph");
-        setPreferredSize(new Dimension(1000, 600));
+        setPreferredSize(new Dimension(1100, 600));
         setSize(getPreferredSize());
         setOpaque(true);
         setLayout(null);
