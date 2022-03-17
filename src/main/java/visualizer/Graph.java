@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 
 public class Graph extends JPanel {
     private static final Image backImage = new ImageIcon("src/main/resources/icons/special/background.png").getImage();
@@ -19,6 +20,16 @@ public class Graph extends JPanel {
         setLayout(null);
         service = new GraphService(this);
         toolbar = new Toolbar(service);
+    }
+
+    @Override
+    public JToolTip createToolTip() {
+        return new ToolTipDealer();
+    }
+
+    @Override
+    public Point getToolTipLocation(MouseEvent e) {
+        return ToolTipDealer.getFixedToolTipLocation(e, this);
     }
 
     @Override

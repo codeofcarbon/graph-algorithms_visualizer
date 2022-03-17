@@ -9,7 +9,7 @@ public class MenuButton extends JToggleButton {
 
     public MenuButton(String iconFilename, String toolTipText, ButtonPanel panel, JComponent target) {
         setUI(new BasicToggleButtonUI());
-        setToolTipText(String.format("<html><font color=gray>%s", toolTipText));
+        setToolTipText(String.format("<html><div align=right><font color=rgb(128,128,128)>%s", toolTipText));
         int size = 70;
         setPreferredSize(new Dimension(size, size));
         var icon = loadIcon(iconFilename, size, false);
@@ -56,17 +56,11 @@ public class MenuButton extends JToggleButton {
 
     @Override
     public JToolTip createToolTip() {
-        var tip = new JToolTip();
-        tip.setBackground(new Color(0, 0, 0, 0));
-        tip.setBorder(null);
-        tip.setOpaque(false);
-        return tip;
+        return new ToolTipDealer();
     }
 
     @Override
     public Point getToolTipLocation(MouseEvent e) {
-        var point = e.getPoint();
-        point.translate(-50, 20);
-        return point;
+        return ToolTipDealer.getFixedToolTipLocation(e, this);
     }
 }

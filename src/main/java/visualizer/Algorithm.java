@@ -135,7 +135,8 @@ public class Algorithm {
                                       "<font size=+2 color=#5afa46><b>" + root.getId() +
                                       "</b><font size=+1 color=gray>:   " + joinedResult;
 
-                    service.getGraph().setToolTipText("<html><font size=+1>click on a node to see the shortest path");
+                    service.getGraph().setToolTipText("<html><div align=right><font color=rgb(128,128,128)>" +
+                                                      "click on a node to see the shortest path");
                     break;
                 case PRIM_ALGORITHM:
                     algorithmResult = "<html><font size=+1 color=gray>minimum spanning tree:" + edgeResult.stream()
