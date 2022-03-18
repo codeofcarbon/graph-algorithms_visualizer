@@ -115,32 +115,32 @@ public class Algorithm {
             switch (service.getAlgorithmMode()) {
                 case DEPTH_FIRST_SEARCH:
                 case BREADTH_FIRST_SEARCH:
-                    algorithmResult = String.format("<html><font size=+1 color=gray>%s for " +
-                                                    "<font size=+2 color=#5afa46><b>" + root.getId() + "</b>" +
-                                                    "<font size=+1 color=gray>:   %s",
-                            service.getAlgorithmMode() == AlgMode.DEPTH_FIRST_SEARCH ? "DFS" : "BFS",
-                            nodeResult.stream()
-                                    .map(node -> "<font size=+1 color=#0062ff><b>" + node.getId() + "</b>")
-                                    .collect(Collectors.joining(" &rarr ")));
+                    algorithmResult = String.format("<html><font color=gray>%s for node " +
+                                                    "<font size=+1 color=#5afa46><b>" + root.getId() + "</b></font>" +
+                                                    "<font color=gray>: <br>",
+                            service.getAlgorithmMode() == AlgMode.DEPTH_FIRST_SEARCH ? "DFS" : "BFS") +
+                                      nodeResult.stream()
+                                              .map(node -> "<font color=#0062ff><b>" + node.getId() + "</b>")
+                                              .collect(Collectors.joining(" &rarr "));
                     break;
                 case DIJKSTRA_ALGORITHM:
                     var joinedResult = service.getNodes().stream()
                             .filter(node -> !node.equals(root))
                             .sorted(Comparator.comparing(Node::getId))
-                            .map(node -> "<font size=+1 color=#0062ff> " + node.getId() + "<font color=red> &#8680 " +
+                            .map(node -> "<font color=#0062ff> " + node.getId() + "<font color=red> &#8680 " +
                                          (node.distance == Integer.MAX_VALUE ? "inf" : node.distance))
                             .collect(Collectors.joining("<font color=gray>,"));
 
-                    algorithmResult = "<html><font size=+1 color=gray>shortest distances from " +
-                                      "<font size=+2 color=#5afa46><b>" + root.getId() +
-                                      "</b><font size=+1 color=gray>:   " + joinedResult;
+                    algorithmResult = "<html><font color=gray>shortest distances from node " +
+                                      "<font size=+1 color=#5afa46><b>" + root.getId() + "</b></font>" +
+                                      "<font color=gray>: <br>" + joinedResult;
 
-                    service.getGraph().setToolTipText("<html><div align=right><font color=rgb(128,128,128)>" +
+                    service.getGraph().setToolTipText("<html><div align=center><font color=rgb(128,128,128)>" +
                                                       "click on a node to see the shortest path");
                     break;
                 case PRIM_ALGORITHM:
-                    algorithmResult = "<html><font size=+1 color=gray>minimum spanning tree:" + edgeResult.stream()
-                            .map(edge -> String.format("<font size=+1 color=#0062ff><b> %s &#8644 %s</b>",
+                    algorithmResult = "<html><font color=gray>minimum spanning tree:<br>" + edgeResult.stream()
+                            .map(edge -> String.format("<font color=#0062ff><b> %s &#8644 %s</b>",
                                     edge.getSource().getId(), edge.getTarget().getId()))
                             .collect(Collectors.joining("<font color=gray>,"));
             }
@@ -163,14 +163,14 @@ public class Algorithm {
             edge.path = true;
             edge.getSource().path = edge.getSource() != root;
             edge.getTarget().path = edge.getTarget() != root;
-            resultJoiner.add(String.format("<font size=+1 color=0062ff> %s &#8644 %s",
+            resultJoiner.add(String.format("<font color=0062ff> %s &#8644 %s",
                     edge.getSource().getId(), edge.getTarget().getId()));
         });
 
-        return "<html><font size=+1 color=gray>shortest path from " +
-               "<b><font size=+2 color=#5afa46>" + root.getId() + "</b><font size=+1 color=gray> to " +
-               "<b><font size=+2 color=#5afa46>" + target.getId() + "</b><font size=+1 color=gray>:   " +
-               resultJoiner + "<font size=+2 color=#eb4034>   &#8680 " +
+        return "<html><font color=gray>shortest path from " +
+               "<b><font size=+1 color=#5afa46>" + root.getId() + "</b><font color=gray> to " +
+               "<b><font size=+1 color=#5afa46>" + target.getId() + "</b><font color=gray>: <br>" +
+               resultJoiner + "<font size=+1 color=#eb4034>   &#8680 " +
                (target.distance == Integer.MAX_VALUE || target.distance == Integer.MIN_VALUE ? "inf" : target.distance);
     }
 

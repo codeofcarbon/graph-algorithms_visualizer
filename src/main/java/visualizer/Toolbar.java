@@ -57,19 +57,18 @@ public class Toolbar extends JPanel {
 
         buttonPanel = new ButtonPanel(service, toolsPanel);
 
-        var leftInfoPanel = addNewPanel(new Dimension(260, 70));
-        rightInfoPanel = addNewPanel(new Dimension(260, 70));
+        leftInfoLabel = addNewLabel(SwingConstants.LEFT, new Dimension(330, 70));
+        leftInfoLabel.setVerticalTextPosition(SwingConstants.TOP);                          // todo
+        leftInfoLabel.setIcon(loadIcon("info"));
+        rightInfoPanel = addNewPanel(new Dimension(290, 70));
         graphModeLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(120, 70));
         algorithmModeLabel = addNewLabel(SwingConstants.LEADING, new Dimension(160, 70));
         updateModeLabels("ADD A NODE", "NONE");
 
-        leftInfoLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(260, 70));
-        leftInfoPanel.add(leftInfoLabel, BorderLayout.NORTH);
-
         var gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        add(leftInfoPanel, gbc);
+        add(leftInfoLabel, gbc);
         gbc.weightx = 0.0;
         add(graphModeLabel, gbc);
         add(buttonPanel, gbc);
@@ -87,7 +86,7 @@ public class Toolbar extends JPanel {
         algorithmModeLabel.setText(String.format(htmlStyle, "left", "ALGORITHM", algMode));
     }
 
-    private JPanel addNewPanel(Dimension dimension) {
+    private JPanel addNewPanel(Dimension dimension) {               // todo refactor / remove
         var panel = new JPanel();
         panel.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 20));
         panel.setPreferredSize(dimension);

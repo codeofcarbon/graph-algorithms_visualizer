@@ -218,7 +218,7 @@ public class GraphService implements Serializable, StateEditable {
         toolbar.getButtonPanel().getGraphModeComboBox()
                 .setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
         toolbar.getLeftInfoLabel().setText(graphMode == GraphMode.NONE && algorithmMode != AlgMode.NONE
-                ? "Please choose a starting vertex" : "");
+                ? "Please choose a starting node" : "");
         toolbar.updateModeLabels(graphMode.current.toUpperCase(), algorithmMode.current.toUpperCase());
 
         var selected = toolbar.getButtonPanel().getButtonGroup().getSelection(); // todo refactor===============
