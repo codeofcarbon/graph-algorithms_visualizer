@@ -13,7 +13,7 @@ public class ToolTipDealer extends JToolTip {
         setSize(getPreferredSize());
         setOpaque(false);
         setBorder(null);
-        setBorder(BorderFactory.createLineBorder(new Color(120, 120, 120, 50), 1));
+//        setBorder(BorderFactory.createLineBorder(new Color(120, 120, 120, 50), 1));
     }
 
     public static Point getFixedToolTipLocation(MouseEvent e) {

@@ -215,21 +215,19 @@ public class GraphService implements Serializable, StateEditable {
 
     void setCurrentModes(AlgMode algorithmMode, GraphMode graphMode) {
         if (toolbar == null) toolbar = graph.getToolbar();
-        toolbar.getButtonPanel().getAlgModeComboBox()
-                .setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algorithmMode));
-        toolbar.getButtonPanel().getGraphModeComboBox()
-                .setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
+        var buttonPanel = (ButtonPanel) toolbar.getButtonPanel();
+        var buttonGroup = buttonPanel.getButtonGroup();
+        var selected = buttonGroup.getSelection();
+
+        buttonPanel.getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algorithmMode));
+        buttonPanel.getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
+        toolbar.updateModeLabels(graphMode.current.toUpperCase(), algorithmMode.current.toUpperCase());
         toolbar.getLeftInfoLabel().setText(graphMode == GraphMode.NONE && algorithmMode != AlgMode.NONE
                 ? "Please choose a starting node" : "");
-        toolbar.updateModeLabels(graphMode.current.toUpperCase(), algorithmMode.current.toUpperCase());
-
-        var selected = toolbar.getButtonPanel().getButtonGroup().getSelection(); // todo refactor===============
-        toolbar.getButtonPanel().getButtonGroup().clearSelection();
-        Arrays.stream(toolbar.getButtonPanel().getComponents())
-                .filter(c -> c instanceof MenuButton)
-                .map(c -> (MenuButton) c)
-                .forEach(b -> b.getModel().setSelected(selected.equals(b.getModel())));
-
+        buttonGroup.clearSelection();
+        buttonGroup.getElements().asIterator().forEachRemaining(b -> {
+            if (b.getModel().equals(selected)) b.getModel().setSelected(true);
+        });
         this.graphMode = graphMode;
         this.algorithmMode = algorithmMode;
         graph.setToolTipText(null);
