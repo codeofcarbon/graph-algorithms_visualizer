@@ -37,14 +37,15 @@ public class Graph extends JPanel {
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
         g2D.drawImage(backImage, 0, 0, Color.BLACK, null);
-        g2D.setStroke(new BasicStroke(2f));
+        g2D.setStroke(new BasicStroke(1f));
         service.getNodes().stream()
                 .flatMap(node -> node.getConnectedEdges().stream())
                 .forEach(edge -> edge.getState().draw(g2D, edge));
         service.getNodes()
                 .forEach(node -> node.getState().draw(g2D, node));
         if (service.getNodes().stream().anyMatch(node -> node.getY() < 0)) {
-            g2D.setColor(Color.DARK_GRAY.darker());
+//            g2D.setColor(Color.DARK_GRAY.darker());
+            g2D.setColor(new Color(120, 120, 120, 50));
             g2D.drawLine(0, 0, getWidth(), 0);
         }
     }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import javax.swing.*;
 import javax.swing.undo.StateEditable;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import java.util.*;
 import java.util.List;
@@ -50,6 +51,16 @@ public class Node extends JLabel implements Serializable, StateEditable {
         var nodeLocation = (Point) state.get("Location");
         if (nodeLocation != null) setLocation(nodeLocation);
         getParent().repaint();
+    }
+
+    @Override
+    public JToolTip createToolTip() {
+        return new ToolTipDealer();
+    }
+
+    @Override
+    public Point getToolTipLocation(MouseEvent e) {
+        return ToolTipDealer.getFixedToolTipLocation(e, this);
     }
 }
 

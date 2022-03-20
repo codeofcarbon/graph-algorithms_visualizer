@@ -238,6 +238,7 @@ public class GraphService implements Serializable, StateEditable {
 
     void resetComponentsLists() {
         nodes.forEach(node -> {
+            node.setToolTipText(null);
             node.distance = Integer.MAX_VALUE;
             node.visited = false;
             node.path = false;
