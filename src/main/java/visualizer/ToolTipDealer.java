@@ -2,30 +2,26 @@ package visualizer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 
 public class ToolTipDealer extends JToolTip {
 
     public ToolTipDealer() {
-        setBackground(new Color(0, 0, 0, 0));
-        setBorder(null);
-        setOpaque(false);
         setFont(new Font("Tempus Sans ITC", Font.PLAIN, 17));
         setPreferredSize(new Dimension(290, 25));
         setMinimumSize(getPreferredSize());
         setSize(getPreferredSize());
-        setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        setOpaque(false);
+        setBorder(null);
+        setBorder(BorderFactory.createLineBorder(new Color(120, 120, 120, 50), 1));
     }
 
-    public static Point getFixedToolTipLocation(MouseEvent e, JComponent hovered) {
-        var frameLocation = hovered.getTopLevelAncestor().getLocationOnScreen();
-        var frameWidth = hovered.getTopLevelAncestor().getWidth();
-        var source = e.getComponent().getLocationOnScreen();
-//        System.err.println(e.getComponent());
-//        System.err.println(new Point(frameWidth - (source.x - frameLocation.x) - 703, -(source.y - (frameLocation.y + 155))));
-        // right align toolbar
-//        return new Point(frameWidth - (source.x - frameLocation.x) - 300, -(source.y - (frameLocation.y + 55)));
-        // center align under buttonPanel
-        return new Point(frameWidth - (source.x - frameLocation.x) - 703, -(source.y - (frameLocation.y + 155)));
+    public static Point getFixedToolTipLocation(MouseEvent e) {
+        var pane = SwingUtilities.getRootPane(e.getComponent());
+        var paneLocation = pane.getLocationOnScreen();
+        var sourceLocation = e.getComponent().getLocationOnScreen();
+        return new Point(
+                pane.getWidth() - (sourceLocation.x - paneLocation.x) - 290,
+                -(sourceLocation.y - (paneLocation.y + 25)));
     }
 }

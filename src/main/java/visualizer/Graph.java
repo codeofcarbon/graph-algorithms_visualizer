@@ -29,7 +29,7 @@ public class Graph extends JPanel {
 
     @Override
     public Point getToolTipLocation(MouseEvent e) {
-        return ToolTipDealer.getFixedToolTipLocation(e, this);
+        return ToolTipDealer.getFixedToolTipLocation(e);
     }
 
     @Override
@@ -44,7 +44,6 @@ public class Graph extends JPanel {
         service.getNodes()
                 .forEach(node -> node.getState().draw(g2D, node));
         if (service.getNodes().stream().anyMatch(node -> node.getY() < 0)) {
-//            g2D.setColor(Color.DARK_GRAY.darker());
             g2D.setColor(new Color(120, 120, 120, 50));
             g2D.drawLine(0, 0, getWidth(), 0);
         }

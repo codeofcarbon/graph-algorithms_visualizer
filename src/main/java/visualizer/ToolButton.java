@@ -37,6 +37,6 @@ public class ToolButton extends JButton {
 
     @Override
     public Point getToolTipLocation(MouseEvent e) {
-        return ToolTipDealer.getFixedToolTipLocation(e, this);
+        return ToolTipDealer.getFixedToolTipLocation(e);
     }
 }

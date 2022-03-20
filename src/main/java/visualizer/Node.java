@@ -60,7 +60,7 @@ public class Node extends JLabel implements Serializable, StateEditable {
 
     @Override
     public Point getToolTipLocation(MouseEvent e) {
-        return ToolTipDealer.getFixedToolTipLocation(e, this);
+        return ToolTipDealer.getFixedToolTipLocation(e);
     }
 }
 

@@ -92,9 +92,11 @@ public class GraphService implements Serializable, StateEditable {
                     if (!algorithmResult.isBlank()) {
                         toolbar.getLeftInfoLabel().setText(algorithmResult);
                         timer.stop();
+                        graph.setEnabled(true);
                     }
                     graph.repaint();
                 });
+                graph.setEnabled(false);
                 timer.start();
             }
         });
