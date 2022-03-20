@@ -17,9 +17,8 @@ public class Toolbar extends JPanel {
     private final JFileChooser fileChooser;
     private final ToolButton openButton, saveButton, refreshButton, closeButton;
     private final ToolButton undoButton, redoButton, prevButton, nextButton;
-    private final JPanel toolsPanel, rightInfoPanel/*, leftInfoLabel*/;
-    private final JLabel leftInfoLabel, graphModeLabel, algorithmModeLabel;
-    private final ButtonPanel buttonPanel;
+    private final JLabel leftInfoLabel, rightInfoLabel, graphModeLabel, algorithmModeLabel;
+    private final JPanel toolsPanel, buttonPanel;
     private final GraphService service;
 
     public Toolbar(GraphService service) {
@@ -57,10 +56,10 @@ public class Toolbar extends JPanel {
 
         buttonPanel = new ButtonPanel(service, toolsPanel);
 
-        leftInfoLabel = addNewLabel(SwingConstants.LEFT, new Dimension(330, 70));
-        leftInfoLabel.setVerticalTextPosition(SwingConstants.TOP);                          // todo
+        leftInfoLabel = addNewLabel(SwingConstants.LEADING, new Dimension(330, 70));
+//        leftInfoLabel.set(SwingConstants.NORTH_WEST);                          // todo
         leftInfoLabel.setIcon(loadIcon("info"));
-        rightInfoPanel = addNewPanel(new Dimension(290, 70));
+        rightInfoLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(290, 70));
         graphModeLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(120, 70));
         algorithmModeLabel = addNewLabel(SwingConstants.LEADING, new Dimension(160, 70));
         updateModeLabels("ADD A NODE", "NONE");
@@ -74,7 +73,7 @@ public class Toolbar extends JPanel {
         add(buttonPanel, gbc);
         add(algorithmModeLabel, gbc);
         gbc.weightx = 1.0;
-        add(rightInfoPanel, gbc);
+        add(rightInfoLabel, gbc);
 
         addListeners();
     }
@@ -84,18 +83,6 @@ public class Toolbar extends JPanel {
                         "<font size=4 color=rgb(204,204,204)>%s</font>";
         graphModeLabel.setText(String.format(htmlStyle, "right", "GRAPH", graphMode));
         algorithmModeLabel.setText(String.format(htmlStyle, "left", "ALGORITHM", algMode));
-    }
-
-    private JPanel addNewPanel(Dimension dimension) {               // todo refactor / remove
-        var panel = new JPanel();
-        panel.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 20));
-        panel.setPreferredSize(dimension);
-        panel.setMinimumSize(dimension);
-        panel.setSize(panel.getPreferredSize());
-        panel.setForeground(Color.WHITE);
-        panel.setBackground(Color.BLACK);
-        panel.setOpaque(true);
-        return panel;
     }
 
     private JLabel addNewLabel(int alignment, Dimension dimension) {

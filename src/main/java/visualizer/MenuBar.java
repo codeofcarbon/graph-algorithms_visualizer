@@ -9,13 +9,13 @@ import java.net.*;
 import java.util.Arrays;
 
 public class MenuBar extends JMenuBar {
-    private final Toolbar toolbar;
+    private final ButtonPanel buttonPanel;
     private final JFrame frame;
     private boolean isFullScreen = false;
     private Rectangle appWindow;
 
     public MenuBar(Toolbar toolbar, JFrame frame) {
-        this.toolbar = toolbar;
+        this.buttonPanel = (ButtonPanel) toolbar.getButtonPanel();
         this.frame = frame;
 
         // ==================================================================================== file menu =====
@@ -64,13 +64,11 @@ public class MenuBar extends JMenuBar {
     }
 
     private void setAlgMode(AlgMode algMode) {
-        toolbar.getButtonPanel().getAlgModeComboBox()
-                .setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algMode));
+        buttonPanel.getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algMode));
     }
 
     private void setGraphMode(GraphMode graphMode) {
-        toolbar.getButtonPanel().getGraphModeComboBox()
-                .setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
+        buttonPanel.getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
     }
 
     private JMenu addMenu(String text, int mnemonic, JMenu menuParent) {
