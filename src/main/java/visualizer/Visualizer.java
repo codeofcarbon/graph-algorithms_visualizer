@@ -5,14 +5,11 @@ import java.awt.*;
 
 public class Visualizer extends JFrame {
     public static void main(String[] args) {
-        java.awt.EventQueue.invokeLater(Visualizer::new);
+        EventQueue.invokeLater(Visualizer::new);
     }
 
     public Visualizer() {
         super("Graph-Algorithms Visualizer");
-        ToolTipManager.sharedInstance().setInitialDelay(0);
-        ToolTipManager.sharedInstance().setReshowDelay(0);
-        ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | UnsupportedLookAndFeelException

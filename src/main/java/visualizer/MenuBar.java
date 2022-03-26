@@ -83,14 +83,14 @@ public class MenuBar extends JMenuBar {
                 return popup;
             }
         };
-        setMenuComponentDefaults(menu, text.toLowerCase(), 22, 22, mnemonic, menuParent);
+        setMenuComponentDefaults(menu, menuParent, text.toLowerCase(), 22, 22, mnemonic);
         return menu;
     }
 
     private void addMenuItem(String text, int mnemonic, JMenu menuParent,
                              ActionListener listener, String iconFilename) {
         var menuItem = new JMenuItem(text);
-        setMenuComponentDefaults(menuItem, iconFilename, 18, 18, mnemonic, menuParent);
+        setMenuComponentDefaults(menuItem, menuParent, iconFilename, 18, 18, mnemonic);
         menuItem.addActionListener(listener);
         if ("prev".equals(iconFilename) || "next".equals(iconFilename))      // todo - not yet implemented
             menuItem.setEnabled(false);
@@ -108,7 +108,7 @@ public class MenuBar extends JMenuBar {
             }
         });
         menu.setBorder(BorderFactory.createEmptyBorder());
-        menu.setIcon(loadIcon(String.format("%s blue", iconFilename), 18, 18));
+        menu.setIcon(IconMaker.loadIcon(iconFilename + " blue", "buttons", 18, 18));
         add(menu);
     }
 
@@ -116,8 +116,8 @@ public class MenuBar extends JMenuBar {
         var menu = new JMenu();
         menu.setBorder(BorderFactory.createEmptyBorder());
         menu.setPreferredSize(new Dimension(40, 20));
-        var icon = loadIcon("toggle small", 32, 18);
-        var selectedIcon = loadIcon("toggle full", 32, 18);
+        var icon = IconMaker.loadIcon("toggle small", "buttons", 32, 18);
+        var selectedIcon = IconMaker.loadIcon("toggle full", "buttons", 32, 18);
         menu.setIcon(icon);
         menu.addMouseListener(new MouseAdapter() {
             @Override
@@ -143,22 +143,16 @@ public class MenuBar extends JMenuBar {
         add(label);
     }
 
-    private ImageIcon loadIcon(String iconFilename, int width, int height) {
-        return new ImageIcon(new ImageIcon(
-                String.format("src/main/resources/icons/buttons/%s.png", iconFilename))
-                .getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
-    }
-
-    private void setMenuComponentDefaults(JMenuItem comp, String iconFilename,
-                                          int iconWidth, int iconHeight, int mnemonic, JMenu menuParent) {
+    private void setMenuComponentDefaults(JMenuItem comp, JMenu menuParent, String iconFilename,
+                                          int iconWidth, int iconHeight, int mnemonic) {
         comp.setBorder(BorderFactory.createEmptyBorder());
         comp.setMnemonic(mnemonic);
         if (menuParent != null) {
-            var icon = loadIcon(iconFilename + " blue", iconWidth, iconHeight);
-            var rolloverIcon = loadIcon(iconFilename, iconWidth, iconHeight);
-            comp.setIcon(icon);
+            var icon = IconMaker.loadIcon(iconFilename, "buttons", iconWidth, iconHeight);
+            var rolloverIcon = IconMaker.loadIcon(iconFilename + " blue", "buttons", iconWidth, iconHeight);
+            comp.setIcon(rolloverIcon);
             comp.addChangeListener(e -> {
-                comp.setIcon(comp.isSelected() || comp.isArmed() ? rolloverIcon : icon);
+                comp.setIcon(comp.isSelected() || comp.isArmed() ? icon : rolloverIcon);
                 comp.setFont(new Font("Segoe UI", comp.isSelected() || comp.isArmed() ? Font.BOLD : Font.PLAIN, 12));
             });
             comp.setForeground(Color.WHITE);

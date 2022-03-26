@@ -5,7 +5,6 @@ import lombok.Getter;
 import javax.swing.*;
 import javax.swing.undo.StateEditable;
 import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import java.util.*;
 import java.util.List;
@@ -23,8 +22,8 @@ public class Node extends JLabel implements Serializable, StateEditable {
     public Node(String id, Point center, List<Edge> connectedEdges) {
         setName("Node " + id);
         this.id = id;
-        this.imageName = id.matches("[a-z]") ? id.concat("_lower")
-                : id.matches("[A-Z]") ? id.concat("_upper") : id;
+        this.imageName = id.matches("[a-z]") ?
+                id.concat("_lower") : id.matches("[A-Z]") ? id.concat("_upper") : id;
         this.connectedEdges = connectedEdges;
         setLocation(center.x - radius, center.y - radius);
         setPreferredSize(new Dimension(50, 50));
@@ -51,16 +50,6 @@ public class Node extends JLabel implements Serializable, StateEditable {
         var nodeLocation = (Point) state.get("Location");
         if (nodeLocation != null) setLocation(nodeLocation);
         getParent().repaint();
-    }
-
-    @Override
-    public JToolTip createToolTip() {
-        return new ToolTipDealer();
-    }
-
-    @Override
-    public Point getToolTipLocation(MouseEvent e) {
-        return ToolTipDealer.getFixedToolTipLocation(e);
     }
 }
 
@@ -104,23 +93,18 @@ enum NodeState {
         }
     };
 
-    private static final Image raw = getSpecialImage("white slim", 60, 60);
-    private static final Image connected = getSpecialImage("green slim", 60, 60);
-    private static final Image visited = getSpecialImage("blue slim", 60, 60);
-    private static final Image path = getSpecialImage("orange slim", 70, 70);
-    private static final Image rootNode = getSpecialImage("root node", 100, 100);
-    private static final Image targetMark = getSpecialImage("orange layered", 80, 80);
-    private static final Image dashedMark = getSpecialImage("green dashed", 60, 60);
+    private static final Image raw =  IconMaker.loadIcon("white slim", "special", 60, 60).getImage();
+    private static final Image connected =  IconMaker.loadIcon("green slim", "special", 60, 60).getImage();
+    private static final Image visited =  IconMaker.loadIcon("blue slim", "special", 60, 60).getImage();
+    private static final Image path =  IconMaker.loadIcon("orange slim", "special", 70, 70).getImage();
+    private static final Image rootNode =  IconMaker.loadIcon("root node", "special", 100, 100).getImage();
+    private static final Image targetMark =  IconMaker.loadIcon("orange layered", "special", 80, 80).getImage();
+    private static final Image dashedMark =  IconMaker.loadIcon("green dashed", "special", 60, 60).getImage();
 
     abstract void draw(Graphics2D g2D, Node node);
 
     private static Image getNodeImage(String imageName, String currentState, int width, int height) {
         return new ImageIcon(new ImageIcon(String.format("src/main/resources/icons/nodes/%s/%s.png",
                 currentState, imageName)).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH)).getImage();
-    }
-
-    private static Image getSpecialImage(String imageName, int width, int height) {
-        return new ImageIcon(new ImageIcon(String.format("src/main/resources/icons/special/%s.png", imageName))
-                .getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH)).getImage();
     }
 }

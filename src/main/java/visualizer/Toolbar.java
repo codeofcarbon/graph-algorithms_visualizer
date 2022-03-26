@@ -57,8 +57,7 @@ public class Toolbar extends JPanel {
         buttonPanel = new ButtonPanel(service, toolsPanel);
 
         leftInfoLabel = addNewLabel(SwingConstants.LEADING, new Dimension(330, 70));
-//        leftInfoLabel.set(SwingConstants.NORTH_WEST);                          // todo
-        leftInfoLabel.setIcon(loadIcon("info"));
+        leftInfoLabel.setIcon(IconMaker.loadIcon("info", "buttons", 30, 30));
         rightInfoLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(290, 70));
         graphModeLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(120, 70));
         algorithmModeLabel = addNewLabel(SwingConstants.LEADING, new Dimension(160, 70));
@@ -95,11 +94,6 @@ public class Toolbar extends JPanel {
         label.setBackground(Color.BLACK);
         label.setOpaque(true);
         return label;
-    }
-
-    private static ImageIcon loadIcon(String iconFilename) {
-        return new ImageIcon(new ImageIcon(String.format("src/main/resources/icons/buttons/%s.png", iconFilename))
-                .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
     }
 
     @SuppressWarnings("unchecked")
@@ -144,7 +138,7 @@ public class Toolbar extends JPanel {
             toolsPanel.getComponentPopupMenu().setVisible(false);
             var confirm = JOptionPane.showOptionDialog(service.getGraph(), "Are you sure you want to exit?",
                     "Exit an app", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
-                    loadIcon("exit_dialog"), new Object[]{"Exit", "Cancel"}, null);
+                    IconMaker.loadIcon("exit_dialog", "dialogs", 30, 30), new Object[]{"Exit", "Cancel"}, null);
             if (confirm == JFileChooser.APPROVE_OPTION) {
                 System.exit(0);
             }
@@ -154,7 +148,7 @@ public class Toolbar extends JPanel {
             toolsPanel.getComponentPopupMenu().setVisible(false);
             var confirm = JOptionPane.showOptionDialog(service.getGraph(), "Clear the board and start new graph?",
                     "Reset a graph", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
-                    loadIcon("new_dialog"), new Object[]{"New graph", "Cancel"}, null);
+                    IconMaker.loadIcon("new_dialog", "dialogs", 30, 30), new Object[]{"New graph", "Cancel"}, null);
             if (confirm == JFileChooser.APPROVE_OPTION) {
                 service.clearGraph();
             }
@@ -167,7 +161,7 @@ public class Toolbar extends JPanel {
             } catch (CannotUndoException e) {
                 toolsPanel.getComponentPopupMenu().setVisible(false);
                 JOptionPane.showMessageDialog(service.getGraph(), "Nothing else to undo", "Info",
-                        JOptionPane.WARNING_MESSAGE, loadIcon("warn_dialog"));
+                        JOptionPane.WARNING_MESSAGE, IconMaker.loadIcon("warn_dialog", "dialogs", 30, 30));
             }
         });
 
@@ -178,7 +172,7 @@ public class Toolbar extends JPanel {
             } catch (CannotRedoException e) {
                 toolsPanel.getComponentPopupMenu().setVisible(false);
                 JOptionPane.showMessageDialog(service.getGraph(), "Nothing else to redo", "Info",
-                        JOptionPane.WARNING_MESSAGE, loadIcon("warn_dialog"));
+                        JOptionPane.WARNING_MESSAGE, IconMaker.loadIcon("warn_dialog", "dialogs", 30, 30));
             }
         });
     }

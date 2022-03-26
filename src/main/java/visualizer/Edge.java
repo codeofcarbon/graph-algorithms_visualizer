@@ -78,9 +78,7 @@ enum EdgeState {
         }
     };
 
-    private static final Image labelCircle = new ImageIcon(
-            new ImageIcon("src/main/resources/icons/special/label circle.png")
-                    .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)).getImage();
+    private static final Image labelCircle = IconMaker.loadIcon("label circle", "special", 30, 30).getImage();
 
     abstract void draw(Graphics2D g2D, Edge edge);
 

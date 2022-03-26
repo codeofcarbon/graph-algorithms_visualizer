@@ -230,7 +230,6 @@ public class GraphService implements Serializable, StateEditable {
         });
         this.graphMode = graphMode;
         this.algorithmMode = algorithmMode;
-        graph.setToolTipText(null);
         algorithm.resetAlgorithmData();
         resetComponentsLists();
         resetMarkedNodes();
@@ -248,6 +247,7 @@ public class GraphService implements Serializable, StateEditable {
                 edge.path = false;
             });
         });
+        graph.setToolTipText(null);
         Algorithm.root = null;
         Algorithm.target = null;
     }
