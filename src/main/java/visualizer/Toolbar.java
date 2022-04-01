@@ -156,6 +156,7 @@ public class Toolbar extends JPanel {
         undoButton.addActionListener(event -> {
             try {
                 service.getManager().undo();
+                service.getAlgorithm().resetAlgorithmData();
                 service.resetComponentsLists();
             } catch (CannotUndoException e) {
                 toolsPanel.getComponentPopupMenu().setVisible(false);
@@ -167,6 +168,7 @@ public class Toolbar extends JPanel {
         redoButton.addActionListener(event -> {
             try {
                 service.getManager().redo();
+                service.getAlgorithm().resetAlgorithmData();
                 service.resetComponentsLists();
             } catch (CannotRedoException e) {
                 toolsPanel.getComponentPopupMenu().setVisible(false);
@@ -176,107 +178,3 @@ public class Toolbar extends JPanel {
         });
     }
 }
-
-//    private void maximize() {
-//        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-//        GraphicsDevice[] g = env.getScreenDevices();
-//        g[0].setFullScreenWindow(g[0].getFullScreenWindow() == frame ? null : frame);
-//    }
-//
-//    private void setAlgMode(AlgMode algMode) {
-//        ((ButtonPanel) buttonPanel).getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algMode));
-//    }
-//
-//    private void setGraphMode(GraphMode graphMode) {
-//        ((ButtonPanel) buttonPanel).getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
-//    }
-//
-//    private JMenu addMenu(String text, int mnemonic, JComponent menuParent) {
-//        var menu = new JMenu(text) {
-//            @Override
-//            public JPopupMenu getPopupMenu() {
-//                var popup = super.getPopupMenu();
-//                popup.setUI(new BasicPopupMenuUI());
-//                popup.setBorder(BorderFactory.createEmptyBorder());
-//                popup.setOpaque(false);
-//                if (menuParent == null) popup.show(this, 0, 23);
-//                return popup;
-//            }
-//        };
-//        setMenuComponentDefaults(menu, menuParent, text.toLowerCase(), 22, 22, mnemonic);
-//        return menu;
-//    }
-//
-//    private void addMenuItem(String text, int mnemonic, JMenu menuParent,
-//                             ActionListener listener, String iconFilename) {
-//        var menuItem = new JMenuItem(text);
-//        setMenuComponentDefaults(menuItem, menuParent, iconFilename, 18, 18, mnemonic);
-//        menuItem.addActionListener(listener);
-//        if ("prev".equals(iconFilename) || "next".equals(iconFilename))      // todo - not yet implemented
-//            menuItem.setEnabled(false);
-//    }
-//
-//    private void addLinkMenu(String iconFilename, String url) {
-//        var menu = new JMenu();
-//        menu.addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                try {
-//                    Desktop.getDesktop().browse(new URI(url));
-//                } catch (URISyntaxException | IOException ignored) {
-//                }
-//            }
-//        });
-//        menu.setBorder(BorderFactory.createEmptyBorder());
-//        menu.setIcon(IconMaker.loadIcon(iconFilename + " blue", "buttons", 18, 18));
-//        add(menu);
-//    }
-
-//    private void addFullScreenOption() {
-//        var menu = new JMenu();
-//        menu.setFocusPainted(false);
-//        menu.setBorder(BorderFactory.createEmptyBorder());
-//        menu.setPreferredSize(new Dimension(40, 20));
-//        var icon = IconMaker.loadIcon("toggle small", "buttons", 32, 18);
-//        var selectedIcon = IconMaker.loadIcon("toggle full", "buttons", 32, 18);
-//        menu.setIcon(icon);
-//        menu.addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                if (!isFullScreen) {
-//                    menu.setIcon(selectedIcon);
-//                    appWindow = new Rectangle(frame.getBounds());
-//                    frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-//                } else {
-//                    frame.setBounds(appWindow);
-//                    menu.setIcon(icon);
-//                }
-//                isFullScreen = !isFullScreen;
-//            }
-//        });
-//        add(menu);
-//    }
-
-//    private void addMenuLabel(String text) {
-//        var label = new JLabel(text);
-//        label.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-//        label.setEnabled(false);
-//        add(label);
-//    }
-
-//    private void setMenuComponentDefaults(JMenuItem comp, JComponent menuParent, String iconFilename,
-//                                          int iconWidth, int iconHeight, int mnemonic) {
-//        comp.setBorder(BorderFactory.createEmptyBorder());
-//        comp.setMnemonic(mnemonic);
-//        if (menuParent != null) {
-//            var icon = IconMaker.loadIcon(iconFilename, "buttons", iconWidth, iconHeight);
-//            var rolloverIcon = IconMaker.loadIcon(iconFilename + " blue", "buttons", iconWidth, iconHeight);
-//            comp.setIcon(rolloverIcon);
-//            comp.addChangeListener(e -> {
-//                comp.setIcon(comp.isSelected() || comp.isArmed() ? icon : rolloverIcon);
-//                comp.setFont(new Font("Segoe UI", comp.isSelected() || comp.isArmed() ? Font.BOLD : Font.PLAIN, 12));
-//            });
-//            comp.setForeground(Color.WHITE);
-//            menuParent.add(comp);
-//        } else add(comp);
-//    }
