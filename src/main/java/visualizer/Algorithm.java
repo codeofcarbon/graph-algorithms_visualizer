@@ -83,8 +83,8 @@ public class Algorithm {
     }
 
     protected void initAlgorithm(Node rootNode) {
-        service.resetComponentsLists();
         resetAlgorithmData();
+        service.resetComponentsLists();
         root = rootNode;
         rootNode.visited = true;
         switch (service.getAlgorithmMode()) {
@@ -135,9 +135,9 @@ public class Algorithm {
                                       "<font size=+1 color=#5afa46><b>" + root.getId() + "</b></font>" +
                                       "<font color=gray>: <br>" + joinedResult;
 
-                    ToolTipDealer.setToolTipText(service.getGraph(),
+                    TipManager.setToolTipText(service.getGraph(),
                             "<html><font color=rgb(128,128,128)>click on a node to see the shortest path");
-                    service.getNodes().forEach(node -> ToolTipDealer.setToolTipText(node,
+                    service.getNodes().forEach(node -> TipManager.setToolTipText(node,
                             "<html><font color=rgb(128,128,128)>click to see the shortest path"));
                     break;
                 case PRIM_ALGORITHM:

@@ -8,7 +8,7 @@ public class ToolButton extends JButton {
 
     public ToolButton(String iconFilename, String toolTipText, JComponent container) {
         setUI(new BasicButtonUI());
-        ToolTipDealer.setToolTipText(this, String.format("<html><font color=rgb(128,128,128)>%s", toolTipText));
+        TipManager.setToolTipText(this, String.format("<html><font color=rgb(128,128,128)>%s", toolTipText));
         int size = 30;
         setPreferredSize(new Dimension(size, size));
         var icon = IconMaker.loadIcon(iconFilename, "buttons", size, size);

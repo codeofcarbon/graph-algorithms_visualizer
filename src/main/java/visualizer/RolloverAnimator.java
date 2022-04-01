@@ -24,7 +24,7 @@ public class RolloverAnimator {
             }
         });
 
-        timer = new Timer(5, e -> {
+        timer = new Timer(0, e -> {
             if (startedAt == null) startedAt = System.currentTimeMillis();
             long duration = System.currentTimeMillis() - startedAt;
 

@@ -9,7 +9,7 @@ public class MenuButton extends JToggleButton {
 
     public MenuButton(String iconFilename, String toolTipText, ButtonPanel panel, JComponent target) {
         setUI(new BasicToggleButtonUI());
-        ToolTipDealer.setToolTipText(this, String.format("<html><font color=rgb(128,128,128)>%s", toolTipText));
+        TipManager.setToolTipText(this, String.format("<html><font color=rgb(128,128,128)>%s", toolTipText));
         int size = 70;
         setPreferredSize(new Dimension(size, size));
         var icon = IconMaker.loadIcon(iconFilename + " ring", "buttons", size, size);

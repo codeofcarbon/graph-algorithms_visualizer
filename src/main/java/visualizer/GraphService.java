@@ -24,11 +24,10 @@ public class GraphService implements Serializable, StateEditable {
     private static Node edgeSource, edgeTarget;
     private Toolbar toolbar;
     private Timer timer;
-    StateEdit graphEdit;
+    public StateEdit graphEdit;
 
     public GraphService(Graph graph) {
-        this.graph = graph;
-        mouseHandler.addComponent(graph);
+        mouseHandler.addComponent(this.graph = graph);
         undoableEditSupport.addUndoableEditListener(manager);
     }
 
@@ -67,12 +66,12 @@ public class GraphService implements Serializable, StateEditable {
             }
             if (Algorithm.root != null && algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
                 var shortestPath = algorithm.getShortestPath(selectedNode);
-                toolbar.getLeftInfoLabel().setText(shortestPath);
+                toolbar.getLeftLabel().setText(shortestPath);
                 graph.repaint();
             }
             if (Algorithm.root == null) {
                 algorithm.initAlgorithm(selectedNode);
-                toolbar.getLeftInfoLabel().setText("Please wait...");
+                toolbar.getLeftLabel().setText("Please wait...");
                 timer = new Timer(250, event -> {
                     switch (algorithmMode) {
                         case DEPTH_FIRST_SEARCH:
@@ -90,7 +89,7 @@ public class GraphService implements Serializable, StateEditable {
                     }
                     var algorithmResult = algorithm.getResultIfReady();
                     if (!algorithmResult.isBlank()) {
-                        toolbar.getLeftInfoLabel().setText(algorithmResult);
+                        toolbar.getLeftLabel().setText(algorithmResult);
                         timer.stop();
                         graph.setEnabled(true);
                     }
@@ -206,8 +205,9 @@ public class GraphService implements Serializable, StateEditable {
         undoableEditSupport.removeUndoableEditListener(manager);
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
         setCurrentModes(AlgMode.NONE, GraphMode.ADD_NODE);
-        toolbar.getLeftInfoLabel().setText("");
+        toolbar.getLeftLabel().setText("");
         algorithm.resetAlgorithmData();
+        resetComponentsLists();
         nodes.clear();
         graph.repaint();
         undoableEditSupport.addUndoableEditListener(manager = new UndoManager());
@@ -222,7 +222,7 @@ public class GraphService implements Serializable, StateEditable {
         buttonPanel.getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algorithmMode));
         buttonPanel.getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
         toolbar.updateModeLabels(graphMode.current.toUpperCase(), algorithmMode.current.toUpperCase());
-        toolbar.getLeftInfoLabel().setText(graphMode == GraphMode.NONE && algorithmMode != AlgMode.NONE
+        toolbar.getLeftLabel().setText(graphMode == GraphMode.NONE && algorithmMode != AlgMode.NONE
                 ? "Please choose a starting node" : "");
         buttonGroup.clearSelection();
         buttonGroup.getElements().asIterator().forEachRemaining(b -> {
@@ -248,8 +248,6 @@ public class GraphService implements Serializable, StateEditable {
             });
         });
         graph.setToolTipText(null);
-        Algorithm.root = null;
-        Algorithm.target = null;
     }
 
     private void resetMarkedNodes() {
