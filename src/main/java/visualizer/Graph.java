@@ -30,8 +30,10 @@ public class Graph extends JPanel {
         service.getNodes().stream()
                 .flatMap(node -> node.getConnectedEdges().stream())
                 .forEach(edge -> edge.getState().draw(g2D, edge));
-        service.getNodes()
-                .forEach(node -> node.getState().draw(g2D, node));
+//        service.getNodes()
+////                .stream().peek(node -> System.err.println(node.getBounds()))
+////                .peek(node -> System.err.println(node.getLocation()))
+//                .forEach(node -> node.getState().draw(g2D, node));
         if (service.getNodes().stream().anyMatch(node -> node.getY() < 0)) {
             g2D.setColor(new Color(120, 120, 120, 50));
             g2D.drawLine(0, 0, getWidth(), 0);

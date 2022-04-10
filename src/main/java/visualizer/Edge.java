@@ -15,14 +15,23 @@ public class Edge extends JLabel implements Serializable {
     private Edge mirrorEdge;
     boolean visited, hidden, path;
 
+    final Line2D.Double line;
+    Point midpoint;
+
     public Edge(Node source, Node target, int weight) {
         super(String.valueOf(weight), JLabel.CENTER);
         setName(String.format("Edge <%s -> %s>", source.getId(), target.getId()));
         this.source = source;
         this.target = target;
         this.weight = weight;
-        var midpoint = new Point((source.getX() + source.getRadius() + target.getX() + target.getRadius()) / 2,
-                (source.getY() + source.getRadius() + target.getY() + target.getRadius()) / 2);
+        this.line = getLine();
+        this.midpoint = getMidpoint(line);
+        System.err.println(line.getBounds2D());
+        System.err.println(line.getBounds());
+        System.err.println(getSource().getLocation());
+        System.err.println(getTarget().getLocation());
+//        var midpoint2 = new Point((source.getX() + source.getRadius() + target.getX() + target.getRadius()) / 2,
+//                (source.getY() + source.getRadius() + target.getY() + target.getRadius()) / 2);
         setLocation(midpoint.x - 15, midpoint.y - 15);
         setPreferredSize(new Dimension(30, 30));
         setSize(getPreferredSize());
@@ -50,39 +59,51 @@ public class Edge extends JLabel implements Serializable {
     protected void setMirrorEdge(Edge edge) {
         this.mirrorEdge = edge;
     }
+
+//    @Override
+//    public void paintComponent(Graphics g) {
+//        super.paintComponent(g);
+//        Graphics2D g2D = (Graphics2D) g.create();
+//        g2D.setStroke(new BasicStroke(1f));
+////        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha.get() * .02f));  // todo (check it)
+//        getState().draw(g2D, this);
+//    }
 }
 
 enum EdgeState {
     RAW() {
         public void draw(Graphics2D g2D, Edge edge) {
-            g2D.setColor(new Color(60, 60, 60, 255));
-            drawEdge(g2D, edge);
+            drawEdge(g2D, new Color(60, 60, 60, 255), edge);
         }
     },
     VISITED() {
         public void draw(Graphics2D g2D, Edge edge) {
-            g2D.setColor(new Color(20, 80, 230, 255));
-            drawEdge(g2D, edge);
+            drawEdge(g2D, new Color(20, 80, 230, 255), edge);
         }
     },
     HIDDEN() {
-        public void draw(Graphics2D g2D, Edge edge) {
-            g2D.setColor(new Color(0, 0, 0, 0));
-            edge.setForeground(new Color(0, 0, 0, 0));
+        public void draw(Graphics2D g2D, Edge edge) { drawEdge(g2D, TRANSPARENT, edge);
+//            g2D.setColor(new Color(0, 0, 0, 0));
+//            edge.setForeground(new Color(0, 0, 0, 0));
         }
     },
     PATH() {
         public void draw(Graphics2D g2D, Edge edge) {
-            g2D.setColor(new Color(255, 87, 34, 255));
-            drawEdge(g2D, edge);
+            drawEdge(g2D, new Color(255, 87, 34, 255), edge);
         }
     };
 
     private static final Image labelCircle = IconMaker.loadIcon("label circle", "special", 30, 30).getImage();
+    private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
     abstract void draw(Graphics2D g2D, Edge edge);
 
-    private static void drawEdge(Graphics2D g2D, Edge edge) {
+    private static void drawEdge(Graphics2D g2D, Color color, Edge edge) {
+        g2D.setColor(color);
+        if (color.equals(TRANSPARENT)) {
+            edge.setForeground(color);
+            return;
+        }
         var line = edge.getLine();
         g2D.drawLine((int) line.x1, (int) line.y1, (int) line.x2, (int) line.y2);
         var midpoint = edge.getMidpoint(line);

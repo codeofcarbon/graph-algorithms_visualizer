@@ -3,8 +3,12 @@ package visualizer;
 import lombok.Getter;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.undo.StateEditable;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.*;
 import java.util.List;
@@ -19,16 +23,51 @@ public class Node extends JLabel implements Serializable, StateEditable {
     boolean visited, marked, connected, path;
     int distance = Integer.MAX_VALUE;
 
+    private float alpha = 1.0f;
+    final Timer timer;
+//    private Long startTime;
+    private long startTime = -1;
+    private static final long RUNNING = 2000;
+    private static final long duration = 2000;
+
     public Node(String id, Point center, List<Edge> connectedEdges) {
         setName("Node " + id);
         this.id = id;
-        this.imageName = id.matches("[a-z]") ?
-                id.concat("_lower") : id.matches("[A-Z]") ? id.concat("_upper") : id;
+        this.imageName = id.matches("[a-z]") ? id.concat("_lower")
+                : id.matches("[A-Z]") ? id.concat("_upper") : id;
         this.connectedEdges = connectedEdges;
         setLocation(center.x - radius, center.y - radius);
         setPreferredSize(new Dimension(50, 50));
         setSize(getPreferredSize());
         setOpaque(false);
+
+//        final Timer
+        timer = new Timer(40, e -> {
+            if (startTime < 0) {
+                startTime = System.currentTimeMillis();
+            }
+//            else {
+
+                long time = System.currentTimeMillis();
+                long duration = time - startTime;
+                if (duration >= RUNNING) {
+                    startTime = -1;
+                    ((Timer) e.getSource()).stop();
+                    alpha = 0f;
+                } else {
+                    alpha = 1f - ((float) duration / (float) RUNNING);
+                }
+                repaint();
+//            }
+        });
+//        addMouseListener(new MouseAdapter() {
+//
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                timer.start();
+//            }
+//
+//        });
     }
 
     protected NodeState getState() {
@@ -49,57 +88,79 @@ public class Node extends JLabel implements Serializable, StateEditable {
     public void restoreState(Hashtable<?, ?> state) {
         var nodeLocation = (Point) state.get("Location");
         if (nodeLocation != null) setLocation(nodeLocation);
-        getParent().repaint();
+        getParent().repaint();                                                                       // todo (remove?)
+    }
+
+//    public void fade() {
+//        timer = new Timer(5, e -> {
+//            if (startTime == null) startTime = System.currentTimeMillis();
+//            var diff = System.currentTimeMillis() - startTime;
+//            alpha = 1.0f - (float) diff / duration;
+//            if (alpha < 0) {
+//                timer.stop();
+//                alpha = 0.0f;
+//            }
+//            repaint();
+//        });
+//        timer.start();
+//    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2D = (Graphics2D) g.create();
+        g2D.setComposite(AlphaComposite.SrcOver.derive(alpha));
+        getState().draw(g2D, this);
     }
 }
 
 enum NodeState {
     RAW() {
         public void draw(Graphics2D g2D, Node node) {
-            g2D.drawImage(getNodeImage(node.getImageName(), "raw", 40, 40), node.getX() + 5, node.getY() + 5, null);
-            if (node.marked) g2D.drawImage(dashedMark, node.getX() - 5, node.getY() - 5, null);
-            else g2D.drawImage(raw, node.getX() - 5, node.getY() - 5, null);
+            g2D.drawImage(getNodeImage(node.getImageName(), "raw", 36, 36), 7, 7, null);
+            if (node.marked) g2D.drawImage(dashedMark, 0, 0, null);
+            else g2D.drawImage(raw, 0, 0, null);
         }
     },
     CONNECTED() {
         public void draw(Graphics2D g2D, Node node) {
-            g2D.drawImage(getNodeImage(node.getImageName(), "connected", 40, 40), node.getX() + 5, node.getY() + 5, null);
-            if (node.marked) g2D.drawImage(dashedMark, node.getX() - 5, node.getY() - 5, null);
-            else g2D.drawImage(connected, node.getX() - 5, node.getY() - 5, null);
+            g2D.drawImage(getNodeImage(node.getImageName(), "connected", 36, 36), 7, 7, null);
+            if (node.marked) g2D.drawImage(dashedMark, 0, 0, null);
+            else g2D.drawImage(connected, 0, 0, null);
         }
     },
     VISITED() {
         public void draw(Graphics2D g2D, Node node) {
-            g2D.drawImage(getNodeImage(node.getImageName(), "visited", 40, 40), node.getX() + 5, node.getY() + 5, null);
-            g2D.drawImage(visited, node.getX() - 5, node.getY() - 5, null);
+            g2D.drawImage(getNodeImage(node.getImageName(), "visited", 36, 36), 7, 7, null);
+            g2D.drawImage(visited, 0, 0, null);
         }
     },
     PATH() {
         public void draw(Graphics2D g2D, Node node) {
-            g2D.drawImage(getNodeImage(node.getImageName(), "path", 50, 50), node.getX(), node.getY(), null);
-            g2D.drawImage(path, node.getX() - 10, node.getY() - 10, null);
+            g2D.drawImage(getNodeImage(node.getImageName(), "path", 46, 46), 2, 2, null);
+            g2D.drawImage(path, -5, -5, null);
         }
     },
     ROOT() {
         public void draw(Graphics2D g2D, Node node) {
-            g2D.drawImage(rootNode, node.getX() - 21, node.getY() - 21, null);
-            g2D.drawImage(getNodeImage(node.getImageName(), "path", 50, 50), node.getX(), node.getY(), null);
+            g2D.drawImage(rootNode, -16, -16, null);
+            g2D.drawImage(getNodeImage(node.getImageName(), "path", 46, 46), 2, 2, null);
         }
     },
     TARGET() {
         public void draw(Graphics2D g2D, Node node) {
-            g2D.drawImage(getNodeImage(node.getImageName(), "path", 50, 50), node.getX(), node.getY(), null);
-            g2D.drawImage(targetMark, node.getX() - 15, node.getY() - 15, null);
+            g2D.drawImage(getNodeImage(node.getImageName(), "path", 46, 46), 2, 2, null);
+            g2D.drawImage(targetMark, -10, -10, null);
         }
     };
 
-    private static final Image raw =  IconMaker.loadIcon("white slim", "special", 60, 60).getImage();
-    private static final Image connected =  IconMaker.loadIcon("green slim", "special", 60, 60).getImage();
-    private static final Image visited =  IconMaker.loadIcon("blue slim", "special", 60, 60).getImage();
-    private static final Image path =  IconMaker.loadIcon("orange slim", "special", 70, 70).getImage();
-    private static final Image rootNode =  IconMaker.loadIcon("root node", "special", 100, 100).getImage();
-    private static final Image targetMark =  IconMaker.loadIcon("orange layered", "special", 80, 80).getImage();
-    private static final Image dashedMark =  IconMaker.loadIcon("green dashed", "special", 60, 60).getImage();
+    private static final Image raw = IconMaker.loadIcon("white slim", "special", 50, 50).getImage();
+    private static final Image connected = IconMaker.loadIcon("green slim", "special", 50, 50).getImage();
+    private static final Image visited = IconMaker.loadIcon("blue slim", "special", 50, 50).getImage();
+    private static final Image path = IconMaker.loadIcon("orange slim", "special", 60, 60).getImage();
+    private static final Image rootNode = IconMaker.loadIcon("root node", "special", 90, 90).getImage();
+    private static final Image targetMark = IconMaker.loadIcon("orange layered", "special", 70, 70).getImage();
+    private static final Image dashedMark = IconMaker.loadIcon("green dashed", "special", 50, 50).getImage();
 
     abstract void draw(Graphics2D g2D, Node node);
 
