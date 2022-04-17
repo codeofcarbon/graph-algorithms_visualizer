@@ -46,17 +46,21 @@ public class GraphService implements Serializable, StateEditable {
             nodes.forEach(node -> {
                 node.getConnectedEdges().clear();
                 node.getConnectedEdges().addAll(edgesState.stream()
-                        .filter(e -> e.getSource().equals(node))
+                        .filter(edge -> edge.getSource().equals(node))
                         .collect(Collectors.toList()));
             });
         }
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
-        nodes.stream().peek(v -> v.getConnectedEdges().forEach(graph::add)).forEach(graph::add);
+        nodes.forEach(node -> {
+            node.getConnectedEdges().forEach(graph::add);
+            graph.add(node);
+            node.alpha = 1.0f;
+        });
         graph.repaint();
     }
 
     void startAlgorithm(MouseEvent point) {
-        checkIfVertex(point).ifPresent(selectedNode -> {
+        checkIfNode(point).ifPresent(selectedNode -> {
             if (!algorithm.checkIfGraphIsConnected(selectedNode)) {
                 var messageLabel = new JLabel("<html><div align='center'>Unfortunately, this version of the program " +
                                               "supports connected graphs only.<br>Check back soon for updates");
@@ -66,12 +70,12 @@ public class GraphService implements Serializable, StateEditable {
             }
             if (Algorithm.root != null && algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
                 var shortestPath = algorithm.getShortestPath(selectedNode);
-                toolbar.getLeftLabel().setText(shortestPath);
+                toolbar.getInfoLabel().setText(String.format("<html><div align='center'>%s", shortestPath));
                 graph.repaint();
             }
             if (Algorithm.root == null) {
                 algorithm.initAlgorithm(selectedNode);
-                toolbar.getLeftLabel().setText("Please wait...");
+                toolbar.getInfoLabel().setText("<html><div align='center'><font color=#cccccc>Please wait...");
                 timer = new Timer(250, event -> {
                     switch (algorithmMode) {
                         case DEPTH_FIRST_SEARCH:
@@ -89,7 +93,7 @@ public class GraphService implements Serializable, StateEditable {
                     }
                     var algorithmResult = algorithm.getResultIfReady();
                     if (!algorithmResult.isBlank()) {
-                        toolbar.getLeftLabel().setText(algorithmResult);
+                        toolbar.getInfoLabel().setText(String.format("<html><div align='center'>%s", algorithmResult));
                         timer.stop();
                         graph.setEnabled(true);
                     }
@@ -102,7 +106,7 @@ public class GraphService implements Serializable, StateEditable {
     }
 
     void createNewNode(MouseEvent point) {
-        if (checkIfVertex(point).isEmpty()) {
+        if (checkIfNode(point).isEmpty()) {
             var input = JOptionPane.showInputDialog(graph, "Set node ID (alphanumeric char):",
                     "Node ID", JOptionPane.INFORMATION_MESSAGE, null, null, null);
             if (input != null) {
@@ -110,12 +114,11 @@ public class GraphService implements Serializable, StateEditable {
                 String id = input.toString();
                 if (id.matches("[^_\\W]")) {
                     graphEdit = new StateEdit(this);
-                    node = new Node(id, point.getPoint(), new ArrayList<>());
+                    node = new Node(id, point.getPoint(), new ArrayList<>(), graph);
                     mouseHandler.addComponent(node);
                     nodes.add(node);
-                    graph.add(node);
-                    graphEdit.end();
                     graph.repaint();
+                    graphEdit.end();
                 } else {
                     JOptionPane.showMessageDialog(graph, "Id must be one upper or lower case letter or digit. " +
                                                          "Try again", "Error", JOptionPane.ERROR_MESSAGE);
@@ -127,7 +130,7 @@ public class GraphService implements Serializable, StateEditable {
 
     void createNewEdge(MouseEvent point) {
         if (edgeSource == null) {
-            checkIfVertex(point).ifPresent(sourceNode -> {
+            checkIfNode(point).ifPresent(sourceNode -> {
                 edgeSource = sourceNode;
                 edgeSource.marked = true;
                 graph.repaint();
@@ -135,7 +138,7 @@ public class GraphService implements Serializable, StateEditable {
             return;
         }
         if (edgeTarget == null) {
-            checkIfVertex(point).ifPresent(targetNode -> {
+            checkIfNode(point).ifPresent(targetNode -> {
                 edgeTarget = targetNode;
                 edgeTarget.marked = true;
                 graph.repaint();
@@ -177,14 +180,14 @@ public class GraphService implements Serializable, StateEditable {
     }
 
     void removeNode(MouseEvent point) {
-        checkIfVertex(point).ifPresent(node -> {
+        checkIfNode(point).ifPresent(node -> {
             graphEdit = new StateEdit(this);
             node.getConnectedEdges().forEach(edge -> {
                 Stream.of(edge, edge.getMirrorEdge()).forEach(graph::remove);
                 edge.getTarget().getConnectedEdges().remove(edge.getMirrorEdge());
             });
             nodes.remove(node);
-            graph.remove(node);
+            node.fade();
             graph.repaint();
             graphEdit.end();
         });
@@ -194,7 +197,11 @@ public class GraphService implements Serializable, StateEditable {
         checkIfEdge(point).ifPresent(edge -> {
             graphEdit = new StateEdit(this);
             Stream.of(edge, edge.getMirrorEdge())
-                    .peek(e -> e.getSource().getConnectedEdges().remove(e))
+                    .peek(e -> {
+                        var sourceEdges = e.getSource().getConnectedEdges();
+                        sourceEdges.remove(e);
+                        e.getSource().connected = sourceEdges.size() != 0;
+                    })
                     .forEach(graph::remove);
             graph.repaint();
             graphEdit.end();
@@ -205,7 +212,7 @@ public class GraphService implements Serializable, StateEditable {
         undoableEditSupport.removeUndoableEditListener(manager);
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
         setCurrentModes(AlgMode.NONE, GraphMode.ADD_NODE);
-        toolbar.getLeftLabel().setText("");
+        toolbar.getInfoLabel().setText("");
         algorithm.resetAlgorithmData();
         resetComponentsLists();
         nodes.clear();
@@ -222,8 +229,9 @@ public class GraphService implements Serializable, StateEditable {
         buttonPanel.getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algorithmMode));
         buttonPanel.getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
         toolbar.updateModeLabels(graphMode.current.toUpperCase(), algorithmMode.current.toUpperCase());
-        toolbar.getLeftLabel().setText(graphMode == GraphMode.NONE && algorithmMode != AlgMode.NONE
-                ? "Please choose a starting node" : "");
+        toolbar.getInfoLabel().setText(String.format("<html><div align='center'><font color=#cccccc>%s",
+                graphMode == GraphMode.NONE && algorithmMode != AlgMode.NONE
+                        ? "Please choose a starting node" : ""));
         buttonGroup.clearSelection();
         buttonGroup.getElements().asIterator().forEachRemaining(b -> {
             if (b.getModel().equals(selected)) b.getModel().setSelected(true);
@@ -237,17 +245,18 @@ public class GraphService implements Serializable, StateEditable {
 
     void resetComponentsLists() {
         nodes.forEach(node -> {
-            node.setToolTipText(null);
+            TipManager.setToolTipText(node, "");
             node.distance = Integer.MAX_VALUE;
             node.visited = false;
             node.path = false;
+            node.connected = node.getConnectedEdges().size() != 0;
             node.getConnectedEdges().forEach(edge -> {
                 edge.hidden = false;
                 edge.visited = false;
                 edge.path = false;
             });
         });
-        graph.setToolTipText(null);
+        TipManager.setToolTipText(graph, "");
     }
 
     private void resetMarkedNodes() {
@@ -262,7 +271,7 @@ public class GraphService implements Serializable, StateEditable {
         graph.repaint();
     }
 
-    private Optional<Node> checkIfVertex(MouseEvent event) {
+    private Optional<Node> checkIfNode(MouseEvent event) {
         return event.getSource() instanceof Node ? Optional.of((Node) event.getSource()) : Optional.empty();
     }
 

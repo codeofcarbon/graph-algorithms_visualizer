@@ -117,7 +117,7 @@ public class Algorithm {
                 case BREADTH_FIRST_SEARCH:
                     algorithmResult = String.format("<html><font color=gray>%s for node " +
                                                     "<font size=+1 color=#5afa46><b>" + root.getId() + "</b></font>" +
-                                                    "<font color=gray>: <br>",
+                                                    "<font color=gray>: ",
                             service.getAlgorithmMode() == AlgMode.DEPTH_FIRST_SEARCH ? "DFS" : "BFS") +
                                       nodeResult.stream()
                                               .map(node -> "<font color=#0062ff><b>" + node.getId() + "</b>")
@@ -133,7 +133,7 @@ public class Algorithm {
 
                     algorithmResult = "<html><font color=gray>shortest distances from node " +
                                       "<font size=+1 color=#5afa46><b>" + root.getId() + "</b></font>" +
-                                      "<font color=gray>: <br>" + joinedResult;
+                                      "<font color=gray>: " + joinedResult;
 
                     TipManager.setToolTipText(service.getGraph(),
                             "<html><font color=rgb(128,128,128)>click on a node to see the shortest path");
@@ -141,7 +141,7 @@ public class Algorithm {
                             "<html><font color=rgb(128,128,128)>click to see the shortest path"));
                     break;
                 case PRIM_ALGORITHM:
-                    algorithmResult = "<html><font color=gray>minimum spanning tree:<br>" + edgeResult.stream()
+                    algorithmResult = "<html><font color=gray>minimum spanning tree: " + edgeResult.stream()
                             .map(edge -> String.format("<font color=#0062ff><b> %s &#8644 %s</b>",
                                     edge.getSource().getId(), edge.getTarget().getId()))
                             .collect(Collectors.joining("<font color=gray>,"));
@@ -171,7 +171,7 @@ public class Algorithm {
 
         return "<html><font color=gray>shortest path from " +
                "<b><font size=+1 color=#5afa46>" + root.getId() + "</b><font color=gray> to " +
-               "<b><font size=+1 color=#5afa46>" + target.getId() + "</b><font color=gray>: <br>" +
+               "<b><font size=+1 color=#5afa46>" + target.getId() + "</b><font color=gray>: " +
                resultJoiner + "<font size=+1 color=#eb4034>   &#8680 " +
                (target.distance == Integer.MAX_VALUE || target.distance == Integer.MIN_VALUE ? "inf" : target.distance);
     }

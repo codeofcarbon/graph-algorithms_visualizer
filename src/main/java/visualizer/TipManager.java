@@ -22,14 +22,25 @@ public class TipManager extends MouseAdapter {
         component.addMouseListener(MANAGER);
     }
 
-    @Override
-    public void mouseEntered(MouseEvent event) {
+    public void showToolTip(MouseEvent event) {
         var current = (JComponent) event.getSource();
         label.setText(toolTips.get(current));
         var pane = SwingUtilities.getRootPane(current);
         var paneLocation = pane.getLocationOnScreen();
         window.setLocation(new Point(paneLocation.x + pane.getWidth() / 2 - 146, paneLocation.y + 1));
         window.setVisible(true);
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent event) {
+        showToolTip(event);
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent event) {
+        System.err.println(event.getSource());
+        if (event.getSource() instanceof Graph)
+            showToolTip(event);
     }
 
     @Override
