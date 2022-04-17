@@ -6,9 +6,6 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.undo.StateEditable;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.*;
 import java.util.List;
@@ -23,51 +20,36 @@ public class Node extends JLabel implements Serializable, StateEditable {
     boolean visited, marked, connected, path;
     int distance = Integer.MAX_VALUE;
 
-    private float alpha = 1.0f;
-    final Timer timer;
-//    private Long startTime;
-    private long startTime = -1;
-    private static final long RUNNING = 2000;
-    private static final long duration = 2000;
+    private final Graph graph;
+    float alpha = 0.0f;
+    private Timer timer;
+    private Long startTime;
+    private static final long FADING_TIME = 1000;
 
-    public Node(String id, Point center, List<Edge> connectedEdges) {
+    public Node(String id, Point center, List<Edge> connectedEdges, Graph graph) {
         setName("Node " + id);
         this.id = id;
         this.imageName = id.matches("[a-z]") ? id.concat("_lower")
                 : id.matches("[A-Z]") ? id.concat("_upper") : id;
         this.connectedEdges = connectedEdges;
+        this.graph = graph;
+        graph.add(this);
         setLocation(center.x - radius, center.y - radius);
         setPreferredSize(new Dimension(50, 50));
         setSize(getPreferredSize());
         setOpaque(false);
-
-//        final Timer
         timer = new Timer(40, e -> {
-            if (startTime < 0) {
-                startTime = System.currentTimeMillis();
+            if (startTime == null) startTime = System.currentTimeMillis();
+            var diff = System.currentTimeMillis() - startTime;
+            alpha = (float) diff / FADING_TIME;
+            if (alpha >= 1.0f) {
+                startTime = null;
+                timer.stop();
+                alpha = 1.0f;
             }
-//            else {
-
-                long time = System.currentTimeMillis();
-                long duration = time - startTime;
-                if (duration >= RUNNING) {
-                    startTime = -1;
-                    ((Timer) e.getSource()).stop();
-                    alpha = 0f;
-                } else {
-                    alpha = 1f - ((float) duration / (float) RUNNING);
-                }
-                repaint();
-//            }
+            repaint();
         });
-//        addMouseListener(new MouseAdapter() {
-//
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                timer.start();
-//            }
-//
-//        });
+        timer.start();
     }
 
     protected NodeState getState() {
@@ -88,22 +70,25 @@ public class Node extends JLabel implements Serializable, StateEditable {
     public void restoreState(Hashtable<?, ?> state) {
         var nodeLocation = (Point) state.get("Location");
         if (nodeLocation != null) setLocation(nodeLocation);
-        getParent().repaint();                                                                       // todo (remove?)
+//        getParent().repaint();                                                   // todo (remove?)
+        graph.repaint();
     }
 
-//    public void fade() {
-//        timer = new Timer(5, e -> {
-//            if (startTime == null) startTime = System.currentTimeMillis();
-//            var diff = System.currentTimeMillis() - startTime;
-//            alpha = 1.0f - (float) diff / duration;
-//            if (alpha < 0) {
-//                timer.stop();
-//                alpha = 0.0f;
-//            }
-//            repaint();
-//        });
-//        timer.start();
-//    }
+
+    public void fade() {
+        timer = new Timer(40, e -> {
+            if (startTime == null) startTime = System.currentTimeMillis();
+            var diff = System.currentTimeMillis() - startTime;
+            alpha = 1.0f - (float) diff / FADING_TIME;
+            if (alpha < 0) {
+                timer.stop();
+                alpha = 0.0f;
+                getParent().remove(this);
+            }
+            repaint();
+        });
+        timer.start();
+    }
 
     @Override
     public void paintComponent(Graphics g) {

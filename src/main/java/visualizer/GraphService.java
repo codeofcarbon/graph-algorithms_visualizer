@@ -46,12 +46,16 @@ public class GraphService implements Serializable, StateEditable {
             nodes.forEach(node -> {
                 node.getConnectedEdges().clear();
                 node.getConnectedEdges().addAll(edgesState.stream()
-                        .filter(e -> e.getSource().equals(node))
+                        .filter(edge -> edge.getSource().equals(node))
                         .collect(Collectors.toList()));
             });
         }
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
-        nodes.stream().peek(v -> v.getConnectedEdges().forEach(graph::add)).forEach(graph::add);
+        nodes.forEach(node -> {
+            node.getConnectedEdges().forEach(graph::add);
+            graph.add(node);
+            node.alpha = 1.0f;
+        });
         graph.repaint();
     }
 
@@ -110,12 +114,11 @@ public class GraphService implements Serializable, StateEditable {
                 String id = input.toString();
                 if (id.matches("[^_\\W]")) {
                     graphEdit = new StateEdit(this);
-                    node = new Node(id, point.getPoint(), new ArrayList<>());
+                    node = new Node(id, point.getPoint(), new ArrayList<>(), graph);
                     mouseHandler.addComponent(node);
                     nodes.add(node);
-                    graph.add(node);
-                    graphEdit.end();
                     graph.repaint();
+                    graphEdit.end();
                 } else {
                     JOptionPane.showMessageDialog(graph, "Id must be one upper or lower case letter or digit. " +
                                                          "Try again", "Error", JOptionPane.ERROR_MESSAGE);
@@ -183,11 +186,9 @@ public class GraphService implements Serializable, StateEditable {
                 Stream.of(edge, edge.getMirrorEdge()).forEach(graph::remove);
                 edge.getTarget().getConnectedEdges().remove(edge.getMirrorEdge());
             });
-            graph.repaint();
             nodes.remove(node);
-            node.timer.start();
-//            node.fade();
-            graph.remove(node);                                                // todo - check what depend on that
+            node.fade();
+            graph.repaint();
             graphEdit.end();
         });
     }
@@ -211,7 +212,7 @@ public class GraphService implements Serializable, StateEditable {
         undoableEditSupport.removeUndoableEditListener(manager);
         Arrays.stream(graph.getComponents()).forEach(graph::remove);
         setCurrentModes(AlgMode.NONE, GraphMode.ADD_NODE);
-        toolbar.getLeftLabel().setText("");
+        toolbar.getInfoLabel().setText("");
         algorithm.resetAlgorithmData();
         resetComponentsLists();
         nodes.clear();
