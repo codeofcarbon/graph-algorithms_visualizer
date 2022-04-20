@@ -50,11 +50,13 @@ public class GraphService implements Serializable, StateEditable {
                         .collect(Collectors.toList()));
             });
         }
-        Arrays.stream(graph.getComponents()).forEach(graph::remove);
+        Arrays.stream(graph.getComponents())
+                .filter(c -> !c.getName().equals("infoLabel"))
+                .forEach(graph::remove);
         nodes.forEach(node -> {
             node.getConnectedEdges().forEach(graph::add);
-            graph.add(node);
             node.alpha = 1.0f;
+            graph.add(node);
         });
         graph.repaint();
     }
@@ -67,11 +69,6 @@ public class GraphService implements Serializable, StateEditable {
                 JOptionPane.showMessageDialog(graph, messageLabel, "Disconnected graph", JOptionPane.PLAIN_MESSAGE);
                 resetComponentsLists();
                 return;
-            }
-            if (Algorithm.root != null && algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
-                var shortestPath = algorithm.getShortestPath(selectedNode);
-                toolbar.getInfoLabel().setText(String.format("<html><div align='center'>%s", shortestPath));
-                graph.repaint();
             }
             if (Algorithm.root == null) {
                 algorithm.initAlgorithm(selectedNode);
@@ -101,6 +98,12 @@ public class GraphService implements Serializable, StateEditable {
                 });
                 graph.setEnabled(false);
                 timer.start();
+            } else {
+                if (algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
+                    var shortestPath = algorithm.getShortestPath(selectedNode);
+                    toolbar.getInfoLabel().setText(String.format("<html><div align='center'>%s", shortestPath));
+                    graph.repaint();
+                }
             }
         });
     }
@@ -114,9 +117,10 @@ public class GraphService implements Serializable, StateEditable {
                 String id = input.toString();
                 if (id.matches("[^_\\W]")) {
                     graphEdit = new StateEdit(this);
-                    node = new Node(id, point.getPoint(), new ArrayList<>(), graph);
+                    node = new Node(id, point.getPoint(), new ArrayList<>());
                     mouseHandler.addComponent(node);
                     nodes.add(node);
+                    graph.add(node);
                     graph.repaint();
                     graphEdit.end();
                 } else {
@@ -210,11 +214,10 @@ public class GraphService implements Serializable, StateEditable {
 
     void clearGraph() {
         undoableEditSupport.removeUndoableEditListener(manager);
-        Arrays.stream(graph.getComponents()).forEach(graph::remove);
+        Arrays.stream(graph.getComponents())
+                .filter(c -> !c.getName().equals("infoLabel"))
+                .forEach(graph::remove);
         setCurrentModes(AlgMode.NONE, GraphMode.ADD_NODE);
-        toolbar.getInfoLabel().setText("");
-        algorithm.resetAlgorithmData();
-        resetComponentsLists();
         nodes.clear();
         graph.repaint();
         undoableEditSupport.addUndoableEditListener(manager = new UndoManager());
@@ -229,9 +232,7 @@ public class GraphService implements Serializable, StateEditable {
         buttonPanel.getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algorithmMode));
         buttonPanel.getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
         toolbar.updateModeLabels(graphMode.current.toUpperCase(), algorithmMode.current.toUpperCase());
-        toolbar.getInfoLabel().setText(String.format("<html><div align='center'><font color=#cccccc>%s",
-                graphMode == GraphMode.NONE && algorithmMode != AlgMode.NONE
-                        ? "Please choose a starting node" : ""));
+        toolbar.updateInfoLabel(algorithmMode);
         buttonGroup.clearSelection();
         buttonGroup.getElements().asIterator().forEachRemaining(b -> {
             if (b.getModel().equals(selected)) b.getModel().setSelected(true);

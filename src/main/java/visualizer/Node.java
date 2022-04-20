@@ -13,27 +13,23 @@ import java.util.List;
 @Getter
 public class Node extends JLabel implements Serializable, StateEditable {
     private static final long serialVersionUID = 12345L;
+    private static final long FADING_TIME = 1000;
     private final String imageName;
     private final List<Edge> connectedEdges;
     private final int radius = 25;
     private final String id;
-    boolean visited, marked, connected, path;
-    int distance = Integer.MAX_VALUE;
-
-    private final Graph graph;
-    float alpha = 0.0f;
     private Timer timer;
     private Long startTime;
-    private static final long FADING_TIME = 1000;
+    boolean visited, marked, connected, path;
+    int distance = Integer.MAX_VALUE;
+    float alpha = 0.0f;
 
-    public Node(String id, Point center, List<Edge> connectedEdges, Graph graph) {
+    public Node(String id, Point center, List<Edge> connectedEdges) {
         setName("Node " + id);
         this.id = id;
         this.imageName = id.matches("[a-z]") ? id.concat("_lower")
                 : id.matches("[A-Z]") ? id.concat("_upper") : id;
         this.connectedEdges = connectedEdges;
-        this.graph = graph;
-        graph.add(this);
         setLocation(center.x - radius, center.y - radius);
         setPreferredSize(new Dimension(50, 50));
         setSize(getPreferredSize());
@@ -70,10 +66,8 @@ public class Node extends JLabel implements Serializable, StateEditable {
     public void restoreState(Hashtable<?, ?> state) {
         var nodeLocation = (Point) state.get("Location");
         if (nodeLocation != null) setLocation(nodeLocation);
-//        getParent().repaint();                                                   // todo (remove?)
-        graph.repaint();
+        getParent().repaint();
     }
-
 
     public void fade() {
         timer = new Timer(40, e -> {

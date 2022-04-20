@@ -6,7 +6,7 @@ import java.awt.event.*;
 import java.util.Hashtable;
 
 public class TipManager extends MouseAdapter {
-    private static final TipManager MANAGER = new TipManager();
+    private static final TipManager TIP_MANAGER = new TipManager();
     private static final Hashtable<JComponent, String> toolTips = new Hashtable<>();
     private final JLabel label = new JLabel("", SwingConstants.CENTER);
     private final JWindow window = new JWindow();
@@ -19,7 +19,7 @@ public class TipManager extends MouseAdapter {
 
     public static void setToolTipText(JComponent component, String tip) {
         toolTips.put(component, tip);
-        component.addMouseListener(MANAGER);
+        component.addMouseListener(TIP_MANAGER);
     }
 
     public void showToolTip(MouseEvent event) {

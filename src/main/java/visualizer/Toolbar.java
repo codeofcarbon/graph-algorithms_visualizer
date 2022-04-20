@@ -87,6 +87,11 @@ public class Toolbar extends JPanel {
         algorithmModeLabel.setText(String.format(htmlStyle, "left", "ALGORITHM", algMode));
     }
 
+    void updateInfoLabel(AlgMode algMode) {
+        infoLabel.setText(String.format("<html><div align='center'><font color=#cccccc>%s",
+                algMode != AlgMode.NONE ? "Please choose a starting node" : ""));
+    }
+
     private JLabel addNewLabel(int alignment, Dimension dimension, String type) {
         var label = new JLabel("", alignment);
         label.setFont(new Font("Stylus BT", Font.PLAIN, 15));
@@ -95,6 +100,7 @@ public class Toolbar extends JPanel {
         label.setSize(label.getPreferredSize());
         label.setBackground(Color.BLACK);
         label.setOpaque(!"info".equals(type));
+        if ("info".equals(type)) label.setName("infoLabel");
         return label;
     }
 
@@ -115,9 +121,6 @@ public class Toolbar extends JPanel {
                         nodeEdges.forEach(edge -> service.getGraph().add(edge));
                     });
                     graphData.clear();
-
-                    service.getGraph().add(infoLabel); // todo - now it is here because loaded graphs doesnt include that - remove later
-
                     service.getGraph().repaint();
                 } catch (IOException | ClassNotFoundException e) {
                     System.err.println("Graph loading error: " + e.getMessage());
@@ -162,9 +165,7 @@ public class Toolbar extends JPanel {
         undoButton.addActionListener(event -> {
             try {
                 service.getManager().undo();
-                service.getAlgorithm().resetAlgorithmData();
-                service.resetComponentsLists();
-//                service.setCurrentModes(service.getAlgorithmMode(), service.getGraphMode()); // todo needed?
+                service.setCurrentModes(service.getAlgorithmMode(), service.getGraphMode());
             } catch (CannotUndoException e) {
                 toolsPanel.getComponentPopupMenu().setVisible(false);
                 JOptionPane.showMessageDialog(service.getGraph(), "Nothing else to undo", "Info",
@@ -175,9 +176,7 @@ public class Toolbar extends JPanel {
         redoButton.addActionListener(event -> {
             try {
                 service.getManager().redo();
-                service.getAlgorithm().resetAlgorithmData();
-                service.resetComponentsLists();
-//                service.setCurrentModes(service.getAlgorithmMode(), service.getGraphMode()); // todo needed?
+                service.setCurrentModes(service.getAlgorithmMode(), service.getGraphMode());
             } catch (CannotRedoException e) {
                 toolsPanel.getComponentPopupMenu().setVisible(false);
                 JOptionPane.showMessageDialog(service.getGraph(), "Nothing else to redo", "Info",
