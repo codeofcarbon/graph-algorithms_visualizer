@@ -98,12 +98,10 @@ public class GraphService implements Serializable, StateEditable {
                 });
                 graph.setEnabled(false);
                 timer.start();
-            } else {
-                if (algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
-                    var shortestPath = algorithm.getShortestPath(selectedNode);
-                    toolbar.getInfoLabel().setText(String.format("<html><div align='center'>%s", shortestPath));
-                    graph.repaint();
-                }
+            } else if (algorithmMode == AlgMode.DIJKSTRA_ALGORITHM) {
+                var shortestPath = algorithm.getShortestPath(selectedNode);
+                toolbar.getInfoLabel().setText(String.format("<html><div align='center'>%s", shortestPath));
+                graph.repaint();
             }
         });
     }

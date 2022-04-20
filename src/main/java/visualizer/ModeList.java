@@ -1,12 +1,15 @@
 package visualizer;
 
+import lombok.Getter;
+
 import javax.swing.*;
 import javax.swing.plaf.basic.*;
 import java.awt.*;
 import java.util.Arrays;
 
+@Getter
 public class ModeList<T> extends JComboBox<String> {
-    Class<?> clazz;                                                                     // todo refactor
+    private final Class<?> clazz;
 
     public ModeList(T[] array, GraphService service, int alignment) {
         setRenderer(new CellRenderer<>());
@@ -15,7 +18,7 @@ public class ModeList<T> extends JComboBox<String> {
         Arrays.stream(array).forEach(mode -> addItem(clazz.equals(GraphMode.class)
                 ? ((GraphMode) mode).current.toUpperCase()
                 : ((AlgMode) mode).current.toUpperCase()));
-        setSelectedIndex(clazz.equals(GraphMode.class) ? 0 /* add new node */ : 4 /* algorithm - none */);
+        setSelectedIndex(clazz.equals(GraphMode.class) ? 0 /* graph - add new node */ : 4 /* algorithm - none */);
 
         addActionListener(event -> {
             var algorithmMode = clazz.equals(GraphMode.class) ? AlgMode.NONE : Arrays.stream(AlgMode.values())
@@ -25,9 +28,6 @@ public class ModeList<T> extends JComboBox<String> {
                     .filter(gMode -> gMode.current.equalsIgnoreCase((String) getSelectedItem()))
                     .findFirst().orElse(GraphMode.NONE) : GraphMode.NONE;
             service.setCurrentModes(algorithmMode, graphMode);
-            setSelectedIndex(clazz.equals(GraphMode.class)
-                    ? Arrays.asList(GraphMode.values()).indexOf(service.getGraphMode())
-                    : Arrays.asList(AlgMode.values()).indexOf(service.getAlgorithmMode()));
         });
     }
 

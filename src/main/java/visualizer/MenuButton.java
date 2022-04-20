@@ -28,7 +28,7 @@ public class MenuButton extends JToggleButton {
                 var popup = target.getComponentPopupMenu();
                 popup.setVisible(true);
                 if (target instanceof JComboBox) {
-                    if (((ModeList<?>) target).clazz.equals(AlgMode.class))
+                    if (((ModeList<?>) target).getClazz().equals(AlgMode.class))
                         popup.show(this, getWidth(), getY());
                     else popup.show(this, -popup.getWidth(), getY());
                 } else popup.show(this, getWidth() / 2 - popup.getWidth() / 2, getHeight() - 5);

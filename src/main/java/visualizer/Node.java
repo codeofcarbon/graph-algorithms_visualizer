@@ -116,18 +116,21 @@ enum NodeState {
     },
     PATH() {
         public void draw(Graphics2D g2D, Node node) {
+            g2D.setClip(-5, -5, 60, 60);
             g2D.drawImage(getNodeImage(node.getImageName(), "path", 46, 46), 2, 2, null);
             g2D.drawImage(path, -5, -5, null);
         }
     },
     ROOT() {
         public void draw(Graphics2D g2D, Node node) {
+            g2D.setClip(-16, -16, 90, 90);
             g2D.drawImage(rootNode, -16, -16, null);
             g2D.drawImage(getNodeImage(node.getImageName(), "path", 46, 46), 2, 2, null);
         }
     },
     TARGET() {
         public void draw(Graphics2D g2D, Node node) {
+            g2D.setClip(-10, -10, 70, 70);
             g2D.drawImage(getNodeImage(node.getImageName(), "path", 46, 46), 2, 2, null);
             g2D.drawImage(targetMark, -10, -10, null);
         }
