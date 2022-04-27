@@ -17,7 +17,7 @@ public class Toolbar extends JPanel {
     private final JFileChooser fileChooser;
     private final ToolButton openButton, saveButton, refreshButton, closeButton;
     private final ToolButton undoButton, redoButton, prevButton, nextButton;
-    private final JLabel leftLabel, rightLabel, graphModeLabel, algorithmModeLabel, infoLabel;
+    private final JLabel leftLabel, rightLabel, graphModeLabel, algorithmModeLabel;
     private final JPanel toolsPanel, buttonPanel;
     private final GraphService service;
 
@@ -56,14 +56,10 @@ public class Toolbar extends JPanel {
 
         buttonPanel = new ButtonPanel(service, toolsPanel);
 
-        infoLabel = addNewLabel(SwingConstants.CENTER, new Dimension(service.getGraph().getWidth(), 30), "info");
-        infoLabel.setLocation(getLocation().x, getLocation().y + service.getGraph().getHeight() - 40);
-        service.getGraph().add(infoLabel);
-
-        leftLabel = addNewLabel(SwingConstants.LEADING, new Dimension(330, 70), "");
-        rightLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(290, 70), "");
-        graphModeLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(120, 70), "");
-        algorithmModeLabel = addNewLabel(SwingConstants.LEADING, new Dimension(160, 70), "");
+        leftLabel = addNewLabel(SwingConstants.LEADING, new Dimension(330, 70));
+        rightLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(290, 70));
+        graphModeLabel = addNewLabel(SwingConstants.TRAILING, new Dimension(120, 70));
+        algorithmModeLabel = addNewLabel(SwingConstants.LEADING, new Dimension(160, 70));
         updateModeLabels("ADD A NODE", "NONE");
 
         var gbc = new GridBagConstraints();
@@ -87,20 +83,14 @@ public class Toolbar extends JPanel {
         algorithmModeLabel.setText(String.format(htmlStyle, "left", "ALGORITHM", algMode));
     }
 
-    void updateInfoLabel(AlgMode algMode) {
-        infoLabel.setText(String.format("<html><div align='center'><font color=#cccccc>%s",
-                algMode != AlgMode.NONE ? "Please choose a starting node" : ""));
-    }
-
-    private JLabel addNewLabel(int alignment, Dimension dimension, String type) {
+    private JLabel addNewLabel(int alignment, Dimension dimension) {
         var label = new JLabel("", alignment);
         label.setFont(new Font("Stylus BT", Font.PLAIN, 15));
         label.setPreferredSize(dimension);
         label.setMinimumSize(dimension);
         label.setSize(label.getPreferredSize());
         label.setBackground(Color.BLACK);
-        label.setOpaque(!"info".equals(type));
-        if ("info".equals(type)) label.setName("infoLabel");
+        label.setOpaque(true);
         return label;
     }
 

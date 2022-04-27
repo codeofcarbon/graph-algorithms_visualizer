@@ -13,6 +13,7 @@ public class TipManager extends MouseAdapter {
 
     private TipManager() {
         label.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 17));
+        window.setBackground(new Color(0, 0, 0, 0));
         window.setSize(new Dimension(290, 18));
         window.add(label);
     }
@@ -38,7 +39,6 @@ public class TipManager extends MouseAdapter {
 
     @Override
     public void mouseMoved(MouseEvent event) {
-        System.err.println(event.getSource());
         if (event.getSource() instanceof Graph)
             showToolTip(event);
     }
