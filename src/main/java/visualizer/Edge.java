@@ -15,17 +15,13 @@ public class Edge extends JLabel implements Serializable {
     private Edge mirrorEdge;
     boolean visited, hidden, path;
 
-    final Line2D.Double line;                                                           // todo encapsulation (?)
-    Point midpoint;
-
     public Edge(Node source, Node target, int weight) {
         super(String.valueOf(weight), JLabel.CENTER);
         setName(String.format("Edge <%s -> %s>", source.getId(), target.getId()));
         this.source = source;
         this.target = target;
         this.weight = weight;
-        this.line = getLine();
-        this.midpoint = getMidpoint(line);
+        var midpoint = getMidpoint(getLine());
         setLocation(midpoint.x - 15, midpoint.y - 15);
         setPreferredSize(new Dimension(30, 30));
         setSize(getPreferredSize());
@@ -68,7 +64,8 @@ enum EdgeState {
     },
     HIDDEN() {
         public void draw(Graphics2D g2D, Edge edge) {
-            drawEdge(g2D, TRANSPARENT, edge); }
+            drawEdge(g2D, TRANSPARENT, edge);
+        }
     },
     PATH() {
         public void draw(Graphics2D g2D, Edge edge) {

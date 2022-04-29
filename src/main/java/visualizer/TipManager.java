@@ -6,20 +6,21 @@ import java.awt.event.*;
 import java.util.Hashtable;
 
 public class TipManager extends MouseAdapter {
-    private static final TipManager MANAGER = new TipManager();
+    private static final TipManager TIP_MANAGER = new TipManager();
     private static final Hashtable<JComponent, String> toolTips = new Hashtable<>();
     private final JLabel label = new JLabel("", SwingConstants.CENTER);
     private final JWindow window = new JWindow();
 
     private TipManager() {
         label.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 17));
+        window.setBackground(new Color(0, 0, 0, 0));
         window.setSize(new Dimension(290, 18));
         window.add(label);
     }
 
     public static void setToolTipText(JComponent component, String tip) {
         toolTips.put(component, tip);
-        component.addMouseListener(MANAGER);
+        component.addMouseListener(TIP_MANAGER);
     }
 
     public void showToolTip(MouseEvent event) {
@@ -38,7 +39,6 @@ public class TipManager extends MouseAdapter {
 
     @Override
     public void mouseMoved(MouseEvent event) {
-        System.err.println(event.getSource());
         if (event.getSource() instanceof Graph)
             showToolTip(event);
     }

@@ -13,43 +13,28 @@ import java.util.List;
 @Getter
 public class Node extends JLabel implements Serializable, StateEditable {
     private static final long serialVersionUID = 12345L;
+    private static final long FADING_TIME = 1000;
     private final String imageName;
     private final List<Edge> connectedEdges;
     private final int radius = 25;
     private final String id;
-    boolean visited, marked, connected, path;
-    int distance = Integer.MAX_VALUE;
-
-    private final Graph graph;
-    float alpha = 0.0f;
     private Timer timer;
     private Long startTime;
-    private static final long FADING_TIME = 1000;
+    boolean visited, marked, connected, path;
+    int distance = Integer.MAX_VALUE;
+    float alpha = 0.0f;
 
-    public Node(String id, Point center, List<Edge> connectedEdges, Graph graph) {
+    public Node(String id, Point center, List<Edge> connectedEdges) {
         setName("Node " + id);
         this.id = id;
         this.imageName = id.matches("[a-z]") ? id.concat("_lower")
                 : id.matches("[A-Z]") ? id.concat("_upper") : id;
         this.connectedEdges = connectedEdges;
-        this.graph = graph;
-        graph.add(this);
         setLocation(center.x - radius, center.y - radius);
         setPreferredSize(new Dimension(50, 50));
         setSize(getPreferredSize());
         setOpaque(false);
-        timer = new Timer(40, e -> {
-            if (startTime == null) startTime = System.currentTimeMillis();
-            var diff = System.currentTimeMillis() - startTime;
-            alpha = (float) diff / FADING_TIME;
-            if (alpha >= 1.0f) {
-                startTime = null;
-                timer.stop();
-                alpha = 1.0f;
-            }
-            repaint();
-        });
-        timer.start();
+        showNode();
     }
 
     protected NodeState getState() {
@@ -70,10 +55,23 @@ public class Node extends JLabel implements Serializable, StateEditable {
     public void restoreState(Hashtable<?, ?> state) {
         var nodeLocation = (Point) state.get("Location");
         if (nodeLocation != null) setLocation(nodeLocation);
-//        getParent().repaint();                                                   // todo (remove?)
-        graph.repaint();
+        getParent().repaint();
     }
 
+    public void showNode() {
+        timer = new Timer(40, e -> {
+            if (startTime == null) startTime = System.currentTimeMillis();
+            var diff = System.currentTimeMillis() - startTime;
+            alpha = (float) diff / FADING_TIME;
+            if (alpha >= 1.0f) {
+                startTime = null;
+                timer.stop();
+                alpha = 1.0f;
+            }
+            repaint();
+        });
+        timer.start();
+    }
 
     public void fade() {
         timer = new Timer(40, e -> {
@@ -81,6 +79,7 @@ public class Node extends JLabel implements Serializable, StateEditable {
             var diff = System.currentTimeMillis() - startTime;
             alpha = 1.0f - (float) diff / FADING_TIME;
             if (alpha < 0) {
+                startTime = null;
                 timer.stop();
                 alpha = 0.0f;
                 getParent().remove(this);
@@ -122,18 +121,21 @@ enum NodeState {
     },
     PATH() {
         public void draw(Graphics2D g2D, Node node) {
+            g2D.setClip(-5, -5, 60, 60);
             g2D.drawImage(getNodeImage(node.getImageName(), "path", 46, 46), 2, 2, null);
             g2D.drawImage(path, -5, -5, null);
         }
     },
     ROOT() {
         public void draw(Graphics2D g2D, Node node) {
+            g2D.setClip(-16, -16, 90, 90);
             g2D.drawImage(rootNode, -16, -16, null);
             g2D.drawImage(getNodeImage(node.getImageName(), "path", 46, 46), 2, 2, null);
         }
     },
     TARGET() {
         public void draw(Graphics2D g2D, Node node) {
+            g2D.setClip(-10, -10, 70, 70);
             g2D.drawImage(getNodeImage(node.getImageName(), "path", 46, 46), 2, 2, null);
             g2D.drawImage(targetMark, -10, -10, null);
         }
