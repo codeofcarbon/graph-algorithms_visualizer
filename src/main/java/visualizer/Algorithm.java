@@ -172,8 +172,8 @@ public class Algorithm {
         return "<html><font color=gray>shortest path from " +
                "<b><font size=+1 color=#5afa46>" + root.getId() + "</b><font color=gray> to " +
                "<b><font size=+1 color=#5afa46>" + target.getId() + "</b><font color=gray>: " +
-               resultJoiner + "<font size=+1 color=#eb4034>   &#8680 " +
-               (target.distance == Integer.MAX_VALUE || target.distance == Integer.MIN_VALUE ? "inf" : target.distance);
+               resultJoiner + "<font size=+1 color=red>   &#8680 total distance: " +
+               (target.distance == Integer.MAX_VALUE ? "inf" : target.distance);
     }
 
     protected void resetAlgorithmData() {

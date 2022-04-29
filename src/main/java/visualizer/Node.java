@@ -34,18 +34,7 @@ public class Node extends JLabel implements Serializable, StateEditable {
         setPreferredSize(new Dimension(50, 50));
         setSize(getPreferredSize());
         setOpaque(false);
-        timer = new Timer(40, e -> {
-            if (startTime == null) startTime = System.currentTimeMillis();
-            var diff = System.currentTimeMillis() - startTime;
-            alpha = (float) diff / FADING_TIME;
-            if (alpha >= 1.0f) {
-                startTime = null;
-                timer.stop();
-                alpha = 1.0f;
-            }
-            repaint();
-        });
-        timer.start();
+        showNode();
     }
 
     protected NodeState getState() {
@@ -69,12 +58,28 @@ public class Node extends JLabel implements Serializable, StateEditable {
         getParent().repaint();
     }
 
+    public void showNode() {
+        timer = new Timer(40, e -> {
+            if (startTime == null) startTime = System.currentTimeMillis();
+            var diff = System.currentTimeMillis() - startTime;
+            alpha = (float) diff / FADING_TIME;
+            if (alpha >= 1.0f) {
+                startTime = null;
+                timer.stop();
+                alpha = 1.0f;
+            }
+            repaint();
+        });
+        timer.start();
+    }
+
     public void fade() {
         timer = new Timer(40, e -> {
             if (startTime == null) startTime = System.currentTimeMillis();
             var diff = System.currentTimeMillis() - startTime;
             alpha = 1.0f - (float) diff / FADING_TIME;
             if (alpha < 0) {
+                startTime = null;
                 timer.stop();
                 alpha = 0.0f;
                 getParent().remove(this);
