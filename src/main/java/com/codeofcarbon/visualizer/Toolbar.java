@@ -1,4 +1,4 @@
-package visualizer;
+package com.codeofcarbon.visualizer;
 
 import lombok.Getter;
 
@@ -23,7 +23,7 @@ public class Toolbar extends JPanel {
 
     public Toolbar(GraphService service) {
         this.service = service;
-        this.fileChooser = new JFileChooser(new File("src/main/java/visualizer/data"));
+        this.fileChooser = new JFileChooser(new File("src/main/resources/saved"));
         setPreferredSize(new Dimension(1100, 70));
         setMinimumSize(getPreferredSize());
         setSize(getPreferredSize());

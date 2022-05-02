@@ -1,4 +1,4 @@
-package visualizer;
+package com.codeofcarbon.visualizer;
 
 import java.util.*;
 import java.util.stream.*;

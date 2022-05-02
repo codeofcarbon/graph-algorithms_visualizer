@@ -1,4 +1,4 @@
-package visualizer;
+package com.codeofcarbon.visualizer;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicToggleButtonUI;

@@ -1,4 +1,4 @@
-package visualizer;
+package com.codeofcarbon.visualizer;
 
 import javax.swing.undo.StateEdit;
 import java.awt.*;
