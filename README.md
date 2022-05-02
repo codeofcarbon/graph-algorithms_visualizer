@@ -1,7 +1,6 @@
 # Graph-Algorithms Visualizer
- 
-Based on the Swing library, Java GUI application for creating and visualizing graph algorithms such 
-as traversals, spanning trees, and the shortest path finding.
+
+Application for creating and visualizing graph algorithms such as traversals, spanning trees, and the shortest path finding.
 
 ## Table of contents
 * [Overview](#overview)
@@ -20,57 +19,47 @@ After selecting the appropriate mode, the deletion is also done by clicking on t
 Additional features of the application are, for example:
  - the ability to move nodes (simply drag & drop to improve readability when needed),
  - after executing Dijkstra's algorithm, you can check the path from a root to another node (along with path's weight) - again, just click on the object you are interested in,
- - undo or redo any action you've taken - from moving a node to another location to removing or adding a new vertex or edge,
+ - undo or redo any action you've taken - from moving a node to another location to removing or adding a new node or edge,
  - visual effects - nodes fading out when removed or fading in when those are added. Also, there are some effects of hovering over components
- - application also allows you to save and load already saved graphs and trees.
+ - tip manager which makes using the application highly intuitive,
+ - application also allows you to save graphs you've created and load already saved ones.
 
 #### Future upgrades:
+- [ ] *resizing view of the graph*
 - [ ] *more algorithms to choose from*
 - [ ] *option to choose the method of tree traverse order*
-- [ ] *resizing view of the graph*
 - [ ] *watching the execution of algorithms step by step*
 - [ ] *further ease of use - such as automatic assigning of IDs to nodes*
 
 ## Screenshots
 ###### adding nodes & edges
-
-[//]: # (<img align="center" alt="adding_nodes" src="src/main/resources/screenshots/adding%20nodes.png" width="400"/> <img align="center" alt="adding_edges" src="src/main/resources/screenshots/adding%20edges.png" width="400"/>)
+<img alt="adding_nodes" src="src/main/resources/screenshots/adding%20nodes.png" width="400"/> <img alt="adding_edges" src="src/main/resources/screenshots/adding%20edges.png" width="400"/>
 
 ###### bfs & dfs algorithm
-
-[//]: # (<img align="center" alt="bfs_algorithm" src="src/main/resources/screenshots/bfs%20algorithm.png" width="400"/> <img align="center" alt="dfs_algorithm" src="src/main/resources/screenshots/dfs%20algorithm.png" width="400"/> )
+<img alt="bfs_algorithm" src="src/main/resources/screenshots/bfs%20algorithm.png" width="400"/> <img alt="dfs_algorithm" src="src/main/resources/screenshots/dfs%20algorithm.png" width="400"/>
 
 ###### prim's algorithm
-
-[//]: # (<img align="center" alt="prim's_algorithm" src="src/main/resources/screenshots/prim%20algorithm.png" width="700"/>)
+<img alt="prim's_algorithm" src="src/main/resources/screenshots/prim%20algorithm.png" width="700"/>
 
 ###### dijkstra's algorithm
-
-[//]: # (<img alt="dijkstra's_algorithm_root_C" src="src/main/resources/screenshots/dijkstra%20algorithm%20-%20root%20node%20C.png" width="400"/>)
-
-[//]: # (<img alt="dijkstra's_algorithm_root_L" src="src/main/resources/screenshots/dijkstra%20algorithm%20-%20root%20node%20L.png" width="400"/>)
+<img alt="dijkstra's_algorithm_root_C" src="src/main/resources/screenshots/dijkstra%20algorithm%20-%20root%20node%20C.png" width="400"/>
+<img alt="dijkstra's_algorithm_root_L" src="src/main/resources/screenshots/dijkstra%20algorithm%20-%20root%20node%20L.png" width="400"/>
 
 ###### dijkstra's algorithm - shortest path
-
-[//]: # (<img alt="dijkstra's_shortest_path_C" src="src/main/resources/screenshots/dijkstra%20root%20C%20-%20shortest%20path%20example.png" width="400"/>)
-
-[//]: # (<img alt="dijkstra's_shortest_path_L" src="src/main/resources/screenshots/dijkstra%20root%20L%20-%20shortest%20path%20example.png" width="400"/>)
+<img alt="dijkstra's_shortest_path_C" src="src/main/resources/screenshots/dijkstra%20root%20C%20-%20shortest%20path%20example.png" width="400"/>
+<img alt="dijkstra's_shortest_path_L" src="src/main/resources/screenshots/dijkstra%20root%20L%20-%20shortest%20path%20example.png" width="400"/>
 
 ###### save & open
-
-[//]: # (<img align="center" alt="save_&_open_graph" src="src/main/resources/screenshots/save%20&%20open%20graph.png" width="700"/>)
-
-###### removing nodes
-
-[//]: # (<img align="center" alt="removing_nodes_and_connected_edges" src="src/main/resources/screenshots/removing%20nodes%20with%20connected%20edges.png" width="700"/>)
+<img alt="save_&_open_graph" src="src/main/resources/screenshots/save%20&%20open%20graph.png" width="700"/>
 
 ###### removing edges
+<img alt="removing_edges" src="src/main/resources/screenshots/removing%20edges.png" width="700"/>
 
-[//]: # (<img align="center" alt="removing_edges" src="src/main/resources/screenshots/removing%20edges.png" width="700"/>)
+###### removing nodes
+<img alt="removing_nodes_and_connected_edges" src="src/main/resources/screenshots/removing%20nodes%20with%20connected%20edges.png" width="700"/>
 
 ###### drag & drop
-
-[//]: # (<img alt="drag & drop" src="src/main/resources/screenshots/drag%20and%20drop%20nodes.png" width="700"/>)
+<img alt="drag & drop" src="src/main/resources/screenshots/drag%20&%20drop%20nodes.png" width="700"/>
 
 
 ## Technologies
