@@ -67,6 +67,7 @@ Additional features of the application are, for example:
 - Java Swing
 - Java AWT
 - Gradle 7.1
+- Lombok
 
 ## How to start
 You can simply download an archive, unzip it inside the directory you want to, and open it in your IDE.
