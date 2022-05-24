@@ -20,11 +20,11 @@ public class GraphService implements Serializable, StateEditable {
     private final Graph graph;
     private final Infobar infobar;
     private Toolbar toolbar;
-    private List<com.codeofcarbon.visualizer.Node> nodes = new ArrayList<>();
+    private List<Node> nodes = new ArrayList<>();
     private GraphMode graphMode = GraphMode.ADD_NODE;
     private AlgMode algorithmMode = AlgMode.NONE;
     private UndoManager manager = new UndoManager();
-    private static com.codeofcarbon.visualizer.Node edgeSource, edgeTarget;
+    private static Node edgeSource, edgeTarget;
     private Timer timer;
     public StateEdit graphEdit;
 
@@ -42,11 +42,11 @@ public class GraphService implements Serializable, StateEditable {
 
     @SuppressWarnings("unchecked")
     public void restoreState(Hashtable<?, ?> state) {
-        var nodesState = (List<com.codeofcarbon.visualizer.Node>) state.get("nodes");
+        var nodesState = (List<Node>) state.get("nodes");
         if (nodesState != null) {
             if (nodes.size() < nodesState.size())
-                nodesState.stream().filter(node -> !nodes.contains(node)).peek(com.codeofcarbon.visualizer.Node::showNode).forEach(graph::add);
-            else nodes.stream().filter(node -> !nodesState.contains(node)).forEach(com.codeofcarbon.visualizer.Node::fade);
+                nodesState.stream().filter(node -> !nodes.contains(node)).peek(Node::showNode).forEach(graph::add);
+            else nodes.stream().filter(node -> !nodesState.contains(node)).forEach(Node::fade);
             nodes = nodesState;
         }
         var edgesState = (List<Edge>) state.get("edges");
@@ -114,11 +114,11 @@ public class GraphService implements Serializable, StateEditable {
             var input = JOptionPane.showInputDialog(graph, "Set node ID (alphanumeric char):",
                     "Node ID", JOptionPane.INFORMATION_MESSAGE, null, null, null);
             if (input != null) {
-                com.codeofcarbon.visualizer.Node node;
+                Node node;
                 String id = input.toString();
                 if (id.matches("[^_\\W]")) {
                     graphEdit = new StateEdit(this);
-                    node = new com.codeofcarbon.visualizer.Node(id, point.getPoint(), new ArrayList<>());
+                    node = new Node(id, point.getPoint(), new ArrayList<>());
                     mouseHandler.addComponent(node);
                     nodes.add(node);
                     graph.add(node);
@@ -274,8 +274,8 @@ public class GraphService implements Serializable, StateEditable {
         graph.repaint();
     }
 
-    private Optional<com.codeofcarbon.visualizer.Node> checkIfNode(MouseEvent event) {
-        return event.getSource() instanceof com.codeofcarbon.visualizer.Node ? Optional.of((com.codeofcarbon.visualizer.Node) event.getSource()) : Optional.empty();
+    private Optional<Node> checkIfNode(MouseEvent event) {
+        return event.getSource() instanceof Node ? Optional.of((Node) event.getSource()) : Optional.empty();
     }
 
     private Optional<Edge> checkIfEdge(MouseEvent event) {
