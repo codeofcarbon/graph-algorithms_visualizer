@@ -18,7 +18,7 @@ public class GraphService implements Serializable, StateEditable {
     private static final long serialVersionUID = 1234L;
     private final UndoableEditSupport undoableEditSupport = new UndoableEditSupport(this);
     private final MouseHandler mouseHandler = new MouseHandler(this);
-    private final Algorithmm algorithm = new Algorithmm(this);
+    private final Algorithm algorithm = new Algorithm(this);
     private final Graph graph;
     private final Infobar infobar;
     private Toolbar toolbar;
@@ -95,13 +95,13 @@ public class GraphService implements Serializable, StateEditable {
                 resetComponentsLists();
                 return;
             }
-            if (Algorithmm.root == null) {
+            if (Algorithm.root == null) {
                 algorithm.initAlgorithm(selectedNode);
                 infobar.updateInfo("Please wait...", "");
                 timer = new Timer(250, e -> {
                     switch (algorithmMode) {
                         case DEPTH_FIRST_SEARCH -> algorithm.dfsAlgorithm();
-                        case BREADTH_FIRST_SEARCH -> new BreadthFirstSearch(this);
+                        case BREADTH_FIRST_SEARCH -> algorithm.bfsAlgorithm();
                         case DIJKSTRA_ALGORITHM -> algorithm.dijkstraAlgorithm();
                         case PRIM_ALGORITHM -> algorithm.primAlgorithm();
                         case BELLMAN_FORD_ALGORITHM -> algorithm.bellmanFordAlgorithm();
@@ -248,7 +248,7 @@ public class GraphService implements Serializable, StateEditable {
 
         buttonPanel.getAlgModeComboBox().setSelectedIndex(Arrays.asList(AlgMode.values()).indexOf(algorithmMode));
         buttonPanel.getGraphModeComboBox().setSelectedIndex(Arrays.asList(GraphMode.values()).indexOf(graphMode));
-        toolbar.updateModeLabels(graphMode.current.toUpperCase(), algorithmMode.current.toUpperCase());
+        toolbar.updateModeLabels(graphMode.getCurrent().toUpperCase(), algorithmMode.getCurrent().toUpperCase());
         infobar.updateInfo(algorithmMode != AlgMode.NONE ? "Please choose a starting node" : "", "");
         buttonGroup.clearSelection();
         buttonGroup.getElements().asIterator().forEachRemaining(b -> {

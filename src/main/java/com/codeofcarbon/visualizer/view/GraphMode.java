@@ -1,5 +1,9 @@
 package com.codeofcarbon.visualizer.view;
 
+import lombok.*;
+
+@Getter
+@RequiredArgsConstructor
 public enum GraphMode {
     ADD_NODE("Add Node"),
     ADD_AN_EDGE("Add an Edge"),
@@ -7,9 +11,5 @@ public enum GraphMode {
     REMOVE_AN_EDGE("Remove an Edge"),
     NONE("None");
 
-    public final String current;
-
-    GraphMode(String current) {
-        this.current = current;
-    }
+    private final String current;
 }

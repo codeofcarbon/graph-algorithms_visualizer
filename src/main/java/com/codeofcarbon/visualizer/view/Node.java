@@ -1,6 +1,6 @@
 package com.codeofcarbon.visualizer.view;
 
-import com.codeofcarbon.visualizer.Algorithmm;
+import com.codeofcarbon.visualizer.Algorithm;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -40,8 +40,8 @@ public class Node extends JLabel implements Serializable, StateEditable {
     }
 
     private NodeState getState() {
-        return Algorithmm.root == this ? NodeState.ROOT
-                : Algorithmm.target == this ? NodeState.TARGET
+        return Algorithm.root == this ? NodeState.ROOT
+                : Algorithm.target == this ? NodeState.TARGET
                 : this.path ? NodeState.PATH
                 : this.visited ? NodeState.VISITED
                 : this.connected ? NodeState.CONNECTED

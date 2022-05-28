@@ -1,5 +1,9 @@
 package com.codeofcarbon.visualizer.view;
 
+import lombok.*;
+
+@Getter
+@RequiredArgsConstructor
 public enum AlgMode {
     DEPTH_FIRST_SEARCH("Depth-First Search"),
     BREADTH_FIRST_SEARCH("Breadth-First Search"),
@@ -8,9 +12,5 @@ public enum AlgMode {
     BELLMAN_FORD_ALGORITHM("Bellman-Ford Algorithm"),
     NONE("None");
 
-    public final String current;
-
-    AlgMode(String current) {
-        this.current = current;
-    }
+    private final String current;
 }

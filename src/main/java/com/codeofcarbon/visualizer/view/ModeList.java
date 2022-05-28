@@ -17,16 +17,16 @@ public class ModeList<T> extends JComboBox<String> {
         ((CellRenderer<?>) getRenderer()).setHorizontalAlignment(alignment);
         clazz = array[0] instanceof GraphMode ? GraphMode.class : AlgMode.class;
         Arrays.stream(array).forEach(mode -> addItem(clazz.equals(GraphMode.class)
-                ? ((GraphMode) mode).current.toUpperCase()
-                : ((AlgMode) mode).current.toUpperCase()));
+                ? ((GraphMode) mode).getCurrent().toUpperCase()
+                : ((AlgMode) mode).getCurrent().toUpperCase()));
         setSelectedIndex(clazz.equals(GraphMode.class) ? 0 /* graph - add new node */ : 4 /* algorithm - none */);
 
         addActionListener(event -> {
             var algorithmMode = clazz.equals(GraphMode.class) ? AlgMode.NONE : Arrays.stream(AlgMode.values())
-                    .filter(algMode -> algMode.current.equalsIgnoreCase((String) getSelectedItem()))
+                    .filter(algMode -> algMode.getCurrent().equalsIgnoreCase((String) getSelectedItem()))
                     .findFirst().orElse(AlgMode.NONE);
             var graphMode = clazz.equals(GraphMode.class) ? Arrays.stream(GraphMode.values())
-                    .filter(gMode -> gMode.current.equalsIgnoreCase((String) getSelectedItem()))
+                    .filter(gMode -> gMode.getCurrent().equalsIgnoreCase((String) getSelectedItem()))
                     .findFirst().orElse(GraphMode.NONE) : GraphMode.NONE;
             service.setCurrentModes(algorithmMode, graphMode);
         });
