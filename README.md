@@ -63,11 +63,11 @@ Additional features of the application are, for example:
 
 
 ## Technologies
-- Java 11
+- Java 17
+- Gradle 7.2
+- Lombok 1.18
 - Java Swing
 - Java AWT
-- Gradle 7.1
-- Lombok
 
 ## How to start
 You can simply download an archive, unzip it inside the directory you want to, and open it in your IDE.
