@@ -104,7 +104,6 @@ public class GraphService implements Serializable, StateEditable {
                         case BREADTH_FIRST_SEARCH -> algorithm.bfsAlgorithm();
                         case DIJKSTRA_ALGORITHM -> algorithm.dijkstraAlgorithm();
                         case PRIM_ALGORITHM -> algorithm.primAlgorithm();
-                        case BELLMAN_FORD_ALGORITHM -> algorithm.bellmanFordAlgorithm();
                     }
                     var algorithmResult = algorithm.getResultIfReady();
                     if (!algorithmResult.isBlank()) {
