@@ -1,4 +1,4 @@
-package com.codeofcarbon.visualizer;
+package com.codeofcarbon.visualizer.view;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,7 +21,7 @@ public class Infobar extends JLabel {
         });
     }
 
-    void updateInfo(String info, String result) {
+    public void updateInfo(String info, String result) {
         updateLocation();
         setText(String.format("<html><div align='center'>%s",
                 info.isBlank() ? result : "<font color=#cccccc>" + info));

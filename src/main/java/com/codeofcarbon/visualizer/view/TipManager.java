@@ -1,4 +1,4 @@
-package com.codeofcarbon.visualizer;
+package com.codeofcarbon.visualizer.view;
 
 import javax.swing.*;
 import java.awt.*;

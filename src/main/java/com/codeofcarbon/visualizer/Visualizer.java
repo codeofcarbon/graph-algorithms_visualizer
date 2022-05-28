@@ -1,5 +1,8 @@
 package com.codeofcarbon.visualizer;
 
+import com.codeofcarbon.visualizer.view.Graph;
+import com.codeofcarbon.visualizer.view.MenuBar;
+
 import javax.swing.*;
 import java.awt.*;
 

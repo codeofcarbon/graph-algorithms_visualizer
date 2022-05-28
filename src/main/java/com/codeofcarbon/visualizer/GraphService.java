@@ -1,22 +1,24 @@
 package com.codeofcarbon.visualizer;
 
+import com.codeofcarbon.visualizer.view.*;
 import lombok.Getter;
 
 import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.undo.*;
 import java.awt.event.MouseEvent;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 import java.util.stream.*;
 
 @Getter
 public class GraphService implements Serializable, StateEditable {
+    @Serial
     private static final long serialVersionUID = 1234L;
     private final UndoableEditSupport undoableEditSupport = new UndoableEditSupport(this);
     private final MouseHandler mouseHandler = new MouseHandler(this);
-    private final Algorithm algorithm = new Algorithm(this);
+    private final Algorithmm algorithm = new Algorithmm(this);
     private final Graph graph;
     private final Infobar infobar;
     private Toolbar toolbar;
@@ -35,7 +37,10 @@ public class GraphService implements Serializable, StateEditable {
     }
 
     public void storeState(Hashtable<Object, Object> state) {
-        var edges = nodes.stream().flatMap(node -> node.getConnectedEdges().stream()).collect(Collectors.toList());
+        var edges = nodes.stream()
+                .map(Node::getConnectedEdges)
+                .flatMap(Collection::stream)
+                .toList();
         state.put("nodes", new ArrayList<>(nodes));
         state.put("edges", new ArrayList<>(edges));
     }
@@ -45,8 +50,13 @@ public class GraphService implements Serializable, StateEditable {
         var nodesState = (List<Node>) state.get("nodes");
         if (nodesState != null) {
             if (nodes.size() < nodesState.size())
-                nodesState.stream().filter(node -> !nodes.contains(node)).peek(Node::showNode).forEach(graph::add);
-            else nodes.stream().filter(node -> !nodesState.contains(node)).forEach(Node::fade);
+                nodesState.stream()
+                        .filter(node -> !nodes.contains(node))
+                        .peek(Node::showNode)
+                        .forEach(graph::add);
+            else nodes.stream()
+                    .filter(node -> !nodesState.contains(node))
+                    .forEach(Node::fade);
             nodes = nodesState;
         }
         var edgesState = (List<Edge>) state.get("edges");
@@ -58,9 +68,21 @@ public class GraphService implements Serializable, StateEditable {
                 node.getConnectedEdges().clear();
                 node.getConnectedEdges().addAll(edgesState.stream()
                         .filter(edge -> edge.getSource().equals(node))
-                        .collect(Collectors.toList()));
+                        .toList());
                 node.getConnectedEdges().forEach(graph::add);
             });
+        }
+    }
+
+    void modifyGraph(MouseEvent point) {
+        switch (graphMode) {
+            case ADD_NODE -> createNewNode(point);
+            case ADD_AN_EDGE -> createNewEdge(point);
+            case REMOVE_NODE -> removeNode(point);
+            case REMOVE_AN_EDGE -> removeEdge(point);
+            case NONE -> {
+                if (algorithmMode != AlgMode.NONE) startAlgorithm(point);
+            }
         }
     }
 
@@ -73,23 +95,16 @@ public class GraphService implements Serializable, StateEditable {
                 resetComponentsLists();
                 return;
             }
-            if (Algorithm.root == null) {
+            if (Algorithmm.root == null) {
                 algorithm.initAlgorithm(selectedNode);
                 infobar.updateInfo("Please wait...", "");
-                timer = new Timer(250, event -> {
+                timer = new Timer(250, e -> {
                     switch (algorithmMode) {
-                        case DEPTH_FIRST_SEARCH:
-                            algorithm.dfsAlgorithm();
-                            break;
-                        case BREADTH_FIRST_SEARCH:
-                            algorithm.bfsAlgorithm();
-                            break;
-                        case DIJKSTRA_ALGORITHM:
-                            algorithm.dijkstraAlgorithm();
-                            break;
-                        case PRIM_ALGORITHM:
-                            algorithm.primAlgorithm();
-                            break;
+                        case DEPTH_FIRST_SEARCH -> algorithm.dfsAlgorithm();
+                        case BREADTH_FIRST_SEARCH -> new BreadthFirstSearch(this);
+                        case DIJKSTRA_ALGORITHM -> algorithm.dijkstraAlgorithm();
+                        case PRIM_ALGORITHM -> algorithm.primAlgorithm();
+                        case BELLMAN_FORD_ALGORITHM -> algorithm.bellmanFordAlgorithm();
                     }
                     var algorithmResult = algorithm.getResultIfReady();
                     if (!algorithmResult.isBlank()) {
@@ -225,7 +240,7 @@ public class GraphService implements Serializable, StateEditable {
         undoableEditSupport.addUndoableEditListener(manager = new UndoManager());
     }
 
-    void setCurrentModes(AlgMode algorithmMode, GraphMode graphMode) {
+    public void setCurrentModes(AlgMode algorithmMode, GraphMode graphMode) {
         if (toolbar == null) toolbar = graph.getToolbar();
         var buttonPanel = (ButtonPanel) toolbar.getButtonPanel();
         var buttonGroup = buttonPanel.getButtonGroup();

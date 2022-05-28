@@ -1,5 +1,6 @@
-package com.codeofcarbon.visualizer;
+package com.codeofcarbon.visualizer.view;
 
+import com.codeofcarbon.visualizer.*;
 import lombok.Getter;
 
 import javax.swing.*;

@@ -1,19 +1,20 @@
-package com.codeofcarbon.visualizer;
+package com.codeofcarbon.visualizer.view;
 
 import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Line2D;
-import java.io.Serializable;
+import java.io.*;
 
 @Getter
 public class Edge extends JLabel implements Serializable {
+    @Serial
     private static final long serialVersionUID = 123L;
     private final Node source, target;
     private final int weight;
     private Edge mirrorEdge;
-    boolean visited, hidden, path;
+    public boolean visited, hidden, path;
 
     public Edge(Node source, Node target, int weight) {
         super(String.valueOf(weight), JLabel.CENTER);
@@ -35,18 +36,18 @@ public class Edge extends JLabel implements Serializable {
                 : EdgeState.RAW;
     }
 
-    protected Line2D.Double getLine() {
+    public Line2D.Double getLine() {
         var r = getSource().getRadius();
         var source = getSource().getLocation();
         var target = getTarget().getLocation();
         return new Line2D.Double(source.x + r, source.y + r, target.x + r, target.y + r);
     }
 
-    protected Point getMidpoint(Line2D.Double line) {
+    public Point getMidpoint(Line2D.Double line) {
         return new Point((int) ((line.x1 + line.x2) / 2), (int) ((line.y1 + line.y2) / 2));
     }
 
-    protected void setMirrorEdge(Edge edge) {
+    public void setMirrorEdge(Edge edge) {
         this.mirrorEdge = edge;
     }
 }

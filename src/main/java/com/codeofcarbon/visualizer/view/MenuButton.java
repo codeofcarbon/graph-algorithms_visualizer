@@ -1,4 +1,4 @@
-package com.codeofcarbon.visualizer;
+package com.codeofcarbon.visualizer.view;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicToggleButtonUI;
@@ -17,7 +17,7 @@ public class MenuButton extends JToggleButton {
         setIcon(icon);
         setRolloverEnabled(true);
         setSelectedIcon(rolloverIcon);
-        new RolloverAnimator(this, icon, rolloverIcon);   
+        new RolloverAnimator(this, icon, rolloverIcon);
         panel.add(this);
         setOpaque(false);
         setVisible(true);

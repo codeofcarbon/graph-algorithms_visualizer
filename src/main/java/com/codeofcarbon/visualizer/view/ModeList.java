@@ -1,5 +1,6 @@
-package com.codeofcarbon.visualizer;
+package com.codeofcarbon.visualizer.view;
 
+import com.codeofcarbon.visualizer.GraphService;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -58,30 +59,3 @@ class CellRenderer<T> extends JLabel implements ListCellRenderer<T> {
     }
 }
 
-enum GraphMode {
-    ADD_NODE("Add Node"),
-    ADD_AN_EDGE("Add an Edge"),
-    REMOVE_NODE("Remove Node"),
-    REMOVE_AN_EDGE("Remove an Edge"),
-    NONE("None");
-
-    final String current;
-
-    GraphMode(String current) {
-        this.current = current;
-    }
-}
-
-enum AlgMode {
-    DEPTH_FIRST_SEARCH("Depth-First Search"),
-    BREADTH_FIRST_SEARCH("Breadth-First Search"),
-    DIJKSTRA_ALGORITHM("Dijkstra's Algorithm"),
-    PRIM_ALGORITHM("Prim's Algorithm"),
-    NONE("None");
-
-    final String current;
-
-    AlgMode(String current) {
-        this.current = current;
-    }
-}

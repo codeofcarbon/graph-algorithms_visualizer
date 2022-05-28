@@ -1,5 +1,7 @@
 package com.codeofcarbon.visualizer;
 
+import com.codeofcarbon.visualizer.view.*;
+
 import javax.swing.undo.StateEdit;
 import java.awt.*;
 import java.awt.event.*;
@@ -33,7 +35,7 @@ public class MouseHandler extends MouseAdapter {
     @Override
     public void mouseReleased(MouseEvent event) {
         if (source instanceof Node && !source.getLocation().equals(location)) {
-            if (service.graphEdit == null && pressed != null && nodeMoveEdit != null) {
+            if (service.graphEdit == null && pressed != null && nodeMoveEdit != null) {     // todo ?????????
                 nodeMoveEdit.end();
                 service.getUndoableEditSupport().postEdit(nodeMoveEdit);
                 pressed = null;
@@ -45,27 +47,13 @@ public class MouseHandler extends MouseAdapter {
     @Override
     public void mouseClicked(MouseEvent event) {
         if (source instanceof Node || source instanceof Graph) {
-            switch (service.getGraphMode()) {
-                case ADD_NODE:
-                    service.createNewNode(event);
-                    break;
-                case ADD_AN_EDGE:
-                    service.createNewEdge(event);
-                    break;
-                case REMOVE_NODE:
-                    service.removeNode(event);
-                    break;
-                case REMOVE_AN_EDGE:
-                    service.removeEdge(event);
-                    break;
-                case NONE:
-                    if (service.getAlgorithmMode() != AlgMode.NONE) service.startAlgorithm(event);
-                    return;
-            }
-            pressed = null;
-            if (service.graphEdit != null) {
-                service.getUndoableEditSupport().postEdit(service.graphEdit);
-                service.graphEdit = null;
+            service.modifyGraph(event);
+            if (service.getGraphMode() != GraphMode.NONE) {
+                pressed = null;
+                if (service.graphEdit != null) {
+                    service.getUndoableEditSupport().postEdit(service.graphEdit);
+                    service.graphEdit = null;
+                }
             }
         }
     }

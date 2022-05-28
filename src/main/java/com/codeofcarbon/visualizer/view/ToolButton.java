@@ -1,4 +1,4 @@
-package com.codeofcarbon.visualizer;
+package com.codeofcarbon.visualizer.view;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
@@ -16,7 +16,7 @@ public class ToolButton extends JButton {
         setIcon(icon);
         setRolloverEnabled(true);
         setSelectedIcon(rolloverIcon);
-        new RolloverAnimator(this, icon, rolloverIcon);        
+        new RolloverAnimator(this, icon, rolloverIcon);
         container.add(this);
         setOpaque(false);
         setVisible(true);

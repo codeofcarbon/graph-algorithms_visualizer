@@ -1,11 +1,11 @@
-package com.codeofcarbon.visualizer;
+package com.codeofcarbon.visualizer.view;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class IconMaker {
 
-    static ImageIcon loadIcon(String iconFilename, String type, int width, int height) {
+    public static ImageIcon loadIcon(String iconFilename, String type, int width, int height) {
         return new ImageIcon(new ImageIcon(
                 String.format("src/main/resources/icons/%s/%s.png", type, iconFilename))
                 .getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));

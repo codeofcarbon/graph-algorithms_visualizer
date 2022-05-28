@@ -1,17 +1,19 @@
-package com.codeofcarbon.visualizer;
+package com.codeofcarbon.visualizer.view;
 
+import com.codeofcarbon.visualizer.Algorithmm;
 import lombok.Getter;
 
 import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.undo.StateEditable;
 import java.awt.*;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 
 @Getter
 public class Node extends JLabel implements Serializable, StateEditable {
+    @Serial
     private static final long serialVersionUID = 12345L;
     private static final long FADING_TIME = 1000;
     private final String imageName;
@@ -20,9 +22,9 @@ public class Node extends JLabel implements Serializable, StateEditable {
     private final String id;
     private Timer timer;
     private Long startTime;
-    boolean visited, marked, connected, path;
-    int distance = Integer.MAX_VALUE;
-    float alpha = 0.0f;
+    private float alpha = 0.0f;
+    public boolean visited, marked, connected, path;
+    public int distance = Integer.MAX_VALUE;
 
     public Node(String id, Point center, List<Edge> connectedEdges) {
         setName("Node " + id);
@@ -37,9 +39,9 @@ public class Node extends JLabel implements Serializable, StateEditable {
         showNode();
     }
 
-    protected NodeState getState() {
-        return Algorithm.root == this ? NodeState.ROOT
-                : Algorithm.target == this ? NodeState.TARGET
+    private NodeState getState() {
+        return Algorithmm.root == this ? NodeState.ROOT
+                : Algorithmm.target == this ? NodeState.TARGET
                 : this.path ? NodeState.PATH
                 : this.visited ? NodeState.VISITED
                 : this.connected ? NodeState.CONNECTED

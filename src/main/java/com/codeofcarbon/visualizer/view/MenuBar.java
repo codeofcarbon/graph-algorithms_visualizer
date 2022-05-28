@@ -1,4 +1,6 @@
-package com.codeofcarbon.visualizer;
+package com.codeofcarbon.visualizer.view;
+
+import com.codeofcarbon.visualizer.Toolbar;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.*;
